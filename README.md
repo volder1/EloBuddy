@@ -1,2 +1,2 @@
 # EloBuddy
-EloBuddy Assemblies.
+EloBuddy Addons.
