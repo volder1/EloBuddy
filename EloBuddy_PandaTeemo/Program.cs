@@ -324,7 +324,7 @@
             var targetAdc = ComboMenu["useqADC"].Cast<CheckBox>().CurrentValue;
             var checkAa = ComboMenu["checkAA"].Cast<CheckBox>().CurrentValue;
             var checkaaRange = (float)ComboMenu["checkaaRange"].Cast<Slider>().CurrentValue;
-            var t = target as Obj_AI_Base;
+            var t = target as AIHeroClient;
 
             if (target != null && Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
@@ -334,7 +334,7 @@
                     {
                         foreach (var adc in Marksman)
                         {
-                            if (t.Name == adc && useQCombo && Q.IsReady() && (t.Distance(Player) <= DynamicQRange() - checkaaRange) && t.PlayerControlled)
+                            if (t.Name == adc && useQCombo && Q.IsReady() && (t.Distance(Player) <= DynamicQRange() - checkaaRange))
                             {
                                 Q.Cast(t);
                             }
@@ -346,7 +346,7 @@
                     }
                     else
                     {
-                        if (useQCombo && Q.IsReady() && (t.Distance(Player) <= DynamicQRange() - checkaaRange) && t.PlayerControlled)
+                        if (useQCombo && Q.IsReady() && (t.Distance(Player) <= DynamicQRange() - checkaaRange))
                         {
                             Q.Cast(t);
                         }
@@ -362,7 +362,7 @@
                     {
                         foreach (var adc in Marksman)
                         {
-                            if (t.Name == adc && useQCombo && Q.IsReady() && Q.IsInRange(t) && t.PlayerControlled)
+                            if (t.Name == adc && useQCombo && Q.IsReady() && Q.IsInRange(t))
                             {
                                 Q.Cast(t);
                             }
@@ -374,7 +374,7 @@
                     }
                     else
                     {
-                        if (useQCombo && Q.IsReady() && Q.IsInRange(t) && t.PlayerControlled)
+                        if (useQCombo && Q.IsReady() && Q.IsInRange(t))
                         {
                             Q.Cast(t);
                         }
