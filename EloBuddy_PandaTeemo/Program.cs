@@ -334,7 +334,7 @@
                     {
                         foreach (var adc in Marksman)
                         {
-                            if (t.Name == adc && useQCombo && Q.IsReady() && (t.Distance(Player) <= DynamicQRange() - checkaaRange))
+                            if (t.Name == adc && useQCombo && Q.IsReady() && (t.Distance(Player) <= DynamicQRange() - checkaaRange) && t.PlayerControlled)
                             {
                                 Q.Cast(t);
                             }
@@ -346,7 +346,7 @@
                     }
                     else
                     {
-                        if (useQCombo && Q.IsReady() && (t.Distance(Player) <= DynamicQRange() - checkaaRange))
+                        if (useQCombo && Q.IsReady() && (t.Distance(Player) <= DynamicQRange() - checkaaRange) && t.PlayerControlled)
                         {
                             Q.Cast(t);
                         }
@@ -362,7 +362,7 @@
                     {
                         foreach (var adc in Marksman)
                         {
-                            if (t.Name == adc && useQCombo && Q.IsReady() && Q.IsInRange(t))
+                            if (t.Name == adc && useQCombo && Q.IsReady() && Q.IsInRange(t) && t.PlayerControlled)
                             {
                                 Q.Cast(t);
                             }
@@ -374,7 +374,7 @@
                     }
                     else
                     {
-                        if (useQCombo && Q.IsReady() && Q.IsInRange(t))
+                        if (useQCombo && Q.IsReady() && Q.IsInRange(t) && t.PlayerControlled)
                         {
                             Q.Cast(t);
                         }
@@ -390,14 +390,14 @@
             {
                 if (checkAa)
                 {
-                    if (useQHarass && Q.IsReady() && Q.IsInRange(target.Position - checkaaRange))
+                    if (useQHarass && Q.IsReady() && Q.IsInRange(target.Position - checkaaRange) && t.PlayerControlled)
                     {
                         Q.Cast(t);
                     }
                 }
                 else
                 {
-                    if (useQHarass && Q.IsReady() && Q.IsInRange(target.Position))
+                    if (useQHarass && Q.IsReady() && Q.IsInRange(target.Position) && t.PlayerControlled)
                     {
                         Q.Cast(t);
                     }
@@ -477,7 +477,7 @@
                 return;
             }
 
-            var enemies = HeroManager.Enemies.FirstOrDefault(t => t.IsValidTarget() && Player.IsInAutoAttackRange(t));
+            var enemies = HeroManager.Enemies.FirstOrDefault(t => t.IsValidTarget() && Player.IsInAutoAttackRange(t) && !t.IsMinion && t.IsEnemy && t.PlayerControlled);
             var rtarget = TargetSelector.GetTarget(R.Range, DamageType.Magical);
             var useW = ComboMenu["wcombo"].Cast<CheckBox>().CurrentValue;
             var useR = ComboMenu["rcombo"].Cast<CheckBox>().CurrentValue;
