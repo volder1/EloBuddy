@@ -237,7 +237,7 @@
             // Events
             Game.OnTick += Game_OnTick;
             Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
-            Gapcloser.OnGapCloser += Gapcloser_OnGapCloser;
+            Gapcloser.OnGapcloser += Gapcloser_OnGapcloser;
             Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
             EloBuddy.Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
@@ -247,6 +247,39 @@
             // Loads ShroomPosition
             fileHandler = new FileHandler();
             shroomPositions = new ShroomTables();
+        }
+
+        /// <summary>
+        /// Interrupts interruptable spell
+        /// </summary>
+        /// <param name="sender">Enemy</param>
+        /// <param name="e">The Arguments</param>
+        static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
+        {
+            var intq = InterruptMenu["intq"].Cast<CheckBox>().CurrentValue;
+
+            if (intq && Q.IsReady())
+            {
+                if (sender != null)
+                {
+                    Q.Cast(sender);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gapcloses whenever possible.
+        /// </summary>
+        /// <param name="sender">Enemy</param>
+        /// <param name="e">The Arguments</param>
+        static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
+        {
+            var gapR = InterruptMenu["gapR"].Cast<CheckBox>().CurrentValue;
+
+            if (gapR && sender.IsValidTarget() && sender.IsFacing(PlayerInstance) && sender.IsTargetable)
+            {
+                R.Cast(sender.Position);
+            }
         }
 
         /// <summary>
@@ -418,39 +451,6 @@
             else
             {
                 args.Process = true;
-            }
-        }
-
-        /// <summary>
-        /// Gapcloses whenever possible.
-        /// </summary>
-        /// <param name="sender">Enemy</param>
-        /// <param name="e">The Arguments</param>
-        static void Gapcloser_OnGapCloser(AIHeroClient sender, Gapcloser.GapCloserEventArgs e)
-        {
-            var gapR = InterruptMenu["gapR"].Cast<CheckBox>().CurrentValue;
-
-            if (gapR && sender.IsValidTarget() && sender.IsFacing(PlayerInstance) && sender.IsTargetable)
-            {
-                R.Cast(sender.Position);
-            }
-        }
-
-        /// <summary>
-        /// Interrupts interruptable spell
-        /// </summary>
-        /// <param name="sender">Enemy</param>
-        /// <param name="e">The Arguments</param>
-        static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, InterruptableSpellEventArgs e)
-        {
-            var intq = InterruptMenu["intq"].Cast<CheckBox>().CurrentValue;
-
-            if (intq && Q.IsReady())
-            {
-                if (sender != null)
-                {
-                    Q.Cast(sender);
-                }
             }
         }
 
