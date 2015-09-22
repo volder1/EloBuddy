@@ -158,19 +158,29 @@
             DrawingMenu = TwistedFate.AddSubMenu("Drawing Menu", "drawMenu");
             DrawingMenu.AddGroupLabel("Drawing Settings");
             DrawingMenu.Add("drawQ", new CheckBox("Draw Q Range", true));
-            //DrawingMenu.Add("drawR", new CheckBox("Draw R Range", true));
+            DrawingMenu.Add("drawR", new CheckBox("Draw R Range", true));
             DrawingMenu.AddSeparator();
 
             MiscMenu = TwistedFate.AddSubMenu("Misc Menu", "miscMenu");
             MiscMenu.AddGroupLabel("Misc Settings");
+            MiscMenu.Add("autoY", new CheckBox("Automatically select Yellow Card when R", true));
             MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card", 25, 0, 100));
 
             Chat.Print("<font = '#66FF66'>Advanced Twisted Fate - By KarmaPanda</font>");
 
             // Events
             Game.OnTick += Game_OnTick;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Orbwalker.OnPostAttack += Orbwalker_OnPostAttack;
             Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (sender.IsMe && args.SData.Name == "gate" && MiscMenu["autoY"].Cast<CheckBox>().CurrentValue)
+            {
+                CardSelector.StartSelecting(Cards.Yellow);
+            }
         }
 
         /// <summary>
@@ -513,13 +523,13 @@
                 }
             }
 
-            /*if (DrawingMenu["drawR"].Cast<CheckBox>().CurrentValue)
+            if (DrawingMenu["drawR"].Cast<CheckBox>().CurrentValue)
             {
                 if (Player != null)
                 {
-                    Drawing.DrawCircle(Player.Position, 5500, R.IsReady() ? System.Drawing.Color.Green : System.Drawing.Color.Red);
+                    Drawing.DrawCircle(Player.Position, (uint)5500, R.IsReady() ? System.Drawing.Color.Green : System.Drawing.Color.Red);
                 }
-            }*/
+            }
         }
 
         /// <summary>
