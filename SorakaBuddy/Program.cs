@@ -127,6 +127,15 @@
                         HealMenu.Add("autoHeal_" + a.BaseSkinName, new CheckBox("Auto Heal " + a.BaseSkinName, true));
                     }
                 }
+                HealMenu.AddSeparator();
+                HealMenu.AddGroupLabel("Heal Priority");
+                var healPrioritySlider = HealMenu.Add("Slider", new Slider("mode", 0, 0, 2));
+                var healPriorityArray = new[] { "Most AD", "Most AP", "Lowest Health" };
+                healPrioritySlider.DisplayName = healPriorityArray[healPrioritySlider.CurrentValue];
+                healPrioritySlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+                {
+                    sender.DisplayName = healPriorityArray[changeArgs.NewValue];
+                };
 
                 // Interrupt Menu
                 InterruptMenu = SorakaBuddy.AddSubMenu("Interrupter", "Interrupter");
@@ -272,30 +281,94 @@
         /// </summary>
         static void AutoHeal()
         {
+            var MostADAlly = HeroManager.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.TotalAttackDamage).FirstOrDefault();
+            var MostAPAlly = HeroManager.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.TotalMagicalDamage).FirstOrDefault();
             var LowestHealthAlly = HeroManager.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
+            var healPrioritySlider = HealMenu["healPrioritySlider"].Cast<Slider>().DisplayName;
+            
+            var autoWHP_other = HealMenu["autoWHP_other"].Cast<Slider>().CurrentValue;
+            var autoWHP_self = HealMenu["autoWHP_self"].Cast<Slider>().CurrentValue;
+            var Recall = Player.HasBuff("Recall");
 
-            if (LowestHealthAlly != null)
+            switch (healPrioritySlider)
             {
-                if (LowestHealthAlly.Health <= HealMenu["autoWHP_other"].Cast<Slider>().CurrentValue
-                    && PlayerInstance.Health >= HealMenu["autoWHP_self"].Cast<Slider>().CurrentValue)
-                {
-                    if (HealMenu["autoHeal_" + LowestHealthAlly.BaseSkinName].Cast<CheckBox>().CurrentValue)
+                case "Most AD":
+                    if (MostADAlly != null)
                     {
-                        W.Cast(LowestHealthAlly);
+                        if (MostADAlly.Health <= autoWHP_other
+                            && PlayerInstance.Health >= autoWHP_self)
+                        {
+                            if (HealMenu["autoHeal_" + MostADAlly.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                            {
+                                W.Cast(MostADAlly);
+                            }
+                        }
                     }
-                }
-            }
-            else if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
-            {
-                var LowestHealthAllyOOR = HeroManager.Allies.Where(a => !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
-
-                if (LowestHealthAlly.Health <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
-                {
-                    if (HealMenu["autoHeal_" + LowestHealthAlly.BaseSkinName].Cast<CheckBox>().CurrentValue)
+                    else if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
                     {
-                        R.Cast();
-                    }                    
-                }
+                        var MostADAllyOOR = HeroManager.Allies.Where(a => !a.IsMe).OrderBy(a => a.TotalAttackDamage).FirstOrDefault();
+
+                        if (MostADAllyOOR.Health <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
+                        {
+                            if (HealMenu["autoHeal_" + MostADAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Player.HasBuff("Recall"))
+                            {
+                                R.Cast();
+                            }
+                        }
+                    }
+                    break;
+                case "Most AP":
+                    if (MostAPAlly != null)
+                    {
+                        if (MostAPAlly.Health <= autoWHP_other
+                            && PlayerInstance.Health >= autoWHP_self)
+                        {
+                            if (HealMenu["autoHeal_" + MostAPAlly.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                            {
+                                W.Cast(MostAPAlly);
+                            }
+                        }
+                    }
+                    else if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
+                    {
+                        var MostAPAllyOOR = HeroManager.Allies.Where(a => !a.IsMe).OrderBy(a => a.TotalMagicalDamage).FirstOrDefault();
+
+                        if (MostAPAllyOOR.Health <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
+                        {
+                            if (HealMenu["autoHeal_" + MostAPAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Player.HasBuff("Recall"))
+                            {
+                                R.Cast();
+                            }
+                        }
+                    }
+                    break;
+                case "Lowest Health":
+                    if (LowestHealthAlly != null)
+                    {
+                        if (LowestHealthAlly.Health <= autoWHP_other
+                            && PlayerInstance.Health >= autoWHP_self)
+                        {
+                            if (HealMenu["autoHeal_" + LowestHealthAlly.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                            {
+                                W.Cast(LowestHealthAlly);
+                            }
+                        }
+                    }
+                    else if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
+                    {
+                        var LowestHealthAllyOOR = HeroManager.Allies.Where(a => !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
+
+                        if (LowestHealthAllyOOR.Health <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
+                        {
+                            if (HealMenu["autoHeal_" + LowestHealthAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Player.HasBuff("Recall"))
+                            {
+                                R.Cast();
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    return;
             }
         }
 
