@@ -198,7 +198,6 @@
             FleeMenu = PandaTeemo.AddSubMenu("Flee Menu", "Flee");
             FleeMenu.AddGroupLabel("Flee Settings");
             FleeMenu.AddSeparator();
-            FleeMenu.Add("fleetoggle", new KeyBind("Flee Toggle", false, KeyBind.BindTypes.HoldActive, 65));
             FleeMenu.Add("w", new CheckBox("Use W while Flee", true));
             FleeMenu.Add("r", new CheckBox("Use R while Flee", true));
             FleeMenu.Add("rCharge", new Slider("Charges of R before using R", 2, 1, 3));
@@ -977,15 +976,14 @@
             {
                 JungleClear();
             }
-                
+            
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee))
+            {
+                Flee();
+            }
+
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.None))
             {
-                // Flee Menu
-                if (FleeMenu["fleetoggle"].Cast<KeyBind>().CurrentValue)
-                {
-                    Flee();
-                }
-
                 // Auto Shroom
                 if (MiscMenu["autoR"].Cast<CheckBox>().CurrentValue)
                 {
