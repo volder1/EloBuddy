@@ -114,19 +114,19 @@
                 HealMenu.Add("autoWHP_self", new Slider("Own HP % before using W", 50, 0, 100));
                 HealMenu.Add("autoWHP_other", new Slider("Ally HP % before W", 50, 0, 100));
                 HealMenu.AddSeparator();
+                HealMenu.AddGroupLabel("Auto R Setting");
+                HealMenu.Add("useR", new CheckBox("Auto R on HP %", true));
+                HealMenu.AddSeparator();
+                HealMenu.Add("hpR", new Slider("HP % before using R", 25, 0, 100));
+                HealMenu.AddSeparator();
                 HealMenu.AddLabel("Which Champion to Heal?");
                 if (Allies != null)
                 {
                     foreach (var a in Allies)
                     {
-                        HealMenu.Add("autoW_" + a.BaseSkinName, new CheckBox("Auto Heal " + a.BaseSkinName, true));
+                        HealMenu.Add("autoHeal_" + a.BaseSkinName, new CheckBox("Auto Heal " + a.BaseSkinName, true));
                     }
                 }
-                HealMenu.AddSeparator();
-                HealMenu.AddGroupLabel("Auto R Setting");
-                HealMenu.Add("useR", new CheckBox("Auto R on HP %", true));
-                HealMenu.AddSeparator();
-                HealMenu.Add("hpR", new Slider("HP % before using R", 25, 0, 100));
 
                 // Interrupt Menu
                 InterruptMenu = SorakaBuddy.AddSubMenu("Interrupter", "Interrupter");
@@ -276,13 +276,25 @@
 
             if (LowestHealthAlly != null)
             {
-                if (LowestHealthAlly.Health <= MiscMenu["autoWHP_other"].Cast<Slider>().CurrentValue
-                    && PlayerInstance.Health >= MiscMenu["autoWHP_self"].Cast<Slider>().CurrentValue)
+                if (LowestHealthAlly.Health <= HealMenu["autoWHP_other"].Cast<Slider>().CurrentValue
+                    && PlayerInstance.Health >= HealMenu["autoWHP_self"].Cast<Slider>().CurrentValue)
                 {
-                    if (MiscMenu["autoHeal" + LowestHealthAlly.BaseSkinName].Cast<CheckBox>().CurrentValue)
+                    if (HealMenu["autoHeal_" + LowestHealthAlly.BaseSkinName].Cast<CheckBox>().CurrentValue)
                     {
                         W.Cast(LowestHealthAlly);
                     }
+                }
+            }
+            else if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
+            {
+                var LowestHealthAllyOOR = HeroManager.Allies.Where(a => !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
+
+                if (LowestHealthAlly.Health <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
+                {
+                    if (HealMenu["autoHeal_" + LowestHealthAlly.BaseSkinName].Cast<CheckBox>().CurrentValue)
+                    {
+                        R.Cast();
+                    }                    
                 }
             }
         }
