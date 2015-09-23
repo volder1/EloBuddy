@@ -104,10 +104,10 @@
             { return PlayerInstance.GetSpellDamage(target, SpellSlot.E); }
         }
 
-        /*/// <summary>
+        /// <summary>
         /// Gets the R Range.
         /// </summary>
-        public static float RRange
+        /*public static int RRange
         {
             get { return 300 * R.Level; }
         }*/
@@ -946,6 +946,8 @@
         /// <param name="args"></param>
         private static void Game_OnTick(EventArgs args)
         {
+            R = new Spell.Skillshot(SpellSlot.R, (uint)(300 * R.Level), SkillShotType.Circular, 500, 1000, 120);
+
             var autoQ = MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue;
             var autoW = MiscMenu["autoW"].Cast<CheckBox>().CurrentValue;
 
