@@ -171,7 +171,7 @@
             // Events
             Game.OnTick += Game_OnTick;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Orbwalker.OnPostAttack += Orbwalker_OnPostAttack;
+            Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
@@ -188,7 +188,7 @@
         /// </summary>
         /// <param name="target">The Target Orbwalker is Aiming For</param>
         /// <param name="args">The Attack Arg.</param>
-        static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
+        static void Orbwalker_OnPreAttack(AttackableUnit target, EventArgs args)
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
