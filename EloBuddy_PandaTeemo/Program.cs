@@ -639,16 +639,57 @@
             }
 
             var allMinionsR = ObjectManager.Get<Obj_AI_Base>().Where(t => R.IsInRange(t) && t.IsValidTarget() && t.IsMinion && t.IsEnemy).OrderBy(t => t.Health);
-            var rangedMinionsR = ObjectManager.Get<Obj_AI_Base>().Where(t => R.IsInRange(t) && t.IsValidTarget() && t.IsMinion && t.IsEnemy && t.IsRanged).OrderBy(t => t.Health);
-            var rLocation = R.GetPrediction(allMinionsR.FirstOrDefault());
-            var r2Location = R.GetPrediction(rangedMinionsR.FirstOrDefault());
+            //var rangedMinionsR = ObjectManager.Get<Obj_AI_Base>().Where(t => R.IsInRange(t) && t.IsValidTarget() && t.IsMinion && t.IsEnemy && t.IsRanged).OrderBy(t => t.Health);
+            if (allMinionsR == null)
+            {
+                return;
+            }
+            var rLocation = Prediction.Position.PredictCircularMissileAoe(allMinionsR.ToArray(), R.Range, R.Radius, R.CastDelay, R.Speed, PlayerInstance.Position);//R.GetPrediction(allMinionsR.FirstOrDefault());
+            //var r2Location = Prediction.Position.PredictCircularMissileAoe(rangedMinionsR.ToArray(), R.Range, R.Radius, R.CastDelay, R.Speed, PlayerInstance.Position);//R.GetPrediction(rangedMinionsR.FirstOrDefault());
             var useR = LaneClearMenu["rclear"].Cast<CheckBox>().CurrentValue;
             var userKill = LaneClearMenu["userKill"].Cast<CheckBox>().CurrentValue;
             var minionR = LaneClearMenu["minionR"].Cast<Slider>().CurrentValue;
 
-            if (minionR != null)
+            if (useR)
             {
-                if (minionR <= rLocation.CollisionObjects.Count() && useR 
+                if (rLocation == null)
+                {
+                    return;
+                }
+                else
+                {
+                    if (userKill)
+                    {
+                        foreach (var pred in rLocation)
+                        {
+                            if (pred.CollisionObjects.Count() >= minionR)
+                            {
+                                if (R.IsReady() && R.IsInRange(pred.CastPosition))
+                                {
+                                    R.Cast(pred.CastPosition);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var pred in rLocation)
+                        {
+                            if (pred.CollisionObjects.Count() >= minionR)
+                            {
+                                if (R.IsReady() && R.IsInRange(pred.CastPosition))
+                                {
+                                    R.Cast(pred.CastPosition);
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                #region Old Logic
+
+                /*if (minionR <= rLocation.CollisionObjects.Count() && useR 
                     || minionR <= r2Location.CollisionObjects.Count() && useR 
                     || minionR <= rLocation.CollisionObjects.Count() + r2Location.CollisionObjects.Count() && useR)
                 {
@@ -694,7 +735,10 @@
                             R.Cast(r2Location.CastPosition);
                         }
                     }
-                }
+                }*/
+
+                #endregion
+
             }
         }
 
@@ -1013,7 +1057,7 @@
             {
                 Drawing.DrawText(
                     (float)debug["x"].Cast<Slider>().CurrentValue,
-                    (float)debug["x"].Cast<Slider>().CurrentValue,
+                    (float)debug["y"].Cast<Slider>().CurrentValue,
                     System.Drawing.Color.Red,
                     PlayerInstance.Position.ToString());
             }
