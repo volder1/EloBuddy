@@ -163,6 +163,7 @@
 
             MiscMenu = TwistedFate.AddSubMenu("Misc Menu", "miscMenu");
             MiscMenu.AddGroupLabel("Misc Settings");
+            MiscMenu.Add("autoQ", new CheckBox("Automatically Q's a CCed Target", true));
             MiscMenu.Add("autoY", new CheckBox("Automatically select Yellow Card when R", true));
             MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card", 25, 0, 100));
 
@@ -288,6 +289,27 @@
                                 Harass(t, chooser);
                                 break;
                         }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Does Auto Q
+        /// </summary>
+        static void AutoQ()
+        {
+            var heroes = HeroManager.Enemies.Where(t => t.IsFeared || t.IsCharmed || t.IsTaunted || t.IsRecalling);
+
+            if (heroes != null)
+            {
+                foreach (var t in heroes)
+                {
+                    var pred = Q.GetPrediction(t);
+
+                    if (pred.HitChance == HitChance.High)
+                    {
+                        Q.Cast(pred.CastPosition);
                     }
                 }
             }
@@ -556,6 +578,13 @@
             {
                 CardSelector.StartSelecting(Cards.Red);
                 useR.CurrentValue = false;
+            }
+
+            var autoQ = MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue;
+
+            if (autoQ)
+            {
+                AutoQ();
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
