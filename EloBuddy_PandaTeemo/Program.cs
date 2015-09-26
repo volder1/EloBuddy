@@ -997,8 +997,7 @@
 
                 // KillSteal
                 if (KillStealMenu["KSQ"].Cast<CheckBox>().CurrentValue
-                    || KillStealMenu["KSR"].Cast<CheckBox>().CurrentValue
-                    || KillStealMenu["KSAA"].Cast<CheckBox>().CurrentValue)
+                    || KillStealMenu["KSR"].Cast<CheckBox>().CurrentValue)
                 {
                     KillSteal();
                 }
