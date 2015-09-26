@@ -22,7 +22,7 @@
         /// <returns>If that location has a ward.</returns>
         private static bool IsWarded(Vector3 position)
         {
-            return ObjectManager.Get<Obj_Ward>().Any(obj => position.Distance(obj.Position) <= 250);
+            return ObjectManager.Get<Obj_Ward>().Any(obj => position.Distance(obj.Position) <= 100);
         }
 
         /// <summary>
@@ -283,7 +283,7 @@
                     {
                         foreach (var place in wardLocation.Normal.Where(pos => pos.Distance(ObjectManager.Player.Position) <= 1500))
                         {
-                            EloBuddy.SDK.Rendering.Circle.Draw(SharpDX.Color.Green, 100, place);
+                            Drawing.DrawCircle(place, 100, IsWarded(place) ? System.Drawing.Color.Red : System.Drawing.Color.Green);
                         }
                     }
 
@@ -291,7 +291,7 @@
                     {
                         foreach (var place in wardLocation.Pink.Where(pos => pos.Distance(ObjectManager.Player.Position) <= 1500))
                         {
-                            EloBuddy.SDK.Rendering.Circle.Draw(SharpDX.Color.Pink, 100, place);
+                            Drawing.DrawCircle(place, 100, IsWarded(place) ? System.Drawing.Color.Red : System.Drawing.Color.Pink);
                         }
                     }
                 }
