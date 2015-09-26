@@ -72,6 +72,7 @@
             Bootstrap.Init(null);
 
             Q = new Spell.Skillshot(SpellSlot.Q, 1450, SkillShotType.Linear, 250, 1000, 40);
+            R = new Spell.Active(SpellSlot.R, 5500);
 
             // Menu
             TwistedFate = MainMenu.AddMenu("Twisted Fate", "TwistedFate");
@@ -167,7 +168,7 @@
             MiscMenu.Add("autoY", new CheckBox("Automatically select Yellow Card when R", true));
             MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card", 25, 0, 100));
 
-            Chat.Print("<font = '#66FF66'>Advanced Twisted Fate - By KarmaPanda</font>");
+            Chat.Print("Advanced Twisted Fate - By KarmaPanda", System.Drawing.Color.Green);
 
             // Events
             Game.OnTick += Game_OnTick;
@@ -541,7 +542,7 @@
             {
                 if (Player != null)
                 {
-                    Drawing.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? System.Drawing.Color.Green : System.Drawing.Color.Red);
+                    EloBuddy.SDK.Rendering.Circle.Draw(Q.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, Q.Range, Player.Position);
                 }
             }
 
@@ -549,7 +550,7 @@
             {
                 if (Player != null)
                 {
-                    Drawing.DrawCircle(Player.Position, (uint)5500, R.IsReady() ? System.Drawing.Color.Green : System.Drawing.Color.Red);
+                    EloBuddy.SDK.Rendering.Circle.Draw(R.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, R.Range, Player.Position);
                 }
             }
         }
@@ -610,16 +611,21 @@
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
-                var qMinion = ObjectManager.Get<Obj_AI_Base>().Where(t => t.IsEnemy && t.IsMinion && Q.IsInRange(t)).OrderBy(t => t.Health).FirstOrDefault();
+                var qMinion = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position.To2D(), Q.Range, false).OrderBy(t => t.Health).FirstOrDefault();//ObjectManager.Get<Obj_AI_Base>().Where(t => t.IsEnemy && t.IsMinion && Q.IsInRange(t)).OrderBy(t => t.Health).FirstOrDefault();
                 var useQ = LaneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
                 var manaManagerQ = LaneClearMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
 
                 // Cast Q if possible.
                 if (useQ && qMinion != null)
                 {
-                    if (Q.IsReady() && Player.IsFacing(qMinion) && Player.ManaPercent >= manaManagerQ)
+                    if (Q.IsReady() && Player.ManaPercent >= manaManagerQ)
                     {
-                        Q.Cast(qMinion.Position);
+                        var minionPrediction = Prediction.Position.PredictUnitPosition(qMinion, Q.Speed);
+
+                        if (minionPrediction != null && Player.IsFacing(qMinion))
+                        {
+                            Q.Cast(minionPrediction.To3D());
+                        }
                         /*var pred = Q.GetPrediction(qMinion);
 
                         if (pred.HitChance == HitChance.High)
@@ -632,7 +638,7 @@
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
-                var qMinion = ObjectManager.Get<Obj_AI_Base>().Where(t => t.Team == GameObjectTeam.Neutral && Q.IsInRange(t)).OrderBy(t => t.MaxHealth).FirstOrDefault();
+                var qMinion = EntityManager.GetJungleMonsters(Player.Position.To2D(), Q.Range, false).OrderByDescending(t => t.Health).FirstOrDefault();//ObjectManager.Get<Obj_AI_Base>().Where(t => t.Team == GameObjectTeam.Neutral && Q.IsInRange(t)).OrderBy(t => t.MaxHealth).FirstOrDefault();
                 var useQ = JungleClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
                 var manaManagerQ = JungleClearMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
 
@@ -640,9 +646,14 @@
                 // Cast Q if possible.
                 if (useQ && qMinion != null)
                 {
-                    if (Q.IsReady() && Player.IsFacing(qMinion) && Player.ManaPercent >= manaManagerQ)
+                    if (Q.IsReady() && Player.ManaPercent >= manaManagerQ)
                     {
-                        Q.Cast(qMinion.Position);
+                        var minionPrediction = Prediction.Position.PredictUnitPosition(qMinion, Q.Speed);
+
+                        if (minionPrediction != null && Player.IsFacing(qMinion))
+                        {
+                            Q.Cast(minionPrediction.To3D());
+                        }
                         /*var pred = Q.GetPrediction(qMinion);
 
                         if (pred.HitChance == HitChance.High)
