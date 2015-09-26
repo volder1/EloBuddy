@@ -56,12 +56,16 @@
         /// <summary>
         /// Called when program starts
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="args">The Args</param>
         static void Main(string[] args)
         {
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
         }
 
+        /// <summary>
+        /// Called when the game finishes loading.
+        /// </summary>
+        /// <param name="args">The Args.</param>
         static void Loading_OnLoadingComplete(EventArgs args)
         {
             if (Player.BaseSkinName != ChampionName)
@@ -177,6 +181,11 @@
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
+        /// <summary>
+        /// Called on Spell Cast
+        /// </summary>
+        /// <param name="sender">The Person who casted a spell</param>
+        /// <param name="args">The Args</param>
         static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (sender.IsMe && args.SData.Name == "gate" && MiscMenu["autoY"].Cast<CheckBox>().CurrentValue)
@@ -641,7 +650,6 @@
                 var qMinion = EntityManager.GetJungleMonsters(Player.Position.To2D(), Q.Range, false).OrderByDescending(t => t.Health).FirstOrDefault();//ObjectManager.Get<Obj_AI_Base>().Where(t => t.Team == GameObjectTeam.Neutral && Q.IsInRange(t)).OrderBy(t => t.MaxHealth).FirstOrDefault();
                 var useQ = JungleClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
                 var manaManagerQ = JungleClearMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
-
 
                 // Cast Q if possible.
                 if (useQ && qMinion != null)
