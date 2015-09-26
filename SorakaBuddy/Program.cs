@@ -189,7 +189,7 @@
                     {
                         if (target.IsValidTarget(Q.Range) && Q.IsReady())
                         {
-                            var pred = Q.GetPrediction(target);
+                            var pred = Prediction.Position.PredictCircularMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, PlayerInstance.Position);//Q.GetPrediction(target);
 
                             if (pred.HitChance == HitChance.High)
                             {
@@ -209,7 +209,7 @@
                     {
                         if (target.IsValidTarget(E.Range) && E.IsReady())
                         {
-                            var pred = E.GetPrediction(target);
+                            var pred = Prediction.Position.PredictCircularMissile(target, E.Range, E.Radius, E.CastDelay, E.Speed, PlayerInstance.Position);//E.GetPrediction(target);
 
                             if (pred.HitChance == HitChance.High)
                             {
@@ -236,7 +236,7 @@
                     {
                         if (target.IsValidTarget(Q.Range) && Q.IsReady())
                         {
-                            var pred = Q.GetPrediction(target);
+                            var pred = Prediction.Position.PredictCircularMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, PlayerInstance.Position); //Q.GetPrediction(target);
 
                             if (pred.HitChance == HitChance.High)
                             {
@@ -256,7 +256,7 @@
                     {
                         if (target.IsValidTarget(E.Range) && E.IsReady())
                         {
-                            var pred = E.GetPrediction(target);
+                            var pred = Prediction.Position.PredictCircularMissile(target, E.Range, E.Radius, E.CastDelay, E.Speed, PlayerInstance.Position); //E.GetPrediction(target);
 
                             if (pred.HitChance == HitChance.High)
                             {
@@ -462,16 +462,27 @@
 
             if (t != null)
             {
-                if (MiscMenu["disableCAA"].Cast<CheckBox>().CurrentValue)
+                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= 1200).OrderBy(a => a.Distance(PlayerInstance)).FirstOrDefault();
+                
+                if (alliesNearPlayer != null)
                 {
-                    args.Process = false;
+                    if (MiscMenu["disableCAA"].Cast<CheckBox>().CurrentValue)
+                    {
+                        args.Process = false;
+                    }
                 }
+
             }
             else if (m != null)
             {
-                if (MiscMenu["disableMAA"].Cast<CheckBox>().CurrentValue)
+                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= 1200).OrderBy(a => a.Distance(PlayerInstance)).FirstOrDefault();
+
+                if (alliesNearPlayer != null)
                 {
-                    args.Process = false;
+                    if (MiscMenu["disableMAA"].Cast<CheckBox>().CurrentValue)
+                    {
+                        args.Process = false;
+                    }
                 }
             }
             else
@@ -503,15 +514,15 @@
 
             if (DrawingMenu["drawQ"].Cast<CheckBox>().CurrentValue)
             {
-                Drawing.DrawCircle(PlayerPosition, Q.Range, Q.IsReady() ? System.Drawing.Color.Green : System.Drawing.Color.Red);
+                EloBuddy.SDK.Rendering.Circle.Draw(Q.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, Q.Range, PlayerPosition);
             }
             if (DrawingMenu["drawW"].Cast<CheckBox>().CurrentValue)
             {
-                Drawing.DrawCircle(PlayerPosition, W.Range, W.IsReady() ? System.Drawing.Color.Green : System.Drawing.Color.Red);
+                EloBuddy.SDK.Rendering.Circle.Draw(W.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, W.Range, PlayerPosition);
             }
             if (DrawingMenu["drawE"].Cast<CheckBox>().CurrentValue)
             {
-                Drawing.DrawCircle(PlayerPosition, E.Range, E.IsReady() ? System.Drawing.Color.Green : System.Drawing.Color.Red);
+                EloBuddy.SDK.Rendering.Circle.Draw(E.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, E.Range, PlayerPosition);
             }
         }
     }
