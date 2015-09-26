@@ -75,26 +75,6 @@
         }
 
         /// <summary>
-        /// Gets Q Damage. Credit to Fluxy.
-        /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public static float QDamage(Obj_AI_Base target)
-        {
-            return PlayerInstance.CalculateDamageOnUnit(target, DamageType.Magical,
-                (float)(new[] { 80, 125, 170, 215, 260 }[Program.Q.Level] + 0.8 * PlayerInstance.FlatMagicDamageMod));
-        }
-
-        public static float DynamicQRange()
-        {
-            if (Q.IsReady())
-            {
-                return Q.Range;
-            }
-            return PlayerInstance.GetAutoAttackRange();
-        }
-
-        /// <summary>
         /// Gets Teemo E Damage
         /// </summary>
         /// <param name="minion">The Minion that is being attacked</param>
@@ -103,14 +83,6 @@
         {
             { return PlayerInstance.GetSpellDamage(target, SpellSlot.E); }
         }
-
-        /// <summary>
-        /// Gets the R Range.
-        /// </summary>
-        /*public static int RRange
-        {
-            get { return 300 * R.Level; }
-        }*/
 
         /// <summary>
         /// Called when program starts
@@ -165,7 +137,7 @@
             LaneClearMenu.AddGroupLabel("LaneClear Settings");
             LaneClearMenu.AddSeparator();
             LaneClearMenu.Add("qclear", new CheckBox("LaneClear with Q", true));
-            LaneClearMenu.Add("qManaManager", new Slider("Q Mana Manager", 75, 0, 100));
+            LaneClearMenu.Add("qManaManager", new Slider("Q Mana Manager", 50, 0, 100));
             LaneClearMenu.Add("attackTurret", new CheckBox("Attack Turret", true));
             LaneClearMenu.Add("attackWard", new CheckBox("Attack Ward", true));
             LaneClearMenu.Add("rclear", new CheckBox("LaneClear with R", true));
@@ -178,6 +150,7 @@
             JungleClearMenu.AddSeparator();
             JungleClearMenu.Add("qclear", new CheckBox("JungleClear with Q", true));
             JungleClearMenu.Add("rclear", new CheckBox("JungleClear with R", true));
+            JungleClearMenu.Add("qManaManager", new Slider("Q Mana Manager", 25, 0, 100));
 
             // Interrupter && Gapcloser
             InterruptMenu = PandaTeemo.AddSubMenu("Interrupt / Gapcloser", "Interrupt");
@@ -192,7 +165,6 @@
             KillStealMenu.AddSeparator();
             KillStealMenu.Add("KSQ", new CheckBox("KillSteal with Q", true));
             KillStealMenu.Add("KSR", new CheckBox("KillSteal with R", true));
-            //KillStealMenu.Add("KSAA", new CheckBox("KillSteal with AutoAttack", true));
 
             // Flee Menu
             FleeMenu = PandaTeemo.AddSubMenu("Flee Menu", "Flee");
@@ -242,7 +214,7 @@
             EloBuddy.Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
 
-            EloBuddy.Chat.Print("<font color = '#01DF3A'>PandaTeemo EloBuddy Edition Loaded by KarmaPanda</font>");
+            EloBuddy.Chat.Print("PandaTeemo EloBuddy Edition Loaded by KarmaPanda", System.Drawing.Color.LightBlue);
 
             // Loads ShroomPosition
             fileHandler = new FileHandler();
@@ -262,7 +234,10 @@
             {
                 if (sender != null)
                 {
-                    Q.Cast(sender);
+                    if (e.DangerLevel == DangerLevel.High)
+                    {
+                        Q.Cast(sender);
+                    }
                 }
             }
         }
@@ -573,7 +548,6 @@
         {
             var ksq = KillStealMenu["KSQ"].Cast<CheckBox>().CurrentValue;
             var ksr = KillStealMenu["KSR"].Cast<CheckBox>().CurrentValue;
-            //var ksaa = KillStealMenu["KSAA"].Cast<CheckBox>().CurrentValue;
 
             if (ksq)
             {
@@ -603,19 +577,6 @@
                     }
                 }
             }
-
-            /*if (ksaa)
-            {
-                var aatarget = HeroManager.Enemies.Where(t =>
-                    t.IsValidTarget()
-                    && PlayerInstance.IsInAutoAttackRange(t)
-                    && PlayerInstance.GetAutoAttackDamage(t) + TeemoE(t) >= t.Health).OrderBy(t => t.Health).FirstOrDefault();
-
-                if (aatarget != null)
-                {
-                    EloBuddy.Player.IssueOrder(GameObjectOrder.AttackUnit, aatarget);
-                }
-            }*/
         }
 
         /// <summary>
@@ -631,7 +592,7 @@
             {
                 if (Q.IsReady()
                 && qClear
-                && qMinion.Health < QDamage(qMinion) 
+                && qMinion.Health < DamageLibrary.GetSpellDamage(PlayerInstance, qMinion, SpellSlot.Q, DamageLibrary.SpellStages.Default) 
                 && qManaManager <= (int)PlayerInstance.ManaPercent)
                 {
                     Q.Cast(qMinion);
@@ -652,11 +613,7 @@
 
             if (useR)
             {
-                if (rLocation == null)
-                {
-                    return;
-                }
-                else
+                if (rLocation != null)
                 {
                     if (userKill)
                     {
@@ -754,28 +711,30 @@
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
-                var jungleMobQ = ObjectManager.Get<Obj_AI_Base>().Where(t => Q.IsInRange(t) && t.Team == GameObjectTeam.Neutral && t.IsValidTarget()).OrderBy(t => t.MaxHealth).FirstOrDefault();
-                var jungleMobR = ObjectManager.Get<Obj_AI_Base>().Where(t => R.IsInRange(t) && t.Team == GameObjectTeam.Neutral && t.IsValidTarget()).OrderBy(t => t.MaxHealth).FirstOrDefault();
-
-                if (useQ && jungleMobQ != null)
+                try
                 {
-                    if (Q.IsReady() && qManaManager <= (int)PlayerInstance.ManaPercent)
-                    {
-                        Q.Cast(jungleMobQ);
-                    }
-                }
+                    var jungleMobQ = EntityManager.GetJungleMonsters(PlayerInstance.Position.To2D(), Q.Range, false).OrderByDescending(t => t.Health).FirstOrDefault();//ObjectManager.Get<Obj_AI_Base>().Where(t => Q.IsInRange(t) && t.Team == GameObjectTeam.Neutral && t.IsValidTarget()).OrderBy(t => t.MaxHealth).FirstOrDefault();
+                    var jungleMobR = EntityManager.GetJungleMonsters(PlayerInstance.Position.To2D(), R.Range, false).OrderByDescending(t => t.Health);//ObjectManager.Get<Obj_AI_Base>().Where(t => R.IsInRange(t) && t.Team == GameObjectTeam.Neutral && t.IsValidTarget()).OrderBy(t => t.MaxHealth).FirstOrDefault();
 
-                if (useR && jungleMobR != null)
-                {
-                    if (R.IsReady() && ammoR >= 1)
+                    if (useQ && jungleMobQ != null)
                     {
-                        var pred = R.GetPrediction(jungleMobR);
-
-                        if (pred.HitChance == HitChance.High)
+                        if (Q.IsReady() && qManaManager <= (int)PlayerInstance.ManaPercent)
                         {
-                            R.Cast(pred.CastPosition);
+                            Q.Cast(jungleMobQ);
                         }
                     }
+
+                    if (useR && jungleMobR != null)
+                    {
+                        if (R.IsReady() && ammoR >= 1)
+                        {
+                            R.Cast(jungleMobR.FirstOrDefault().Position);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Chat.Print("PandaTeemo| Exception occured in JungleClear: " + e.Message);
                 }
             }
         }
@@ -922,7 +881,7 @@
             {
                 foreach (var minion in allMinionsQ)
                 {
-                    if (minion.Health < QDamage(minion) && Q.IsInRange(minion))
+                    if (minion.Health < DamageLibrary.GetSpellDamage(PlayerInstance, minion, SpellSlot.Q, DamageLibrary.SpellStages.Default) && Q.IsInRange(minion))
                     {
                         Q.Cast(minion);
                     }
@@ -972,7 +931,7 @@
             {
                 foreach (var minion in allMinionsQ)
                 {
-                    if (minion.Health < QDamage(minion) && Q.IsInRange(minion))
+                    if (minion.Health < DamageLibrary.GetSpellDamage(PlayerInstance, minion, SpellSlot.Q, DamageLibrary.SpellStages.Default) && Q.IsInRange(minion))
                     {
                         Q.Cast(minion);
                     }
@@ -1038,7 +997,8 @@
 
                 // KillSteal
                 if (KillStealMenu["KSQ"].Cast<CheckBox>().CurrentValue
-                    || KillStealMenu["KSR"].Cast<CheckBox>().CurrentValue)
+                    || KillStealMenu["KSR"].Cast<CheckBox>().CurrentValue
+                    || KillStealMenu["KSAA"].Cast<CheckBox>().CurrentValue)
                 {
                     KillSteal();
                 }
