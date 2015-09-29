@@ -94,6 +94,7 @@
                 FarmMenu.AddSeparator();
                 FarmMenu.AddLabel("Q Settings");
                 FarmMenu.Add("useQ", new CheckBox("Last Hit Minion with Q", true));
+                FarmMenu.Add("disableAA", new CheckBox("Don't LastHit Minion without Q", false));
                 FarmMenu.AddSeparator();
                 FarmMenu.AddLabel("Harass Settings");
                 FarmMenu.Add("useQH", new CheckBox("Use Q on Champion", false));
@@ -186,6 +187,12 @@
             {
                 var t = target as Obj_AI_Base;
                 var useQ = FarmMenu["useQ"].Cast<CheckBox>().CurrentValue;
+                var disableAA = FarmMenu["disableAA"].Cast<CheckBox>().CurrentValue;
+
+                if (disableAA && !Player.Instance.HasBuff("SiphoningStrike"))
+                {
+                    args.Process = false;
+                }
 
                 if (useQ && t != null)
                 {
@@ -273,23 +280,21 @@
         {
             try
             {
-                switch (Orbwalker.ActiveModesFlags)
+                StateHandler.KillSteal();
+
+                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
                 {
-                    case Orbwalker.ActiveModes.Combo:
-                        StateHandler.Combo();
-                        //StateHandler.KillSteal();
-                        break;
-                    case Orbwalker.ActiveModes.Harass:
-                        StateHandler.Harass();
-                        //StateHandler.KillSteal();
-                        break;
-                    case Orbwalker.ActiveModes.LaneClear:
-                        StateHandler.LaneClear();
-                        //StateHandler.KillSteal();
-                        break;
-                    case Orbwalker.ActiveModes.None:
-                        StateHandler.KillSteal();
-                        break;
+                    StateHandler.Combo();
+                }
+
+                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
+                {
+                    StateHandler.Harass();
+                }
+
+                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+                {
+                    StateHandler.LaneClear();
                 }
             }
             catch (Exception e)
@@ -319,7 +324,7 @@
                 dmgItem = PlayerInstance.GetAutoAttackDamage(target) * 1.25;
             }
 
-            return PlayerInstance.GetSpellDamage(target, SpellSlot.Q, DamageLibrary.SpellStages.Default) + PlayerInstance.GetAutoAttackDamage(target) + dmgItem;
+            return PlayerInstance.GetSpellDamage(target, SpellSlot.Q, DamageLibrary.SpellStages.DamagePerStack) + PlayerInstance.GetAutoAttackDamage(target) + dmgItem;
         }
     }
 }

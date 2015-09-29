@@ -32,7 +32,7 @@
 
                     if (pred != null)
                     {
-                        if (Player.Instance.GetSpellDamage(target, SpellSlot.E) >= target.Health)
+                        if (DamageLibrary.GetSpellDamage(Player.Instance, target, SpellSlot.E, DamageLibrary.SpellStages.Default) >= target.Health)
                         {
                             if (pred.HitChance == HitChance.High)
                             {
