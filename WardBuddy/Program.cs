@@ -15,14 +15,18 @@
 
     internal class Program
     {
+
         /// <summary>
-        /// Checks if there is ward in location.
+        /// List of Ally Ward Positions
         /// </summary>
-        /// <param name="position">The location to check.</param>
-        /// <returns>If that location has a ward.</returns>
+        private static Dictionary<GameObject, Vector3> WardPositions = new Dictionary<GameObject, Vector3>
+        {
+
+        };
+
         private static bool IsWarded(Vector3 position)
         {
-            return ObjectManager.Get<Obj_Ward>().Any(obj => position.Distance(obj.Position) <= 100);
+            return WardPositions.Any(obj => obj.Key.Distance(position) <= 200);
         }
 
         /// <summary>
@@ -176,11 +180,46 @@
                 fileHandler = new FileHandler();
 
                 Game.OnTick += Game_OnTick;
+                Obj_Ward.OnCreate += Obj_Ward_OnCreate;
+                Obj_Ward.OnDelete += Obj_Ward_OnDelete;
                 Drawing.OnDraw += Drawing_OnDraw;
             }
             catch (Exception e)
             {
                 Chat.Print("Failed to Initialize WardBuddy. Exception: " + e.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// Called when a Ward is Deleted
+        /// </summary>
+        /// <param name="sender">The Sender</param>
+        /// <param name="args">The Args</param>
+        private static void Obj_Ward_OnDelete(GameObject sender, EventArgs args)
+        {
+            if (sender.IsAlly)
+            {
+                if (sender.Name == "SightWard" || sender.Name == "VisionWard")
+                {
+                    WardPositions.Remove(sender);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when a Ward is Created.
+        /// </summary>
+        /// <param name="sender">The Sender</param>
+        /// <param name="args">The Args</param>
+        private static void Obj_Ward_OnCreate(GameObject sender, EventArgs args)
+        {
+            if (sender.IsAlly)
+            {
+                if (sender.Name == "SightWard" || sender.Name == "VisionWard")
+                {
+                    WardPositions.Add(sender, sender.Position);
+                }
             }
         }
 
