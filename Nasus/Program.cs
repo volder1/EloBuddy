@@ -137,7 +137,7 @@
                 DrawingMenu.Add("drawW", new CheckBox("Draw W Range", false));
                 DrawingMenu.Add("drawE", new CheckBox("Draw E Range", false));
 
-                Chat.Print("Nasus| Loaded by KarmaPanda", System.Drawing.Color.Green);
+                Chat.Print("Nasus | Loaded by KarmaPanda", System.Drawing.Color.Green);
 
                 Game.OnTick += Game_OnTick;
                 Drawing.OnDraw += Drawing_OnDraw;
@@ -147,7 +147,7 @@
             }
             catch (Exception e)
             {
-                Chat.Print("Nasus| Encountered Exception while Initializing: " + e.Message);
+                Chat.Print("Nasus | Encountered Exception while Initializing: " + e.Message);
             }
         }
 
@@ -189,7 +189,7 @@
                 var useQ = FarmMenu["useQ"].Cast<CheckBox>().CurrentValue;
                 var disableAA = FarmMenu["disableAA"].Cast<CheckBox>().CurrentValue;
 
-                if (disableAA && !Player.Instance.HasBuff("SiphoningStrike"))
+                if (disableAA && !PlayerInstance.HasBuff("SiphoningStrike"))
                 {
                     args.Process = false;
                 }
@@ -296,10 +296,15 @@
                 {
                     StateHandler.LaneClear();
                 }
+
+                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
+                {
+                    StateHandler.LastHit();
+                }
             }
             catch (Exception e)
             {
-                Chat.Print("Nasus| Encountered a Exception in Game_OnTick" + e.Message);
+                Chat.Print("Nasus | Encountered a Exception in Game_OnTick" + e.Message);
             }
         }
 
@@ -324,7 +329,7 @@
                 dmgItem = PlayerInstance.GetAutoAttackDamage(target) * 1.25;
             }
 
-            return PlayerInstance.GetSpellDamage(target, SpellSlot.Q, DamageLibrary.SpellStages.DamagePerStack) + PlayerInstance.GetAutoAttackDamage(target) + dmgItem;
+            return new float[] { 0, 30, 50, 70, 90, 110 }[Q.Level] + PlayerInstance.FlatPhysicalDamageMod + PlayerInstance.GetBuffCount("NasusQStacks") + PlayerInstance.GetAutoAttackDamage(target) + dmgItem; // PlayerInstance.GetSpellDamage(target, SpellSlot.Q, DamageLibrary.SpellStages.DamagePerStack)
         }
     }
 }

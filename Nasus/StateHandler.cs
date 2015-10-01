@@ -45,6 +45,27 @@
         }
 
         /// <summary>
+        /// Does LastHit
+        /// </summary>
+        public static void LastHit()
+        {
+            var minion = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Instance.ServerPosition.To2D(), Program.Q.Range, true).FirstOrDefault();
+
+            if (minion != null)
+            {
+                if (Program.Q.IsReady() && Program.Q.IsInRange(minion) && Program.GetDamage(minion) >= minion.Health)
+                {
+                    Program.Q.Cast();
+                    Orbwalker.DisableAttacking = true;
+                    Orbwalker.DisableMovement = true;
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
+                    Orbwalker.DisableAttacking = false;
+                    Orbwalker.DisableMovement = false;
+                }
+            }
+        }
+
+        /// <summary>
         /// Does Harass
         /// </summary>
         public static void Harass()
