@@ -119,14 +119,24 @@
                 HealMenu.AddSeparator();
                 HealMenu.Add("hpR", new Slider("HP % before using R", 25, 0, 100));
                 HealMenu.AddSeparator();
-                HealMenu.AddLabel("Which Champion to Heal?");
+                HealMenu.AddLabel("Which Champion to Heal? Using W?");
                 if (Allies != null)
                 {
                     foreach (var a in Allies)
                     {
-                        HealMenu.Add("autoHeal_" + a.BaseSkinName, new CheckBox("Auto Heal " + a.BaseSkinName, true));
+                        HealMenu.Add("autoHeal_" + a.BaseSkinName, new CheckBox("Auto Heal with W " + a.BaseSkinName, true));
                     }
                 }
+                HealMenu.AddSeparator();
+                HealMenu.AddLabel("Which Champion to Heal? Using R?");
+                if (Allies != null)
+                {
+                    foreach (var a in Allies)
+                    {
+                        HealMenu.Add("autoHealR_" + a.BaseSkinName, new CheckBox("Auto Heal with R " + a.BaseSkinName, true));
+                    }
+                }
+                HealMenu.Add("autoHealR_" + PlayerInstance.BaseSkinName, new CheckBox("Auto Heal Self with R", true));
                 HealMenu.AddSeparator();
                 HealMenu.AddGroupLabel("Heal Priority");
                 var healPrioritySlider = HealMenu.Add("Slider", new Slider("mode", 0, 0, 2));
@@ -161,6 +171,8 @@
                 MiscMenu.Add("disableMAA", new CheckBox("Disable Minion AA", true));
                 MiscMenu.Add("disableCAA", new CheckBox("Disable Champion AA", true));
 
+                Chat.Print("SorakaBuddy: Initialized", System.Drawing.Color.LightGreen);
+
                 Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
                 Game.OnTick += Game_OnTick;
                 Drawing.OnDraw += Drawing_OnDraw;
@@ -189,7 +201,7 @@
                     {
                         if (target.IsValidTarget(Q.Range) && Q.IsReady())
                         {
-                            var pred = Prediction.Position.PredictCircularMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, PlayerInstance.Position);//Q.GetPrediction(target);
+                            var pred = Prediction.Position.PredictCircularMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, PlayerInstance.Position); //Q.GetPrediction(target);
 
                             if (pred.HitChance == HitChance.High)
                             {
@@ -209,7 +221,7 @@
                     {
                         if (target.IsValidTarget(E.Range) && E.IsReady())
                         {
-                            var pred = Prediction.Position.PredictCircularMissile(target, E.Range, E.Radius, E.CastDelay, E.Speed, PlayerInstance.Position);//E.GetPrediction(target);
+                            var pred = Prediction.Position.PredictCircularMissile(target, E.Range, E.Radius, E.CastDelay, E.Speed, PlayerInstance.Position); //E.GetPrediction(target);
 
                             if (pred.HitChance == HitChance.High)
                             {
@@ -268,14 +280,6 @@
             }
         }
 
-        /*/// <summary>
-        /// Does LaneClear (Disabled ATM)
-        /// </summary>
-        static void LaneClear()
-        {
-            return;
-        }*/
-
         /// <summary>
         /// Does Auto Heal
         /// </summary>
@@ -307,13 +311,13 @@
                     }
                     if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
                     {
-                        var MostADAllyOOR = HeroManager.Allies.Where(a => !a.IsMe).OrderByDescending(a => a.TotalAttackDamage).OrderBy(a => a.Health).FirstOrDefault();
+                        var MostADAllyOOR = HeroManager.Allies.OrderByDescending(a => a.TotalAttackDamage).OrderBy(a => a.Health).FirstOrDefault();
 
                         if (MostADAllyOOR != null)
                         {
                             if (MostADAllyOOR.HealthPercent <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
                             {
-                                if (HealMenu["autoHeal_" + MostADAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                                if (HealMenu["autoHealR_" + MostADAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
                                 {
                                     R.Cast();
                                 }
@@ -340,13 +344,13 @@
                     }
                     if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
                     {
-                        var MostAPAllyOOR = HeroManager.Allies.Where(a => !a.IsMe).OrderBy(a => a.TotalMagicalDamage).OrderBy(a => a.Health).FirstOrDefault();
+                        var MostAPAllyOOR = HeroManager.Allies.OrderByDescending(a => a.TotalMagicalDamage).OrderBy(a => a.Health).FirstOrDefault();
 
                         if (MostAPAllyOOR != null)
                         {
                             if (MostAPAllyOOR.HealthPercent <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
                             {
-                                if (HealMenu["autoHeal_" + MostAPAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                                if (HealMenu["autoHealR_" + MostAPAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
                                 {
                                     R.Cast();
                                 }
@@ -373,13 +377,13 @@
                     }
                     if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
                     {
-                        var LowestHealthAllyOOR = HeroManager.Allies.Where(a => !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
+                        var LowestHealthAllyOOR = HeroManager.Allies.OrderByDescending(a => a.Health).FirstOrDefault();
 
                         if (LowestHealthAllyOOR != null)
                         {
                             if (LowestHealthAllyOOR.HealthPercent <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
                             {
-                                if (HealMenu["autoHeal_" + LowestHealthAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                                if (HealMenu["autoHealR_" + LowestHealthAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
                                 {
                                     R.Cast();
                                 }
@@ -462,9 +466,9 @@
 
             if (t != null)
             {
-                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= 1200).OrderBy(a => a.Distance(PlayerInstance)).FirstOrDefault();
+                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= 1200).Count();
                 
-                if (alliesNearPlayer != null)
+                if (alliesNearPlayer > 1)
                 {
                     if (MiscMenu["disableCAA"].Cast<CheckBox>().CurrentValue)
                     {
@@ -475,9 +479,8 @@
             }
             else if (m != null)
             {
-                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= 1200).OrderBy(a => a.Distance(PlayerInstance)).FirstOrDefault();
-
-                if (alliesNearPlayer != null)
+                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= 1200).Count();
+                if (alliesNearPlayer > 1)
                 {
                     if (MiscMenu["disableMAA"].Cast<CheckBox>().CurrentValue)
                     {
@@ -490,24 +493,34 @@
                 return;
             }
         }
+
+        /// <summary>
+        /// Called when the Game Updates
+        /// </summary>
+        /// <param name="args">The Args</param>
         static void Game_OnTick(EventArgs args)
         {
-            switch(Orbwalker.ActiveModesFlags)
+            if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue
+                || HealMenu["autoR"].Cast<CheckBox>().CurrentValue)
             {
-                case Orbwalker.ActiveModes.Combo:
-                    Combo();
-                    AutoHeal();
-                    break;
-                case Orbwalker.ActiveModes.Harass:
-                    Harass();
-                    AutoHeal();
-                    break;
-                case Orbwalker.ActiveModes.None:
-                    AutoHeal();
-                    break;
+                AutoHeal();
+            }
+            
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
+            {
+                Combo();
+            }
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
+            {
+                Harass();
             }
         }
-
+        
+        /// <summary>
+        /// Called when the Game Draws
+        /// </summary>
+        /// <param name="args">The Args</param>
         static void Drawing_OnDraw(EventArgs args)
         {
             var PlayerPosition = PlayerInstance.Position;
