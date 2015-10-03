@@ -1,2 +1,2 @@
-# EloBuddy
-EloBuddy Addons.
+# EloBuddy Addons by KarmaPanda
+
