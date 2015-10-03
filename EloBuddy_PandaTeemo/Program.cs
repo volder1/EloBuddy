@@ -80,7 +80,7 @@
         /// <returns>The Damage Done to the unit.</returns>
         public static double TeemoE()
         {
-            { return (new float[] { 10, 20, 30, 40, 50 }[E.Level] + (0.30f * (PlayerInstance.FlatMagicDamageMod))); } //PlayerInstance.GetSpellDamage(target, SpellSlot.E); }
+            { return (new float[] { 0, 10, 20, 30, 40, 50 }[E.Level] + (0.30f * (PlayerInstance.FlatMagicDamageMod))); } //PlayerInstance.GetSpellDamage(target, SpellSlot.E); }
         }
 
         /// <summary>
