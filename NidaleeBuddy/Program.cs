@@ -279,11 +279,15 @@
             }
 
             NidaleeBuddy = MainMenu.AddMenu("Nidalee", "Nidalee");
+            NidaleeBuddy.AddGroupLabel("This addon is made by KarmaPanda and should not be redistributed in any way.");
+            NidaleeBuddy.AddGroupLabel("Any unauthorized redistribution without credits will result in severe consequences.");
+            NidaleeBuddy.AddGroupLabel("Thank you for using this addon and have a fun time!");
 
             // Combo Menu
             ComboMenu = NidaleeBuddy.AddSubMenu("Combo", "Combo");
             ComboMenu.AddGroupLabel("Combo Settings");
             ComboMenu.Add("useQHuman", new CheckBox("Use Q in Human Form", true));
+            ComboMenu.Add("useWHuman", new CheckBox("Use W in Human Form", true));
             ComboMenu.Add("useQCat", new CheckBox("Use Q in Cougar Form", true));
             ComboMenu.Add("useWCat", new CheckBox("Use W in Cougar Form", true));
             ComboMenu.Add("useECat", new CheckBox("Use E in Cougar Form", true));
@@ -476,7 +480,7 @@
                 var useWCat = ComboMenu["useWCat"].Cast<CheckBox>().CurrentValue;
                 var useECat = ComboMenu["useECat"].Cast<CheckBox>().CurrentValue;
                 var wBTarget = TargetSelector.GetTarget(WBOTH.Range, DamageType.Magical, PlayerInstance.ServerPosition);
-                var eTarget = TargetSelector.GetTarget(E.Range, DamageType.Magical, PlayerInstance.ServerPosition); //HeroManager.Enemies.Where(t => t.IsValidTarget() && E.IsInRange(t)).OrderBy(t => t.Distance(PlayerInstance)).FirstOrDefault();
+                var eTarget = TargetSelector.GetTarget(E.Range, DamageType.Magical, PlayerInstance.ServerPosition);
 
                 if (useWCat && wBTarget != null)
                 {
@@ -524,11 +528,15 @@
             else
             {
                 var Q = QHuman;
-                var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical, PlayerInstance.ServerPosition); //HeroManager.Enemies.Where(t => Q.IsInRange(t)).OrderBy(t => t.Health).FirstOrDefault();
+                var W = WHuman;
+                var qHTarget = TargetSelector.GetTarget(Q.Range, DamageType.Magical, PlayerInstance.ServerPosition);
+                var wHTarget = TargetSelector.GetTarget(W.Range, DamageType.Magical, PlayerInstance.ServerPosition);
+                var useQHuman = ComboMenu["useQHuman"].Cast<CheckBox>().CurrentValue;
+                var useWHuman = ComboMenu["useWHuman"].Cast<CheckBox>().CurrentValue;
 
-                if (target != null)
+                if (useQHuman && qHTarget != null)
                 {
-                    var pred = QHuman.GetPrediction(target);
+                    var pred = Q.GetPrediction(qHTarget);
 
                     if (pred != null)
                     {
@@ -536,6 +544,16 @@
                         {
                             Q.Cast(pred.CastPosition);
                         }
+                    }
+                }
+
+                if (useWHuman && wHTarget != null)
+                {
+                    var pred = W.GetPrediction(wHTarget);
+
+                    if (W.IsReady() && pred.HitChance == HitChance.Medium)
+                    {
+                        W.Cast(pred.CastPosition);
                     }
                 }
 
@@ -552,10 +570,9 @@
                         R.Cast();
                     }
 
-                    else if (useR && !IsHunted(wTarget) && WCat.IsInRange(wTarget) && !Q.IsReady() && R.IsReady()
+                    else if (useR && !IsHunted(wTarget) && WCat.IsInRange(wTarget) && R.IsReady()
                         && IsReady(SpellTimer["Takedown"])
                         && IsReady(SpellTimer["Pounce"])
-                        && IsReady(SpellTimer["ExPounce"])
                         && IsReady(SpellTimer["Swipe"]))
                     {
                         R.Cast();
@@ -571,7 +588,7 @@
         {
             if (!CatForm() && HarassMenu["useQHuman"].Cast<CheckBox>().CurrentValue)
             {
-                var target = TargetSelector.GetTarget(QHuman.Range, DamageType.Magical, PlayerInstance.ServerPosition); //HeroManager.Enemies.Where(t => QHuman.IsInRange(t)).OrderBy(t => t.Health);
+                var target = TargetSelector.GetTarget(QHuman.Range, DamageType.Magical, PlayerInstance.ServerPosition);
 
                 if (target != null)
                 {
@@ -608,7 +625,7 @@
                 var useWCat = LaneClearMenu["useWCat"].Cast<CheckBox>().CurrentValue;
                 var useECat = LaneClearMenu["useECat"].Cast<CheckBox>().CurrentValue;
 
-                if (E.IsReady() && useECat && eTarget != null)
+                if (useECat && E.IsReady() && eTarget != null)
                 {
                     var ePrediction = Prediction.Position.PredictConeSpellAoe(eTarget.ToArray(), E.Range, E.ConeAngleDegrees, E.CastDelay, E.Speed, PlayerInstance.ServerPosition);
 
@@ -634,11 +651,11 @@
                 
                 if (minion != null)
                 {
-                    if (useR 
+                    if (useR
                         && PlayerInstance.Distance(minion) <= HumanRange
-                        && IsReady(SpellTimer["Takedown"])
-                        && IsReady(SpellTimer["Pounce"])
-                        && IsReady(SpellTimer["Swipe"]))
+                        && !IsReady(SpellTimer["Takedown"])
+                        && !IsReady(SpellTimer["Pounce"])
+                        && !IsReady(SpellTimer["Swipe"]))
                     {
                         R.Cast();
                     }
@@ -646,8 +663,10 @@
             }
             else
             {
+                var minion = ObjectManager.Get<Obj_AI_Base>().Where(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange).FirstOrDefault();
+
                 if (useR && R.IsReady()
-                    && !IsReady(SpellTimer["Javelin"])
+                    && PlayerInstance.Distance(minion) <= CatRange
                     && IsReady(SpellTimer["Takedown"])
                     && IsReady(SpellTimer["Pounce"])
                     && IsReady(SpellTimer["Swipe"]))
@@ -671,7 +690,7 @@
                 var useECat = JungleClearMenu["useECat"].Cast<CheckBox>().CurrentValue;
                 var useR = MiscMenu["useR"].Cast<CheckBox>().CurrentValue;
                 var wTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), W.Radius, true).FirstOrDefault();
-                var wBTarget = ObjectManager.Get<Obj_AI_Base>().Where(u => u.IsVisible && JungleMobsList.Contains(u.BaseSkinName)).FirstOrDefault();//EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), WBOTH.Radius, true).FirstOrDefault();
+                var wBTarget = ObjectManager.Get<Obj_AI_Base>().Where(u => u.IsVisible && JungleMobsList.Contains(u.BaseSkinName)).FirstOrDefault();
                 var eTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), E.Radius, true);
 
                 if (wBTarget != null)
@@ -742,6 +761,10 @@
                     {
                         R.Cast();
                     }
+                    else if (IsHunted(JungleMob) && IsReady(SpellTimer["Pounce"]) && IsReady(SpellTimer["ExPounce"]))
+                    {
+                        R.Cast();
+                    }
                 }
             }
         }
@@ -751,12 +774,12 @@
         /// </summary>
         private static void Flee()
         {
-            if (!CatForm() || !WCat.IsReady())
+            if (!CatForm() && IsReady(SpellTimer["Pounce"]) && R.IsReady())
             {
-                return;
+                R.Cast();
             }
 
-            if (FleeMenu["useWCat"].Cast<CheckBox>().CurrentValue)
+            if (CatForm() && IsReady(SpellTimer["Pounce"]) && FleeMenu["useWCat"].Cast<CheckBox>().CurrentValue)
             {
                 WCat.Cast(Game.CursorPos);
             }
@@ -778,7 +801,7 @@
             {
                 foreach(var t in target)
                 {
-                    if (t.Health <= DamageLibrary.GetSpellDamage(PlayerInstance, t, SpellSlot.Q, DamageLibrary.SpellStages.Default)) //PlayerInstance.GetSpellDamage(t, SpellSlot.Q))
+                    if (t.Health <= DamageLibrary.GetSpellDamage(PlayerInstance, t, SpellSlot.Q, DamageLibrary.SpellStages.Default))
                     {
                         var pred = QHuman.GetPrediction(t);
 
@@ -1025,7 +1048,7 @@
             }
         }
 
-        static void Drawing_OnDraw(EventArgs args)
+        private static void Drawing_OnDraw(EventArgs args)
         {
             if (!CatForm() && DrawingMenu["drawQHuman"].Cast<CheckBox>().CurrentValue)
             {
