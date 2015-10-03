@@ -250,6 +250,8 @@
                 return;
             }
 
+            Bootstrap.Init(null);
+
             // Attempts to Set Spell Data
             try
             {
