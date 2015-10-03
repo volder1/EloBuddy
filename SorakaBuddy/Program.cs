@@ -57,7 +57,7 @@
         /// Runs when the Program Starts
         /// </summary>
         /// <param name="args">The run arguments</param>
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
         }
@@ -66,7 +66,7 @@
         /// Called when Loading is Completed
         /// </summary>
         /// <param name="args">The loading arguments</param>
-        static void Loading_OnLoadingComplete(EventArgs args)
+        private static void Loading_OnLoadingComplete(EventArgs args)
         {
             try
             {
@@ -74,6 +74,8 @@
                 {
                     return;
                 }
+
+                Bootstrap.Init(null);
 
                 Q = new Spell.Skillshot(SpellSlot.Q, 950, SkillShotType.Circular, 283, 1100, 210);
                 W = new Spell.Targeted(SpellSlot.W, 550);
@@ -91,10 +93,6 @@
                 ComboMenu.AddGroupLabel("ManaManager");
                 ComboMenu.Add("manaQ", new Slider("Min Mana % before Q", 25, 0, 100));
                 ComboMenu.Add("manaE", new Slider("Min Mana % before E", 25, 0, 100));
-
-                // Lane Clear Menu
-                /*LaneClearMenu = SorakaBuddy.AddSubMenu("Lane Clear", "LaneClear");
-                LaneClearMenu.Add("useQ", new CheckBox("Use Q", true));*/
 
                 // Harass Menu
                 HarassMenu = SorakaBuddy.AddSubMenu("Harass", "Harass");
@@ -120,6 +118,7 @@
                 HealMenu.Add("hpR", new Slider("HP % before using R", 25, 0, 100));
                 HealMenu.AddSeparator();
                 HealMenu.AddLabel("Which Champion to Heal? Using W?");
+
                 if (Allies != null)
                 {
                     foreach (var a in Allies)
@@ -128,6 +127,7 @@
                     }
                 }
                 HealMenu.AddSeparator();
+                
                 HealMenu.AddLabel("Which Champion to Heal? Using R?");
                 if (Allies != null)
                 {
@@ -140,7 +140,7 @@
                 HealMenu.AddSeparator();
                 HealMenu.AddGroupLabel("Heal Priority");
                 var healPrioritySlider = HealMenu.Add("Slider", new Slider("mode", 0, 0, 2));
-                var healPriorityArray = new[] { "MostAD", "MostAP", "LowestHealth" };
+                var healPriorityArray = new[] { "Most AD", "Most AP", "Lowest Health" };
                 healPrioritySlider.DisplayName = healPriorityArray[healPrioritySlider.CurrentValue];
                 healPrioritySlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
                 {
@@ -189,7 +189,7 @@
         /// <summary>
         /// Does Combo
         /// </summary>
-        static void Combo()
+        private static void Combo()
         {
             if (ComboMenu["useQ"].Cast<CheckBox>().CurrentValue)
             {
@@ -236,7 +236,7 @@
         /// <summary>
         /// Does Harass
         /// </summary>
-        static void Harass()
+        private static void Harass()
         {
             if (HarassMenu["useQ"].Cast<CheckBox>().CurrentValue)
             {
@@ -283,7 +283,7 @@
         /// <summary>
         /// Does Auto Heal
         /// </summary>
-        static void AutoHeal()
+        private static void AutoHeal()
         {
             var healPrioritySlider = HealMenu["Slider"].Cast<Slider>().DisplayName;
             var autoWHP_other = HealMenu["autoWHP_other"].Cast<Slider>().CurrentValue;
@@ -292,8 +292,8 @@
 
             switch (healPrioritySlider)
             {
-                case "MostAD":
-                    if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue)
+                case "Most AD":
+                    if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue && W.IsReady())
                     {
                         var MostADAlly = HeroManager.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.TotalAttackDamage).OrderBy(a => a.Health).FirstOrDefault();
 
@@ -309,7 +309,7 @@
                             }
                         }
                     }
-                    if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
+                    if (HealMenu["useR"].Cast<CheckBox>().CurrentValue && R.IsReady())
                     {
                         var MostADAllyOOR = HeroManager.Allies.OrderByDescending(a => a.TotalAttackDamage).OrderBy(a => a.Health).FirstOrDefault();
 
@@ -325,8 +325,8 @@
                         }
                     }
                     break;
-                case "MostAP":
-                    if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue)
+                case "Most AP":
+                    if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue && W.IsReady())
                     {
                         var MostAPAlly = HeroManager.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.TotalMagicalDamage).OrderBy(a => a.Health).FirstOrDefault();
 
@@ -342,7 +342,7 @@
                             }
                         }
                     }
-                    if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
+                    if (HealMenu["useR"].Cast<CheckBox>().CurrentValue && R.IsReady())
                     {
                         var MostAPAllyOOR = HeroManager.Allies.OrderByDescending(a => a.TotalMagicalDamage).OrderBy(a => a.Health).FirstOrDefault();
 
@@ -358,8 +358,8 @@
                         }
                     }
                     break;
-                case "LowestHealth":
-                    if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue)
+                case "Lowest Health":
+                    if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue && W.IsReady())
                     {
                         var LowestHealthAlly = HeroManager.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
 
@@ -375,7 +375,7 @@
                             }
                         }
                     }
-                    if (HealMenu["useR"].Cast<CheckBox>().CurrentValue)
+                    if (HealMenu["useR"].Cast<CheckBox>().CurrentValue && R.IsReady())
                     {
                         var LowestHealthAllyOOR = HeroManager.Allies.OrderByDescending(a => a.Health).FirstOrDefault();
 
@@ -391,8 +391,6 @@
                         }
                     }
                     break;
-                default:
-                    return;
             }
         }
 
@@ -401,7 +399,7 @@
         /// </summary>
         /// <param name="sender">The Attacker</param>
         /// <param name="e">The Spell Information</param>
-        static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
+        private static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
         {
             if (InterruptMenu["useE"].Cast<CheckBox>().CurrentValue || e.DangerLevel == DangerLevel.High)
             {
@@ -425,7 +423,7 @@
         /// </summary>
         /// <param name="sender">The Victim</param>
         /// <param name="e">The Spell Information</param>
-        static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
+        private static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
         {
             if (GapcloserMenu["useQ"].Cast<CheckBox>().CurrentValue)
             {
@@ -459,14 +457,14 @@
         /// </summary>
         /// <param name="target">The Target that will be attacked</param>
         /// <param name="args">The Args</param>
-        static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
+        private static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
         {
             var t = target as AIHeroClient;
             var m = target as Obj_AI_Base;
 
             if (t != null)
             {
-                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= 1200).Count();
+                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= PlayerInstance.AttackRange).Count();
                 
                 if (alliesNearPlayer > 1)
                 {
@@ -479,7 +477,7 @@
             }
             else if (m != null)
             {
-                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= 1200).Count();
+                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= PlayerInstance.AttackRange).Count();
                 if (alliesNearPlayer > 1)
                 {
                     if (MiscMenu["disableMAA"].Cast<CheckBox>().CurrentValue)
@@ -498,7 +496,7 @@
         /// Called when the Game Updates
         /// </summary>
         /// <param name="args">The Args</param>
-        static void Game_OnTick(EventArgs args)
+        private static void Game_OnTick(EventArgs args)
         {
             if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue
                 || HealMenu["autoR"].Cast<CheckBox>().CurrentValue)
@@ -521,7 +519,7 @@
         /// Called when the Game Draws
         /// </summary>
         /// <param name="args">The Args</param>
-        static void Drawing_OnDraw(EventArgs args)
+        private static void Drawing_OnDraw(EventArgs args)
         {
             var PlayerPosition = PlayerInstance.Position;
 
