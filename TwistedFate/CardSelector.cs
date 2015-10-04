@@ -28,7 +28,7 @@
 
         static CardSelector()
         {
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
+            AIHeroClient.OnProcessSpellCast += OnProcessSpellCast;
             Game.OnUpdate += Game_OnGameUpdate;
         }
 
@@ -97,7 +97,7 @@
                     }
         }
 
-        private static void Obj_AI_Hero_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        private static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (!sender.IsMe)
             {
