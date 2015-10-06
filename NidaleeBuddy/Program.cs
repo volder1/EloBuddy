@@ -240,6 +240,8 @@
                 return;
             }
 
+            Bootstrap.Init(null);
+
             // Attempts to Set Spell Data
             try
             {
@@ -267,8 +269,6 @@
             {
                 Chat.Print("NidaleeBuddy: Exception while trying to set spells.(" + e.Message + ")");
             }
-
-            Bootstrap.Init(null);
 
             NidaleeBuddy = MainMenu.AddMenu("Nidalee", "Nidalee");
             NidaleeBuddy.AddGroupLabel("This addon is made by KarmaPanda and should not be redistributed in any way.");
@@ -361,7 +361,7 @@
             DrawingMenu.Add("drawQHuman", new CheckBox("Draw Javelin Range"));
 
             // Misc Menu
-            var allies = HeroManager.Allies.Where(a => !a.IsMe).OrderBy(a => a.BaseSkinName);
+            var allies = EntityManager.Heroes.Allies.Where(a => !a.IsMe).OrderBy(a => a.BaseSkinName);
 
             MiscMenu = NidaleeBuddy.AddSubMenu("Misc", "Misc");
             MiscMenu.AddGroupLabel("Heal Settings");
@@ -508,13 +508,13 @@
                 {
                     R.Cast();
                 }
-                else if (useR && IsReady(SpellTimer["Javelin"]) && HeroManager.Enemies.Any(t => t.IsValidTarget() && QHuman.IsInRange(t)))
+                else if (useR && IsReady(SpellTimer["Javelin"]) && EntityManager.Heroes.Enemies.Any(t => t.IsValidTarget() && QHuman.IsInRange(t)))
                 {
                     R.Cast();
                 }
                 else if (autoHeal && useR && IsReady(SpellTimer["Primalsurge"])
                     && PlayerInstance.HealthPercent <= MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue
-                    && !Q.IsReady() && !HeroManager.Enemies.Any(t => t.IsValidTarget() && EHuman.IsInRange(t)))
+                    && !Q.IsReady() && !EntityManager.Heroes.Enemies.Any(t => t.IsValidTarget() && EHuman.IsInRange(t)))
                 {
                     R.Cast();
                 }
@@ -615,14 +615,14 @@
             {
                 var W = WCat;
                 var E = ECat;
-                var wTarget = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition.To2D(), W.Radius).FirstOrDefault();
-                var eTarget = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition.To2D(), E.Radius);
+                var wTarget = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(u => W.IsInRange(u) && u.IsValidTarget());//EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition, W.Radius).FirstOrDefault();
+                var eTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Where(u => E.IsInRange(u) && u.IsValidTarget()).ToArray();//EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition, E.Radius);
                 var useWCat = LaneClearMenu["useWCat"].Cast<CheckBox>().CurrentValue;
                 var useECat = LaneClearMenu["useECat"].Cast<CheckBox>().CurrentValue;
 
-                if (useECat && E.IsReady() && eTarget != null)
+                if (useECat && E.IsReady() && eTarget.Any())
                 {
-                    var ePrediction = Prediction.Position.PredictConeSpellAoe(eTarget.ToArray(), E.Range, E.ConeAngleDegrees, E.CastDelay, E.Speed, PlayerInstance.ServerPosition);
+                    var ePrediction = Prediction.Position.PredictConeSpellAoe(eTarget, E.Range, E.ConeAngleDegrees, E.CastDelay, E.Speed, PlayerInstance.ServerPosition);
 
                     if (ePrediction != null)
                     {
@@ -633,38 +633,40 @@
                     }
                 }
 
-                if (useWCat && W.IsReady() && wTarget != null 
-                    && !HeroManager.Enemies.Any(t => t.IsValidTarget() && t.Distance(PlayerInstance) <= 1000 && t.Distance(wTarget.ServerPosition) <= t.AttackRange))
+                if (useWCat && W.IsReady() && wTarget != null
+                    && !EntityManager.Heroes.Enemies.Any(t => t.IsValidTarget() && t.Distance(PlayerInstance) <= 1000 && t.Distance(wTarget.ServerPosition) <= t.AttackRange))
                 {
-                    W.Cast(wTarget.ServerPosition);
+                     W.Cast(wTarget.ServerPosition);
                 }
 
-                var minion = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
+                var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange); //ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
 
-                if (minion == null)
+                if (minion != null)
                 {
-                    return;
-                }
-                if (useR
-                    && PlayerInstance.Distance(minion) <= HumanRange
-                    && !IsReady(SpellTimer["Takedown"])
-                    && !IsReady(SpellTimer["Pounce"])
-                    && !IsReady(SpellTimer["Swipe"]))
-                {
-                    R.Cast();
+                    if (useR
+                        && PlayerInstance.Distance(minion) > CatRange
+                        && !IsReady(SpellTimer["Takedown"])
+                        && !IsReady(SpellTimer["Pounce"])
+                        && !IsReady(SpellTimer["Swipe"]))
+                    {
+                        R.Cast();
+                    }
                 }
             }
             else
             {
-                var minion = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
+                var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange); //ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
 
-                if (useR && R.IsReady()
-                    && PlayerInstance.Distance(minion) <= CatRange
-                    && IsReady(SpellTimer["Takedown"])
-                    && IsReady(SpellTimer["Pounce"])
-                    && IsReady(SpellTimer["Swipe"]))
+                if (minion != null)
                 {
-                    R.Cast();
+                    if (useR && R.IsReady()
+                        && PlayerInstance.Distance(minion) <= CatRange
+                        && IsReady(SpellTimer["Takedown"])
+                        && IsReady(SpellTimer["Pounce"])
+                        && IsReady(SpellTimer["Swipe"]))
+                    {
+                        R.Cast();
+                    }                    
                 }
             }
         }
@@ -676,15 +678,14 @@
         {
             if (CatForm())
             {
-                var Q = QCat;
                 var W = WCat;
                 var E = ECat;
                 var useWCat = JungleClearMenu["useWCat"].Cast<CheckBox>().CurrentValue;
                 var useECat = JungleClearMenu["useECat"].Cast<CheckBox>().CurrentValue;
                 var useR = JungleClearMenu["useR"].Cast<CheckBox>().CurrentValue;
-                var wTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), W.Radius).FirstOrDefault();
-                var wBTarget = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => WBOTH.IsInRange(u) && JungleMobsList.Contains(u.BaseSkinName));
-                var eTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), E.Radius);
+                var wTarget = EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, W.Radius).FirstOrDefault();
+                var wBTarget = EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(u => WBOTH.IsInRange(u) && JungleMobsList.Contains(u.BaseSkinName));//ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => WBOTH.IsInRange(u) && JungleMobsList.Contains(u.BaseSkinName));//EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, WBOTH.Radius).FirstOrDefault(u => WBOTH.IsInRange(u) && JungleMobsList.Contains(u.BaseSkinName));
+                var eTarget = EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, E.Radius);
 
                 if (wBTarget != null)
                 {
@@ -715,9 +716,9 @@
                     }
                 }
 
-                var JungleTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), QHuman.Radius).FirstOrDefault();
+                var jungleTarget = EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, QHuman.Radius).FirstOrDefault();
 
-                if (JungleTarget == null)
+                if (jungleTarget == null)
                 {
                     return;
                 }
@@ -729,22 +730,19 @@
             else
             {
                 var useQHuman = JungleClearMenu["useQHuman"].Cast<CheckBox>().CurrentValue;
-                var JungleMob = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsValidTarget() && QHuman.IsInRange(t) && JungleMobsList.Contains(t.BaseSkinName));//EntityManager.GetJungleMonsters(PlayerInstance.Position.To2D(), QHuman.Radius, true).Where(t => JungleMobsList.Contains(t.BaseSkinName)).FirstOrDefault();
+                var jungleMob = EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(u => QHuman.IsInRange(u) && JungleMobsList.Contains(u.BaseSkinName));//ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsValidTarget() && QHuman.IsInRange(t) && JungleMobsList.Contains(t.BaseSkinName));
                 var useR = JungleClearMenu["useR"].Cast<CheckBox>().CurrentValue;
 
-                if (JungleMob != null)
+                if (jungleMob != null)
                 {
                     if (useQHuman && QHuman.IsReady())
                     {
-                        var qPrediction = Prediction.Position.PredictUnitPosition(JungleMob, QHuman.Speed);
+                        var qPrediction = Prediction.Position.PredictUnitPosition(jungleMob, QHuman.Speed);
 
-                        if (qPrediction != null)
-                        {
-                            QHuman.Cast(qPrediction.To3D());
-                        }
+                        QHuman.Cast(qPrediction.To3D());
                     }
 
-                    if (useR && PlayerInstance.Distance(JungleMob) <= CatRange && R.IsReady()
+                    if (useR && PlayerInstance.Distance(jungleMob) <= CatRange && R.IsReady()
                         && !IsReady(SpellTimer["Javelin"])
                         && IsReady(SpellTimer["Takedown"])
                         && IsReady(SpellTimer["Pounce"])
@@ -752,7 +750,7 @@
                     {
                         R.Cast();
                     }
-                    else if (IsHunted(JungleMob) && IsReady(SpellTimer["ExPounce"]))
+                    else if (IsHunted(jungleMob) && IsReady(SpellTimer["ExPounce"]))
                     {
                         R.Cast();
                     }
@@ -786,7 +784,7 @@
                 return;
             }
 
-            var target = HeroManager.Enemies.Where(t => t.IsValidTarget() && QHuman.IsInRange(t));
+            var target = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget() && QHuman.IsInRange(t));
 
             foreach (var pred in target.Where(t => t.Health < PlayerInstance.GetSpellDamage(t, SpellSlot.Q)).Select(t => QHuman.GetPrediction(t)).Where(pred => pred.HitChance == HitChance.High))
             {
@@ -801,7 +799,7 @@
         {
             if (Game.MapId == GameMapId.SummonersRift)
             {
-                var t = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => QHuman.IsInRange(u) && u.IsVisible && JungleMobsList.Contains(u.BaseSkinName));
+                var t = EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(u => QHuman.IsInRange(u) && u.IsVisible && JungleMobsList.Contains(u.BaseSkinName));//ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => QHuman.IsInRange(u) && u.IsVisible && JungleMobsList.Contains(u.BaseSkinName));
 
                 if (t != null)
                 {
@@ -891,7 +889,7 @@
                 return;
             }
 
-            var lowestHealthAlly = HeroManager.Allies.Where(a => EHuman.IsInRange(a) && !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
+            var lowestHealthAlly = EntityManager.Heroes.Allies.Where(a => EHuman.IsInRange(a) && !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
 
             if (PlayerInstance.HealthPercent <= MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue)
             {
