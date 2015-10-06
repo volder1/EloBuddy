@@ -1,9 +1,8 @@
 ﻿namespace SorakaBuddy
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Drawing;
+    using System.Linq;
 
     using EloBuddy;
     using EloBuddy.SDK;
@@ -11,7 +10,7 @@
     using EloBuddy.SDK.Events;
     using EloBuddy.SDK.Menu;
     using EloBuddy.SDK.Menu.Values;
-    using SharpDX;
+    using EloBuddy.SDK.Rendering;
 
     internal class Program
     {
@@ -56,8 +55,7 @@
         /// <summary>
         /// Runs when the Program Starts
         /// </summary>
-        /// <param name="args">The run arguments</param>
-        private static void Main(string[] args)
+        private static void Main()
         {
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
         }
@@ -87,56 +85,48 @@
                 // Combo Menu
                 ComboMenu = SorakaBuddy.AddSubMenu("Combo", "Combo");
                 ComboMenu.AddGroupLabel("Combo Setting");
-                ComboMenu.Add("useQ", new CheckBox("Use Q", true));
-                ComboMenu.Add("useE", new CheckBox("Use E", true));
+                ComboMenu.Add("useQ", new CheckBox("Use Q"));
+                ComboMenu.Add("useE", new CheckBox("Use E"));
                 ComboMenu.AddSeparator();
                 ComboMenu.AddGroupLabel("ManaManager");
-                ComboMenu.Add("manaQ", new Slider("Min Mana % before Q", 25, 0, 100));
-                ComboMenu.Add("manaE", new Slider("Min Mana % before E", 25, 0, 100));
+                ComboMenu.Add("manaQ", new Slider("Min Mana % before Q", 25));
+                ComboMenu.Add("manaE", new Slider("Min Mana % before E", 25));
 
                 // Harass Menu
                 HarassMenu = SorakaBuddy.AddSubMenu("Harass", "Harass");
                 HarassMenu.AddGroupLabel("Harass Setting");
-                HarassMenu.Add("useQ", new CheckBox("Use Q", true));
-                HarassMenu.Add("useE", new CheckBox("Use E", true));
+                HarassMenu.Add("useQ", new CheckBox("Use Q"));
+                HarassMenu.Add("useE", new CheckBox("Use E"));
                 HarassMenu.AddSeparator();
                 HarassMenu.AddGroupLabel("ManaManager");
-                HarassMenu.Add("manaQ", new Slider("Min Mana % before Q", 25, 0, 100));
-                HarassMenu.Add("manaE", new Slider("Min Mana % before E", 25, 0, 100));
+                HarassMenu.Add("manaQ", new Slider("Min Mana % before Q", 25));
+                HarassMenu.Add("manaE", new Slider("Min Mana % before E", 25));
 
                 // Heal Menu
-                var Allies = HeroManager.Allies.Where(a => !a.IsMe);
+                var allies = EntityManager.Heroes.Allies.Where(a => !a.IsMe);
                 HealMenu = SorakaBuddy.AddSubMenu("Auto Heal", "Heal");
                 HealMenu.AddGroupLabel("Auto W Setting");
-                HealMenu.Add("autoW", new CheckBox("Auto W Allies and Me", true));
-                HealMenu.Add("autoWHP_self", new Slider("Own HP % before using W", 50, 0, 100));
-                HealMenu.Add("autoWHP_other", new Slider("Ally HP % before W", 50, 0, 100));
+                HealMenu.Add("autoW", new CheckBox("Auto W Allies and Me"));
+                HealMenu.Add("autoWHP_self", new Slider("Own HP % before using W", 50));
+                HealMenu.Add("autoWHP_other", new Slider("Ally HP % before W", 50));
                 HealMenu.AddSeparator();
                 HealMenu.AddGroupLabel("Auto R Setting");
-                HealMenu.Add("useR", new CheckBox("Auto R on HP %", true));
+                HealMenu.Add("useR", new CheckBox("Auto R on HP %"));
                 HealMenu.AddSeparator();
-                HealMenu.Add("hpR", new Slider("HP % before using R", 25, 0, 100));
+                HealMenu.Add("hpR", new Slider("HP % before using R", 25));
                 HealMenu.AddSeparator();
                 HealMenu.AddLabel("Which Champion to Heal? Using W?");
-
-                if (Allies != null)
+                foreach (var a in allies)
                 {
-                    foreach (var a in Allies)
-                    {
-                        HealMenu.Add("autoHeal_" + a.BaseSkinName, new CheckBox("Auto Heal with W " + a.BaseSkinName, true));
-                    }
+                    HealMenu.Add("autoHeal_" + a.BaseSkinName, new CheckBox("Auto Heal with W " + a.BaseSkinName));
                 }
                 HealMenu.AddSeparator();
-                
                 HealMenu.AddLabel("Which Champion to Heal? Using R?");
-                if (Allies != null)
+                foreach (var a in allies)
                 {
-                    foreach (var a in Allies)
-                    {
-                        HealMenu.Add("autoHealR_" + a.BaseSkinName, new CheckBox("Auto Heal with R " + a.BaseSkinName, true));
-                    }
+                    HealMenu.Add("autoHealR_" + a.BaseSkinName, new CheckBox("Auto Heal with R " + a.BaseSkinName));
                 }
-                HealMenu.Add("autoHealR_" + PlayerInstance.BaseSkinName, new CheckBox("Auto Heal Self with R", true));
+                HealMenu.Add("autoHealR_" + PlayerInstance.BaseSkinName, new CheckBox("Auto Heal Self with R"));
                 HealMenu.AddSeparator();
                 HealMenu.AddGroupLabel("Heal Priority");
                 var healPrioritySlider = HealMenu.Add("Slider", new Slider("mode", 0, 0, 2));
@@ -150,28 +140,28 @@
                 // Interrupt Menu
                 InterruptMenu = SorakaBuddy.AddSubMenu("Interrupter", "Interrupter");
                 InterruptMenu.AddGroupLabel("Interrupter Setting");
-                InterruptMenu.Add("useE", new CheckBox("Use E on Interrupt", true));
+                InterruptMenu.Add("useE", new CheckBox("Use E on Interrupt"));
 
                 // Gapcloser Menu
                 GapcloserMenu = SorakaBuddy.AddSubMenu("Gapcloser", "Gapcloser");
                 GapcloserMenu.AddGroupLabel("Gapcloser Setting");
-                GapcloserMenu.Add("useQ", new CheckBox("Use Q on Gapcloser", true));
-                GapcloserMenu.Add("useE", new CheckBox("Use E on Gapcloser", true));
+                GapcloserMenu.Add("useQ", new CheckBox("Use Q on Gapcloser"));
+                GapcloserMenu.Add("useE", new CheckBox("Use E on Gapcloser"));
 
                 // Drawing Menu
                 DrawingMenu = SorakaBuddy.AddSubMenu("Drawing", "Drawing");
                 DrawingMenu.AddGroupLabel("Drawing Setting");
-                DrawingMenu.Add("drawQ", new CheckBox("Draw Q Range", true));
-                DrawingMenu.Add("drawW", new CheckBox("Draw W Range", true));
-                DrawingMenu.Add("drawE", new CheckBox("Draw E Range", true));
+                DrawingMenu.Add("drawQ", new CheckBox("Draw Q Range"));
+                DrawingMenu.Add("drawW", new CheckBox("Draw W Range"));
+                DrawingMenu.Add("drawE", new CheckBox("Draw E Range"));
 
                 // Misc Menu
                 MiscMenu = SorakaBuddy.AddSubMenu("Misc", "Misc");
                 MiscMenu.AddGroupLabel("Miscellaneous Setting");
-                MiscMenu.Add("disableMAA", new CheckBox("Disable Minion AA", true));
-                MiscMenu.Add("disableCAA", new CheckBox("Disable Champion AA", true));
+                MiscMenu.Add("disableMAA", new CheckBox("Disable Minion AA"));
+                MiscMenu.Add("disableCAA", new CheckBox("Disable Champion AA"));
 
-                Chat.Print("SorakaBuddy: Initialized", System.Drawing.Color.LightGreen);
+                Chat.Print("SorakaBuddy: Initialized", Color.LightGreen);
 
                 Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
                 Game.OnTick += Game_OnTick;
@@ -193,40 +183,38 @@
         {
             if (ComboMenu["useQ"].Cast<CheckBox>().CurrentValue)
             {
-                var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+                var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical, PlayerInstance.ServerPosition);
 
                 if (target != null)
                 {
-                    if (PlayerInstance.ManaPercent >= ComboMenu["manaQ"].Cast<Slider>().CurrentValue)
+                    if (PlayerInstance.ManaPercent >= ComboMenu["manaQ"].Cast<Slider>().CurrentValue
+                        && (target.IsValidTarget(Q.Range) && Q.IsReady()))
                     {
-                        if (target.IsValidTarget(Q.Range) && Q.IsReady())
-                        {
-                            var pred = Prediction.Position.PredictCircularMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, PlayerInstance.Position); //Q.GetPrediction(target);
+                        var pred = Q.GetPrediction(target);
+                            //Prediction.Position.PredictCircularMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, PlayerInstance.ServerPosition); 
 
-                            if (pred.HitChance == HitChance.High)
-                            {
-                                Q.Cast(pred.CastPosition);
-                            }
+                        if (pred.HitChance == HitChance.High)
+                        {
+                            Q.Cast(pred.CastPosition);
                         }
                     }
                 }
             }
             if (ComboMenu["useE"].Cast<CheckBox>().CurrentValue)
             {
-                var target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+                var target = TargetSelector.GetTarget(E.Range, DamageType.Magical, PlayerInstance.ServerPosition);
 
                 if (target != null)
                 {
-                    if (PlayerInstance.ManaPercent >= ComboMenu["manaE"].Cast<Slider>().CurrentValue)
+                    if (PlayerInstance.ManaPercent >= ComboMenu["manaE"].Cast<Slider>().CurrentValue
+                        && (target.IsValidTarget(E.Range) && E.IsReady()))
                     {
-                        if (target.IsValidTarget(E.Range) && E.IsReady())
-                        {
-                            var pred = Prediction.Position.PredictCircularMissile(target, E.Range, E.Radius, E.CastDelay, E.Speed, PlayerInstance.Position); //E.GetPrediction(target);
+                        var pred = E.GetPrediction(target);
+                            //Prediction.Position.PredictCircularMissile(target, E.Range, E.Radius, E.CastDelay, E.Speed, PlayerInstance.Position);
 
-                            if (pred.HitChance == HitChance.High)
-                            {
-                                E.Cast(pred.CastPosition);
-                            }
+                        if (pred.HitChance == HitChance.High)
+                        {
+                            E.Cast(pred.CastPosition);
                         }
                     }
                 }
@@ -240,7 +228,7 @@
         {
             if (HarassMenu["useQ"].Cast<CheckBox>().CurrentValue)
             {
-                var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+                var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical, PlayerInstance.ServerPosition);
 
                 if (target != null)
                 {
@@ -248,7 +236,7 @@
                     {
                         if (target.IsValidTarget(Q.Range) && Q.IsReady())
                         {
-                            var pred = Prediction.Position.PredictCircularMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, PlayerInstance.Position); //Q.GetPrediction(target);
+                            var pred = Q.GetPrediction(target); // Prediction.Position.PredictCircularMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, PlayerInstance.Position);
 
                             if (pred.HitChance == HitChance.High)
                             {
@@ -260,7 +248,7 @@
             }
             if (HarassMenu["useE"].Cast<CheckBox>().CurrentValue)
             {
-                var target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+                var target = TargetSelector.GetTarget(E.Range, DamageType.Magical, PlayerInstance.ServerPosition);
 
                 if (target != null)
                 {
@@ -268,7 +256,7 @@
                     {
                         if (target.IsValidTarget(E.Range) && E.IsReady())
                         {
-                            var pred = Prediction.Position.PredictCircularMissile(target, E.Range, E.Radius, E.CastDelay, E.Speed, PlayerInstance.Position); //E.GetPrediction(target);
+                            var pred = E.GetPrediction(target); //Prediction.Position.PredictCircularMissile(target, E.Range, E.Radius, E.CastDelay, E.Speed, PlayerInstance.Position);
 
                             if (pred.HitChance == HitChance.High)
                             {
@@ -286,8 +274,8 @@
         private static void AutoHeal()
         {
             var healPrioritySlider = HealMenu["Slider"].Cast<Slider>().DisplayName;
-            var autoWHP_other = HealMenu["autoWHP_other"].Cast<Slider>().CurrentValue;
-            var autoWHP_self = HealMenu["autoWHP_self"].Cast<Slider>().CurrentValue;
+            var autoWhpOther = HealMenu["autoWHP_other"].Cast<Slider>().CurrentValue;
+            var autoWhpSelf = HealMenu["autoWHP_self"].Cast<Slider>().CurrentValue;
             var Recall = PlayerInstance.HasBuff("Recall");
 
             switch (healPrioritySlider)
@@ -295,29 +283,29 @@
                 case "Most AD":
                     if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue && W.IsReady())
                     {
-                        var MostADAlly = HeroManager.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.TotalAttackDamage).OrderBy(a => a.Health).FirstOrDefault();
+                        var mostAdAlly = EntityManager.Heroes.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.TotalAttackDamage).ThenBy(a => a.Health).FirstOrDefault();
 
-                        if (MostADAlly != null)
+                        if (mostAdAlly != null)
                         {
-                            if (MostADAlly.HealthPercent <= autoWHP_other
-                                && PlayerInstance.HealthPercent >= autoWHP_self)
+                            if (mostAdAlly.HealthPercent <= autoWhpOther
+                                && PlayerInstance.HealthPercent >= autoWhpSelf)
                             {
-                                if (HealMenu["autoHeal_" + MostADAlly.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                                if (HealMenu["autoHeal_" + mostAdAlly.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
                                 {
-                                    W.Cast(MostADAlly);
+                                    W.Cast(mostAdAlly);
                                 }
                             }
                         }
                     }
                     if (HealMenu["useR"].Cast<CheckBox>().CurrentValue && R.IsReady())
                     {
-                        var MostADAllyOOR = HeroManager.Allies.OrderByDescending(a => a.TotalAttackDamage).OrderBy(a => a.Health).FirstOrDefault();
+                        var mostAdAllyOor = EntityManager.Heroes.Allies.OrderByDescending(a => a.TotalAttackDamage).ThenBy(a => a.Health).FirstOrDefault();
 
-                        if (MostADAllyOOR != null)
+                        if (mostAdAllyOor != null)
                         {
-                            if (MostADAllyOOR.HealthPercent <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
+                            if (mostAdAllyOor.HealthPercent <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
                             {
-                                if (HealMenu["autoHealR_" + MostADAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                                if (HealMenu["autoHealR_" + mostAdAllyOor.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
                                 {
                                     R.Cast();
                                 }
@@ -328,29 +316,29 @@
                 case "Most AP":
                     if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue && W.IsReady())
                     {
-                        var MostAPAlly = HeroManager.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.TotalMagicalDamage).OrderBy(a => a.Health).FirstOrDefault();
+                        var mostApAlly = EntityManager.Heroes.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.TotalMagicalDamage).ThenBy(a => a.Health).FirstOrDefault();
 
-                        if (MostAPAlly != null)
+                        if (mostApAlly != null)
                         {
-                            if (MostAPAlly.HealthPercent <= autoWHP_other
-                                && PlayerInstance.HealthPercent >= autoWHP_self)
+                            if (mostApAlly.HealthPercent <= autoWhpOther
+                                && PlayerInstance.HealthPercent >= autoWhpSelf)
                             {
-                                if (HealMenu["autoHeal_" + MostAPAlly.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                                if (HealMenu["autoHeal_" + mostApAlly.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
                                 {
-                                    W.Cast(MostAPAlly);
+                                    W.Cast(mostApAlly);
                                 }
                             }
                         }
                     }
                     if (HealMenu["useR"].Cast<CheckBox>().CurrentValue && R.IsReady())
                     {
-                        var MostAPAllyOOR = HeroManager.Allies.OrderByDescending(a => a.TotalMagicalDamage).OrderBy(a => a.Health).FirstOrDefault();
+                        var mostApAllyOor = EntityManager.Heroes.Allies.OrderByDescending(a => a.TotalMagicalDamage).ThenBy(a => a.Health).FirstOrDefault();
 
-                        if (MostAPAllyOOR != null)
+                        if (mostApAllyOor != null)
                         {
-                            if (MostAPAllyOOR.HealthPercent <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
+                            if (mostApAllyOor.HealthPercent <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
                             {
-                                if (HealMenu["autoHealR_" + MostAPAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                                if (HealMenu["autoHealR_" + mostApAllyOor.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
                                 {
                                     R.Cast();
                                 }
@@ -361,29 +349,29 @@
                 case "Lowest Health":
                     if (HealMenu["autoW"].Cast<CheckBox>().CurrentValue && W.IsReady())
                     {
-                        var LowestHealthAlly = HeroManager.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
+                        var lowestHealthAlly = EntityManager.Heroes.Allies.Where(a => W.IsInRange(a) && !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
 
-                        if (LowestHealthAlly != null)
+                        if (lowestHealthAlly != null)
                         {
-                            if (LowestHealthAlly.HealthPercent <= autoWHP_other
-                                && PlayerInstance.HealthPercent >= autoWHP_self)
+                            if (lowestHealthAlly.HealthPercent <= autoWhpOther
+                                && PlayerInstance.HealthPercent >= autoWhpSelf)
                             {
-                                if (HealMenu["autoHeal_" + LowestHealthAlly.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                                if (HealMenu["autoHeal_" + lowestHealthAlly.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
                                 {
-                                    W.Cast(LowestHealthAlly);
+                                    W.Cast(lowestHealthAlly);
                                 }
                             }
                         }
                     }
                     if (HealMenu["useR"].Cast<CheckBox>().CurrentValue && R.IsReady())
                     {
-                        var LowestHealthAllyOOR = HeroManager.Allies.OrderByDescending(a => a.Health).FirstOrDefault();
+                        var lowestHealthAllyOor = EntityManager.Heroes.Allies.OrderByDescending(a => a.Health).FirstOrDefault();
 
-                        if (LowestHealthAllyOOR != null)
+                        if (lowestHealthAllyOor != null)
                         {
-                            if (LowestHealthAllyOOR.HealthPercent <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
+                            if (lowestHealthAllyOor.HealthPercent <= HealMenu["hpR"].Cast<Slider>().CurrentValue)
                             {
-                                if (HealMenu["autoHealR_" + LowestHealthAllyOOR.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
+                                if (HealMenu["autoHealR_" + lowestHealthAllyOor.BaseSkinName].Cast<CheckBox>().CurrentValue && !Recall)
                                 {
                                     R.Cast();
                                 }
@@ -403,16 +391,13 @@
         {
             if (InterruptMenu["useE"].Cast<CheckBox>().CurrentValue || e.DangerLevel == DangerLevel.High)
             {
-                if (sender.IsValidTarget(E.Range))
+                if (sender.IsValidTarget(E.Range) && E.IsReady())
                 {
-                    if (E.IsReady())
-                    {
-                        var pred = E.GetPrediction(sender);
+                    var pred = E.GetPrediction(sender);
 
-                        if (pred.HitChance == HitChance.High)
-                        {
-                            E.Cast(pred.CastPosition);
-                        }
+                    if (pred.HitChance == HitChance.High)
+                    {
+                        E.Cast(pred.CastPosition);
                     }
                 }
             }
@@ -464,31 +449,29 @@
 
             if (t != null)
             {
-                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= PlayerInstance.AttackRange).Count();
-                
-                if (alliesNearPlayer > 1)
-                {
-                    if (MiscMenu["disableCAA"].Cast<CheckBox>().CurrentValue)
-                    {
-                        args.Process = false;
-                    }
-                }
+                var alliesNearPlayer = EntityManager.Heroes.Allies.Count(a => PlayerInstance.Distance(a) <= PlayerInstance.AttackRange);
 
-            }
-            else if (m != null)
-            {
-                var alliesNearPlayer = HeroManager.Allies.Where(a => PlayerInstance.Distance(a) <= PlayerInstance.AttackRange).Count();
-                if (alliesNearPlayer > 1)
+                if (alliesNearPlayer <= 1)
                 {
-                    if (MiscMenu["disableMAA"].Cast<CheckBox>().CurrentValue)
-                    {
-                        args.Process = false;
-                    }
+                    return;
+                }
+                if (MiscMenu["disableCAA"].Cast<CheckBox>().CurrentValue)
+                {
+                    args.Process = false;
                 }
             }
-            else
+
+            if (m != null)
             {
-                return;
+                var alliesNearPlayer = EntityManager.Heroes.Allies.Count(a => PlayerInstance.Distance(a) <= PlayerInstance.AttackRange);
+                if (alliesNearPlayer <= 1)
+                {
+                    return;
+                }
+                if (MiscMenu["disableMAA"].Cast<CheckBox>().CurrentValue)
+                {
+                    args.Process = false;
+                }
             }
         }
 
@@ -525,15 +508,15 @@
 
             if (DrawingMenu["drawQ"].Cast<CheckBox>().CurrentValue)
             {
-                EloBuddy.SDK.Rendering.Circle.Draw(Q.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, Q.Range, PlayerPosition);
+                Circle.Draw(Q.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, Q.Range, PlayerPosition);
             }
             if (DrawingMenu["drawW"].Cast<CheckBox>().CurrentValue)
             {
-                EloBuddy.SDK.Rendering.Circle.Draw(W.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, W.Range, PlayerPosition);
+                Circle.Draw(W.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, W.Range, PlayerPosition);
             }
             if (DrawingMenu["drawE"].Cast<CheckBox>().CurrentValue)
             {
-                EloBuddy.SDK.Rendering.Circle.Draw(E.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, E.Range, PlayerPosition);
+                Circle.Draw(E.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, E.Range, PlayerPosition);
             }
         }
     }
