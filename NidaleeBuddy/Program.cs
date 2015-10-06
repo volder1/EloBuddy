@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Drawing;
+    using System.Linq;
 
     using EloBuddy;
     using EloBuddy.SDK;
@@ -11,7 +11,7 @@
     using EloBuddy.SDK.Events;
     using EloBuddy.SDK.Menu;
     using EloBuddy.SDK.Menu.Values;
-    using SharpDX;
+    using EloBuddy.SDK.Rendering;
 
     internal class Program
     {
@@ -68,12 +68,12 @@
         /// <summary>
         /// Attack range for Human Form
         /// </summary>
-        private static float HumanRange = 525;
+        private const float HumanRange = 525;
 
         /// <summary>
         /// Attack range for Cougar Form
         /// </summary>
-        private static float CatRange = 125;
+        private const float CatRange = 125;
 
         /// <summary>
         /// Initializes the Menu
@@ -133,7 +133,7 @@
         /// <returns></returns>
         private static float GetSmiteDamage()
         {
-            int level = ObjectManager.Player.Level;
+            var level = ObjectManager.Player.Level;
             float[] smitedamage =
             {
                 20*level + 370,
@@ -186,12 +186,12 @@
         /// <summary>
         /// Jungle Mob List 
         /// </summary>
-        private static string[] JungleMobsList = { "SRU_Red", "SRU_Blue", "SRU_Dragon", "SRU_Baron", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Krug", "Sru_Crab" };
+        private static readonly string[] JungleMobsList = { "SRU_Red", "SRU_Blue", "SRU_Dragon", "SRU_Baron", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Krug", "Sru_Crab" };
 
         /// <summary>
         /// Jungle Mob List for Twisted Treeline
         /// </summary>
-        private static string[] TTJungleMobsList = { "TT_NWraith1.1", "TT_NWraith4.1", "TT_NGolem2.1", "TT_NGolem5.1", "TT_NWolf3.1", "TT_NWolf6.1", "TT_Spiderboss8.1" };
+        private static readonly string[] JungleMobsListTT = { "TT_NWraith1.1", "TT_NWraith4.1", "TT_NGolem2.1", "TT_NGolem5.1", "TT_NWolf3.1", "TT_NWolf6.1", "TT_Spiderboss8.1" };
 
         /// <summary>
         /// Stores the current tickcount of the spell.
@@ -224,8 +224,7 @@
         /// <summary>
         /// Runs when Program Starts
         /// </summary>
-        /// <param name="args">The run arguments</param>
-        private static void Main(string[] args)
+        private static void Main()
         {
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
         }
@@ -238,19 +237,8 @@
         {
             if (ChampionName != PlayerInstance.BaseSkinName)
             {
-                // Just to make sure it won't spam someone's chat.
-
-                bool MessagePrint = true;
-
-                if (MessagePrint)
-                {
-                    Chat.Print("NidaleeBuddy: Champion is not supported.");
-                    MessagePrint = false;
-                }
                 return;
             }
-
-            Bootstrap.Init(null);
 
             // Attempts to Set Spell Data
             try
@@ -270,15 +258,17 @@
                 ECat = new Spell.Skillshot(SpellSlot.E, 300, SkillShotType.Cone, 250, int.MaxValue, (int)(15.00 * Math.PI / 180.00));
 
                 // Smite
-                if (HasSpell("smite"))
+                /*if (HasSpell("smite"))
                 {
                     Smite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonersmite"), 500);
-                }
+                }*/
             }
             catch (Exception e)
             {
                 Chat.Print("NidaleeBuddy: Exception while trying to set spells.(" + e.Message + ")");
             }
+
+            Bootstrap.Init(null);
 
             NidaleeBuddy = MainMenu.AddMenu("Nidalee", "Nidalee");
             NidaleeBuddy.AddGroupLabel("This addon is made by KarmaPanda and should not be redistributed in any way.");
@@ -288,52 +278,57 @@
             // Combo Menu
             ComboMenu = NidaleeBuddy.AddSubMenu("Combo", "Combo");
             ComboMenu.AddGroupLabel("Combo Settings");
-            ComboMenu.Add("useQHuman", new CheckBox("Use Q in Human Form", true));
-            ComboMenu.Add("useWHuman", new CheckBox("Use W in Human Form", true));
-            ComboMenu.Add("useQCat", new CheckBox("Use Q in Cougar Form", true));
-            ComboMenu.Add("useWCat", new CheckBox("Use W in Cougar Form", true));
-            ComboMenu.Add("useECat", new CheckBox("Use E in Cougar Form", true));
+            ComboMenu.Add("useQHuman", new CheckBox("Use Q in Human Form"));
+            ComboMenu.Add("useWHuman", new CheckBox("Use W in Human Form"));
+            ComboMenu.Add("useQCat", new CheckBox("Use Q in Cougar Form"));
+            ComboMenu.Add("useWCat", new CheckBox("Use W in Cougar Form"));
+            ComboMenu.Add("useECat", new CheckBox("Use E in Cougar Form"));
+            ComboMenu.Add("useR", new CheckBox("Auto Switch R Form"));
 
             // Lane Clear Menu
             LaneClearMenu = NidaleeBuddy.AddSubMenu("Lane Clear", "LaneClear");
             LaneClearMenu.AddGroupLabel("LaneClear Settings");
-            LaneClearMenu.Add("useQCat", new CheckBox("Use Q in Cougar Form", true));
-            LaneClearMenu.Add("useWCat", new CheckBox("Use W in Cougar Form", true));
-            LaneClearMenu.Add("useECat", new CheckBox("Use E in Cougar Form", true));
+            LaneClearMenu.Add("useQCat", new CheckBox("Use Q in Cougar Form"));
+            LaneClearMenu.Add("useWCat", new CheckBox("Use W in Cougar Form"));
+            LaneClearMenu.Add("useECat", new CheckBox("Use E in Cougar Form"));
+            LaneClearMenu.Add("useR", new CheckBox("Auto Switch R Form"));
 
             // Jungle Clear Menu
             JungleClearMenu = NidaleeBuddy.AddSubMenu("Jungle Clear", "JungleClear");
             JungleClearMenu.AddGroupLabel("JungleClear Settings");
-            JungleClearMenu.Add("useQHuman", new CheckBox("Use Q in Human Form", true));
-            JungleClearMenu.Add("useQCat", new CheckBox("Use Q in Cougar Form", true));
-            JungleClearMenu.Add("useWCat", new CheckBox("Use W in Cougar Form", true));
-            JungleClearMenu.Add("useECat", new CheckBox("Use E in Cougar Form", true));
+            JungleClearMenu.Add("useQHuman", new CheckBox("Use Q in Human Form"));
+            JungleClearMenu.Add("useQCat", new CheckBox("Use Q in Cougar Form"));
+            JungleClearMenu.Add("useWCat", new CheckBox("Use W in Cougar Form"));
+            JungleClearMenu.Add("useECat", new CheckBox("Use E in Cougar Form"));
+            JungleClearMenu.Add("useR", new CheckBox("Auto Switch R Form"));
 
             // Harass Menu
             HarassMenu = NidaleeBuddy.AddSubMenu("Harass", "Harass");
             HarassMenu.AddGroupLabel("Harass Settings");
-            HarassMenu.Add("useQHuman", new CheckBox("Use Q in Human Form", true));
+            HarassMenu.Add("useQHuman", new CheckBox("Use Q in Human Form"));
+            HarassMenu.Add("useR", new CheckBox("Auto Switch R Form"));
 
             // Kill Steal Menu
             KillStealMenu = NidaleeBuddy.AddSubMenu("Kill Steal", "KillSteal");
             KillStealMenu.AddGroupLabel("KillSteal Settings");
-            KillStealMenu.Add("useQHuman", new CheckBox("Kill Steal using Q in Human Form", true));
+            KillStealMenu.Add("useQHuman", new CheckBox("Kill Steal using Q in Human Form"));
+            KillStealMenu.Add("useAll", new CheckBox("Use KillSteal all the time or not in any modes", false));
 
             // Jungle Steal Menu
             JungleStealMenu = NidaleeBuddy.AddSubMenu("Jungle Steal", "JungleSteal");
             JungleStealMenu.AddGroupLabel("Jungle Steal Settings");
-            JungleStealMenu.Add("useQHuman", new CheckBox("Jungle Steal using Q in Human Form", true));
-            JungleStealMenu.Add("useSmite", new CheckBox("Jungle Steal using Smite", true));
+            JungleStealMenu.Add("useQHuman", new CheckBox("Jungle Steal using Q in Human Form"));
+            JungleStealMenu.Add("useSmite", new CheckBox("Jungle Steal using Smite"));
             JungleStealMenu.AddSeparator();
 
             if (Game.MapId == GameMapId.SummonersRift)
             {
                 JungleStealMenu.AddLabel("Epics");
-                JungleStealMenu.Add("SRU_Baron", new CheckBox("Baron", true));
-                JungleStealMenu.Add("SRU_Dragon", new CheckBox("Dragon", true));
+                JungleStealMenu.Add("SRU_Baron", new CheckBox("Baron"));
+                JungleStealMenu.Add("SRU_Dragon", new CheckBox("Dragon"));
                 JungleStealMenu.AddLabel("Buffs");
-                JungleStealMenu.Add("SRU_Blue", new CheckBox("Blue", true));
-                JungleStealMenu.Add("SRU_Red", new CheckBox("Red", true));
+                JungleStealMenu.Add("SRU_Blue", new CheckBox("Blue"));
+                JungleStealMenu.Add("SRU_Red", new CheckBox("Red"));
                 JungleStealMenu.AddLabel("Small Camps");
                 JungleStealMenu.Add("SRU_Gromp", new CheckBox("Gromp", false));
                 JungleStealMenu.Add("SRU_Murkwolf", new CheckBox("Murkwolf", false));
@@ -345,44 +340,41 @@
             if (Game.MapId == GameMapId.TwistedTreeline)
             {
                 JungleStealMenu.AddLabel("Epics");
-                JungleStealMenu.Add("TT_Spiderboss8.1", new CheckBox("Vilemaw", true));
+                JungleStealMenu.Add("TT_Spiderboss8.1", new CheckBox("Vilemaw"));
                 JungleStealMenu.AddLabel("Camps");
-                JungleStealMenu.Add("TT_NWraith1.1", new CheckBox("Wraith", true));
-                JungleStealMenu.Add("TT_NWraith4.1", new CheckBox("Wraith", true));
-                JungleStealMenu.Add("TT_NGolem2.1", new CheckBox("Golem", true));
-                JungleStealMenu.Add("TT_NGolem5.1", new CheckBox("Golem", true));
-                JungleStealMenu.Add("TT_NWolf3.1", new CheckBox("Wolf", true));
-                JungleStealMenu.Add("TT_NWolf6.1", new CheckBox("Wolf", true));
+                JungleStealMenu.Add("TT_NWraith1.1", new CheckBox("Wraith"));
+                JungleStealMenu.Add("TT_NWraith4.1", new CheckBox("Wraith"));
+                JungleStealMenu.Add("TT_NGolem2.1", new CheckBox("Golem"));
+                JungleStealMenu.Add("TT_NGolem5.1", new CheckBox("Golem"));
+                JungleStealMenu.Add("TT_NWolf3.1", new CheckBox("Wolf"));
+                JungleStealMenu.Add("TT_NWolf6.1", new CheckBox("Wolf"));
             }
 
             // Flee Menu
             FleeMenu = NidaleeBuddy.AddSubMenu("Flee", "Flee");
             FleeMenu.AddGroupLabel("Flee Settings");
-            FleeMenu.Add("useWCat", new CheckBox("Use W in Cougar Form", true));
+            FleeMenu.Add("useWCat", new CheckBox("Use W in Cougar Form"));
 
             // Drawing Menu
             DrawingMenu = NidaleeBuddy.AddSubMenu("Drawing", "Drawing");
             DrawingMenu.AddGroupLabel("Drawing Settings");
-            DrawingMenu.Add("drawQHuman", new CheckBox("Draw Javelin Range", true));
+            DrawingMenu.Add("drawQHuman", new CheckBox("Draw Javelin Range"));
 
             // Misc Menu
-            var Allies = HeroManager.Allies.Where(a => !a.IsMe).OrderBy(a => a.BaseSkinName);
+            var allies = HeroManager.Allies.Where(a => !a.IsMe).OrderBy(a => a.BaseSkinName);
 
             MiscMenu = NidaleeBuddy.AddSubMenu("Misc", "Misc");
             MiscMenu.AddGroupLabel("Heal Settings");
-            MiscMenu.Add("autoHeal", new CheckBox("Auto Heal Allies and Me", true));
-            MiscMenu.Add("autoHealPercent", new Slider("Auto Heal Percent", 50, 0, 100));
-            if (Allies != null)
+            MiscMenu.Add("autoHeal", new CheckBox("Auto Heal Allies and Me"));
+            MiscMenu.Add("autoHealPercent", new Slider("Auto Heal Percent", 50));
+            foreach (var a in allies)
             {
-                foreach (var a in Allies)
-                {
-                    MiscMenu.Add("autoHeal" + a.BaseSkinName, new CheckBox("Auto Heal " + a.BaseSkinName, true));
-                }
+                MiscMenu.Add("autoHeal" + a.BaseSkinName, new CheckBox("Auto Heal " + a.BaseSkinName));
             }
-            MiscMenu.AddGroupLabel("Misc Settings");
-            MiscMenu.Add("useR", new CheckBox("Auto Switch R Form", true));
+            //MiscMenu.AddGroupLabel("Misc Settings");
+            //MiscMenu.Add("useR", new CheckBox("Auto Switch R Form"));
 
-            Chat.Print("NidaleeBuddy | Loaded By KarmaPanda", System.Drawing.Color.LightGreen);
+            Chat.Print("NidaleeBuddy | Loaded By KarmaPanda", Color.LightGreen);
 
             Orbwalker.OnPostAttack += Orbwalker_OnPostAttack;
             Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
@@ -472,7 +464,7 @@
         /// </summary>
         private static void Combo()
         {
-            var useR = MiscMenu["useR"].Cast<CheckBox>().CurrentValue;
+            var useR = ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
 
             if (CatForm())
             {
@@ -506,23 +498,23 @@
                 }
 
                 var autoHeal = MiscMenu["autoHeal"].Cast<CheckBox>().CurrentValue;
-                var AATarget = HeroManager.Enemies.Where(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange).FirstOrDefault();
+                var aaTarget = TargetSelector.GetTarget(HumanRange, DamageType.Physical, PlayerInstance.ServerPosition);//HeroManager.Enemies.FirstOrDefault(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
 
                 if (useR && IsReady(SpellTimer["Javelin"]) && !Q.IsReady() && !W.IsReady() && !E.IsReady())
                 {
                     R.Cast();
                 }
-                else if (AATarget != null && useR && PlayerInstance.Distance(AATarget) > CatRange && !Q.IsReady())
+                else if (aaTarget != null && useR && PlayerInstance.Distance(aaTarget) > CatRange && !Q.IsReady())
                 {
                     R.Cast();
                 }
-                else if (useR && IsReady(SpellTimer["Javelin"]) && HeroManager.Enemies.Where(t => t.IsValidTarget() && QHuman.IsInRange(t)).Count() >= 1)
+                else if (useR && IsReady(SpellTimer["Javelin"]) && HeroManager.Enemies.Any(t => t.IsValidTarget() && QHuman.IsInRange(t)))
                 {
                     R.Cast();
                 }
                 else if (autoHeal && useR && IsReady(SpellTimer["Primalsurge"])
                     && PlayerInstance.HealthPercent <= MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue
-                    && !Q.IsReady() && HeroManager.Enemies.Where(t => t.IsValidTarget() && EHuman.IsInRange(t)).Count() < 1)
+                    && !Q.IsReady() && !HeroManager.Enemies.Any(t => t.IsValidTarget() && EHuman.IsInRange(t)))
                 {
                     R.Cast();
                 }
@@ -592,19 +584,20 @@
             {
                 var target = TargetSelector.GetTarget(QHuman.Range, DamageType.Magical, PlayerInstance.ServerPosition);
 
-                if (target != null)
+                if (target == null)
                 {
-                    var pred = QHuman.GetPrediction(target);
+                    return;
+                }
+                var pred = QHuman.GetPrediction(target);
 
-                    if (QHuman.IsReady() && pred.HitChance == HitChance.High)
-                    {
-                        QHuman.Cast(pred.CastPosition);
-                    }
+                if (QHuman.IsReady() && pred.HitChance == HitChance.High)
+                {
+                    QHuman.Cast(pred.CastPosition);
                 }
             }
             else if (CatForm())
             {
-                if (R.IsReady() && MiscMenu["useR"].Cast<CheckBox>().CurrentValue)
+                if (R.IsReady() && HarassMenu["useR"].Cast<CheckBox>().CurrentValue)
                 {
                     R.Cast();
                 }
@@ -616,14 +609,14 @@
         /// </summary>
         private static void LaneClear()
         {
-            var useR = MiscMenu["useR"].Cast<CheckBox>().CurrentValue;
+            var useR = LaneClearMenu["useR"].Cast<CheckBox>().CurrentValue;
 
             if (CatForm())
             {
                 var W = WCat;
                 var E = ECat;
-                var wTarget = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition.To2D(), W.Radius, true).FirstOrDefault();
-                var eTarget = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition.To2D(), E.Radius, true);
+                var wTarget = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition.To2D(), W.Radius).FirstOrDefault();
+                var eTarget = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition.To2D(), E.Radius);
                 var useWCat = LaneClearMenu["useWCat"].Cast<CheckBox>().CurrentValue;
                 var useECat = LaneClearMenu["useECat"].Cast<CheckBox>().CurrentValue;
 
@@ -633,39 +626,37 @@
 
                     if (ePrediction != null)
                     {
-                        foreach (var pred in ePrediction)
+                        foreach (var pred in ePrediction.Where(pred => pred.HitChance == HitChance.High))
                         {
-                            if (pred.HitChance == HitChance.High)
-                            {
-                                E.Cast(pred.CastPosition);
-                            }
+                            E.Cast(pred.CastPosition);
                         }
                     }
                 }
 
                 if (useWCat && W.IsReady() && wTarget != null 
-                    && HeroManager.Enemies.Where(t => t.IsValidTarget() && t.Distance(PlayerInstance) <= 1000 && t.Distance(wTarget.ServerPosition) <= t.AttackRange).Count() < 1)
+                    && !HeroManager.Enemies.Any(t => t.IsValidTarget() && t.Distance(PlayerInstance) <= 1000 && t.Distance(wTarget.ServerPosition) <= t.AttackRange))
                 {
                     W.Cast(wTarget.ServerPosition);
                 }
 
-                var minion = ObjectManager.Get<Obj_AI_Base>().Where(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange).FirstOrDefault();
-                
-                if (minion != null)
+                var minion = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
+
+                if (minion == null)
                 {
-                    if (useR
-                        && PlayerInstance.Distance(minion) <= HumanRange
-                        && !IsReady(SpellTimer["Takedown"])
-                        && !IsReady(SpellTimer["Pounce"])
-                        && !IsReady(SpellTimer["Swipe"]))
-                    {
-                        R.Cast();
-                    }
+                    return;
+                }
+                if (useR
+                    && PlayerInstance.Distance(minion) <= HumanRange
+                    && !IsReady(SpellTimer["Takedown"])
+                    && !IsReady(SpellTimer["Pounce"])
+                    && !IsReady(SpellTimer["Swipe"]))
+                {
+                    R.Cast();
                 }
             }
             else
             {
-                var minion = ObjectManager.Get<Obj_AI_Base>().Where(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange).FirstOrDefault();
+                var minion = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
 
                 if (useR && R.IsReady()
                     && PlayerInstance.Distance(minion) <= CatRange
@@ -690,10 +681,10 @@
                 var E = ECat;
                 var useWCat = JungleClearMenu["useWCat"].Cast<CheckBox>().CurrentValue;
                 var useECat = JungleClearMenu["useECat"].Cast<CheckBox>().CurrentValue;
-                var useR = MiscMenu["useR"].Cast<CheckBox>().CurrentValue;
-                var wTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), W.Radius, true).FirstOrDefault();
-                var wBTarget = ObjectManager.Get<Obj_AI_Base>().Where(u => u.IsVisible && JungleMobsList.Contains(u.BaseSkinName)).FirstOrDefault();
-                var eTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), E.Radius, true);
+                var useR = JungleClearMenu["useR"].Cast<CheckBox>().CurrentValue;
+                var wTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), W.Radius).FirstOrDefault();
+                var wBTarget = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => WBOTH.IsInRange(u) && JungleMobsList.Contains(u.BaseSkinName));
+                var eTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), E.Radius);
 
                 if (wBTarget != null)
                 {
@@ -717,31 +708,29 @@
 
                     if (useECat && ePrediction != null)
                     {
-                        foreach (var pred in ePrediction)
+                        foreach (var pred in ePrediction.Where(pred => pred.HitChance == HitChance.High))
                         {
-                            if (pred.HitChance == HitChance.High)
-                            {
-                                E.Cast(pred.CastPosition);
-                            }
+                            E.Cast(pred.CastPosition);
                         }
                     }
                 }
 
-                var JungleTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), QHuman.Radius, true).FirstOrDefault();
+                var JungleTarget = EntityManager.GetJungleMonsters(PlayerInstance.ServerPosition.To2D(), QHuman.Radius).FirstOrDefault();
 
-                if (JungleTarget != null)
+                if (JungleTarget == null)
                 {
-                    if (useR && IsReady(SpellTimer["Javelin"]))
-                    {
-                        R.Cast();
-                    }
+                    return;
+                }
+                if (useR && IsReady(SpellTimer["Javelin"]))
+                {
+                    R.Cast();
                 }
             }
             else
             {
                 var useQHuman = JungleClearMenu["useQHuman"].Cast<CheckBox>().CurrentValue;
-                var JungleMob = ObjectManager.Get<Obj_AI_Base>().Where(t => t.IsValidTarget() && QHuman.IsInRange(t) && JungleMobsList.Contains(t.BaseSkinName)).FirstOrDefault();//EntityManager.GetJungleMonsters(PlayerInstance.Position.To2D(), QHuman.Radius, true).Where(t => JungleMobsList.Contains(t.BaseSkinName)).FirstOrDefault();
-                var useR = MiscMenu["useR"].Cast<CheckBox>().CurrentValue;
+                var JungleMob = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsValidTarget() && QHuman.IsInRange(t) && JungleMobsList.Contains(t.BaseSkinName));//EntityManager.GetJungleMonsters(PlayerInstance.Position.To2D(), QHuman.Radius, true).Where(t => JungleMobsList.Contains(t.BaseSkinName)).FirstOrDefault();
+                var useR = JungleClearMenu["useR"].Cast<CheckBox>().CurrentValue;
 
                 if (JungleMob != null)
                 {
@@ -763,7 +752,7 @@
                     {
                         R.Cast();
                     }
-                    else if (IsHunted(JungleMob) && IsReady(SpellTimer["Pounce"]) && IsReady(SpellTimer["ExPounce"]))
+                    else if (IsHunted(JungleMob) && IsReady(SpellTimer["ExPounce"]))
                     {
                         R.Cast();
                     }
@@ -799,20 +788,9 @@
 
             var target = HeroManager.Enemies.Where(t => t.IsValidTarget() && QHuman.IsInRange(t));
 
-            if (target != null)
+            foreach (var pred in target.Where(t => t.Health < PlayerInstance.GetSpellDamage(t, SpellSlot.Q)).Select(t => QHuman.GetPrediction(t)).Where(pred => pred.HitChance == HitChance.High))
             {
-                foreach(var t in target)
-                {
-                    if (t.Health <= DamageLibrary.GetSpellDamage(PlayerInstance, t, SpellSlot.Q, DamageLibrary.SpellStages.Default))
-                    {
-                        var pred = QHuman.GetPrediction(t);
-
-                        if (pred.HitChance == HitChance.High)
-                        {
-                            QHuman.Cast(pred.CastPosition);
-                        }
-                    }
-                }
+                QHuman.Cast(pred.CastPosition);
             }
         }
 
@@ -823,7 +801,7 @@
         {
             if (Game.MapId == GameMapId.SummonersRift)
             {
-                var t = ObjectManager.Get<Obj_AI_Base>().Where(u => u.IsVisible && JungleMobsList.Contains(u.BaseSkinName)).FirstOrDefault();
+                var t = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => QHuman.IsInRange(u) && u.IsVisible && JungleMobsList.Contains(u.BaseSkinName));
 
                 if (t != null)
                 {
@@ -850,49 +828,7 @@
                         if (t.IsValidTarget()
                             && QHuman.IsReady()
                             && QHuman.IsInRange(t)
-                            && t.Health <= DamageLibrary.GetSpellDamage(PlayerInstance, t, SpellSlot.Q, DamageLibrary.SpellStages.Default))
-                        {
-                            var pred = Prediction.Position.PredictUnitPosition(t, QHuman.Speed);
-
-                            if (pred != null)
-                            {
-                                QHuman.Cast(pred.To3D());
-                            }
-                        }
-                    }
-                }
-            }
-            
-            if (Game.MapId == GameMapId.TwistedTreeline)
-            {
-                var t = ObjectManager.Get<Obj_AI_Base>().Where(u => u.IsVisible && JungleMobsList.Contains(u.BaseSkinName)).FirstOrDefault();
-
-                if (t != null)
-                {
-                    if (!JungleStealMenu[t.BaseSkinName].Cast<CheckBox>().CurrentValue)
-                    {
-                        return;
-                    }
-
-                    var useSmite = JungleStealMenu["useSmite"].Cast<CheckBox>().CurrentValue;
-
-                    if (useSmite)
-                    {
-                        if (t.IsValidTarget()
-                            && t.Health <= GetSmiteDamage())
-                        {
-                            Smite.Cast(t);
-                        }
-                    }
-
-                    var useQ = JungleStealMenu["useQHuman"].Cast<CheckBox>().CurrentValue;
-
-                    if (useQ && !CatForm())
-                    {
-                        if (t.IsValidTarget()
-                            && QHuman.IsReady()
-                            && QHuman.IsInRange(t)
-                            && t.Health <= DamageLibrary.GetSpellDamage(PlayerInstance, t, SpellSlot.Q, DamageLibrary.SpellStages.Default))
+                            && t.Health <= PlayerInstance.GetSpellDamage(t, SpellSlot.Q))
                         {
                             var pred = Prediction.Position.PredictUnitPosition(t, QHuman.Speed);
 
@@ -900,6 +836,48 @@
                         }
                     }
                 }
+            }
+            
+            if (Game.MapId == GameMapId.TwistedTreeline)
+            {
+                var t = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => QHuman.IsInRange(u) && u.IsVisible && JungleMobsListTT.Contains(u.BaseSkinName));
+
+                if (t == null)
+                {
+                    return;
+                }
+
+                if (!JungleStealMenu[t.BaseSkinName].Cast<CheckBox>().CurrentValue)
+                {
+                    return;
+                }
+
+                var useSmite = JungleStealMenu["useSmite"].Cast<CheckBox>().CurrentValue;
+
+                if (useSmite)
+                {
+                    if (t.IsValidTarget()
+                        && t.Health <= GetSmiteDamage())
+                    {
+                        Smite.Cast(t);
+                    }
+                }
+
+                var useQ = JungleStealMenu["useQHuman"].Cast<CheckBox>().CurrentValue;
+
+                if (!useQ || CatForm())
+                {
+                    return;
+                }
+                if (!t.IsValidTarget() || !QHuman.IsReady() || !QHuman.IsInRange(t)
+                    || !(t.Health
+                         <= PlayerInstance.GetSpellDamage(t, SpellSlot.Q)))
+                {
+                    return;
+                }
+                var pred = Prediction.Position.PredictUnitPosition(t, QHuman.Speed);
+
+                QHuman.Cast(pred.To3D());
             }
         }
 
@@ -913,21 +891,22 @@
                 return;
             }
 
-            var LowestHealthAlly = HeroManager.Allies.Where(a => EHuman.IsInRange(a) && !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
+            var lowestHealthAlly = HeroManager.Allies.Where(a => EHuman.IsInRange(a) && !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
 
             if (PlayerInstance.HealthPercent <= MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue)
             {
                 EHuman.Cast(PlayerInstance);
             }
 
-            else if (LowestHealthAlly != null)
+            else if (lowestHealthAlly != null)
             {
-                if (LowestHealthAlly.Health <= MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue)
+                if (!(lowestHealthAlly.Health <= MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue))
                 {
-                    if (MiscMenu["autoHeal" + LowestHealthAlly.BaseSkinName].Cast<CheckBox>().CurrentValue)
-                    {
-                        EHuman.Cast(LowestHealthAlly);
-                    }
+                    return;
+                }
+                if (MiscMenu["autoHeal" + lowestHealthAlly.BaseSkinName].Cast<CheckBox>().CurrentValue)
+                {
+                    EHuman.Cast(lowestHealthAlly);
                 }
             }
         }
@@ -942,20 +921,23 @@
             var t = target as AIHeroClient;
             var useWCat = ComboMenu["useWCat"].Cast<CheckBox>().CurrentValue;
 
-            if (CatForm())
+            if (!CatForm())
             {
-                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
-                {
-                    if (useWCat && IsReady(SpellTimer["Pounce"]) && t.IsValidTarget() && WCat.IsInRange(t) && !IsHunted(t))
-                    {
-                        var Prediction = WCat.GetPrediction(t);
+                return;
+            }
+            if (!Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
+            {
+                return;
+            }
+            if (!useWCat || !IsReady(SpellTimer["Pounce"]) || !t.IsValidTarget() || !WCat.IsInRange(t) || IsHunted(t))
+            {
+                return;
+            }
+            var pred = WCat.GetPrediction(t);
                         
-                        if (Prediction.HitChance == HitChance.High)
-                        {
-                            WCat.Cast(Prediction.CastPosition);
-                        }
-                    }
-                }
+            if (pred.HitChance == HitChance.High)
+            {
+                WCat.Cast(pred.CastPosition);
             }
         }
 
@@ -969,30 +951,34 @@
             var t = target as AIHeroClient;
             var m = target as Obj_AI_Base;
 
-            if (CatForm())
+            if (!CatForm())
             {
-                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) && ComboMenu["useQCat"].Cast<CheckBox>().CurrentValue)
+                return;
+            }
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) && ComboMenu["useQCat"].Cast<CheckBox>().CurrentValue)
+            {
+                if (t != null)
                 {
                     if (t.IsValidTarget() && !t.IsZombie && QCat.IsInRange(t))
                     {
                         QCat.Cast(t);
-                    }
+                    }             
                 }
+            }
 
-                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && LaneClearMenu["useQCat"].Cast<CheckBox>().CurrentValue)
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && LaneClearMenu["useQCat"].Cast<CheckBox>().CurrentValue)
+            {
+                if (m.IsValidTarget() && QCat.IsInRange(m))
                 {
-                    if (m.IsValidTarget() && QCat.IsInRange(m))
-                    {
-                        QCat.Cast(m);
-                    }
+                    QCat.Cast(m);
                 }
+            }
                 
-                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear) && JungleClearMenu["useQCat"].Cast<CheckBox>().CurrentValue)
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear) && JungleClearMenu["useQCat"].Cast<CheckBox>().CurrentValue)
+            {
+                if (m.IsValidTarget() && QCat.IsInRange(m))
                 {
-                    if (m.IsValidTarget() && QCat.IsInRange(m))
-                    {
-                        QCat.Cast(m);
-                    }
+                    QCat.Cast(m);
                 }
             }
         }
@@ -1008,9 +994,14 @@
                 Chat.Print("NidaleeBuddy | Failed to set Smite Data: " + e.Message);
             }
 
-            if (!CatForm() && KillStealMenu["useQHuman"].Cast<CheckBox>().CurrentValue)
+            if (!CatForm() 
+                && KillStealMenu["useQHuman"].Cast<CheckBox>().CurrentValue)
             {
-                KillSteal();
+                if (KillStealMenu["useAll"].Cast<CheckBox>().CurrentValue
+                    || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.None))
+                {
+                    KillSteal();
+                }
             }
 
             if (JungleStealMenu["useQHuman"].Cast<CheckBox>().CurrentValue
@@ -1054,7 +1045,7 @@
         {
             if (!CatForm() && DrawingMenu["drawQHuman"].Cast<CheckBox>().CurrentValue)
             {
-                EloBuddy.SDK.Rendering.Circle.Draw(QHuman.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, QHuman.Range, PlayerInstance.Position);
+                Circle.Draw(QHuman.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, QHuman.Range, PlayerInstance.Position);
             }
         }
     }
