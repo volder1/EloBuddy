@@ -6,9 +6,8 @@
     using System.Linq;
 
     using EloBuddy;
-    using EloBuddy.SDK;
-    using EloBuddy.SDK.Menu.Values;
     using EloBuddy.Sandbox;
+    using EloBuddy.SDK.Menu.Values;
 
     using SharpDX;
 
@@ -27,7 +26,7 @@
         /// <summary>
         /// The root of the folder.
         /// </summary>
-        private static readonly string ShroomLocation = EloBuddy.Sandbox.SandboxConfig.DataDirectory + @"\PandaTeemo\";
+        private static readonly string ShroomLocation = SandboxConfig.DataDirectory + @"\PandaTeemo\";
 
         /// <summary>
         /// File Location for X
@@ -98,10 +97,10 @@
             if (!Directory.Exists(ShroomLocation))
             {
                 Directory.CreateDirectory(ShroomLocation);
-                Directory.CreateDirectory(ShroomLocation + EloBuddy.GameMapId.SummonersRift);
-                Directory.CreateDirectory(ShroomLocation + EloBuddy.GameMapId.HowlingAbyss);
-                Directory.CreateDirectory(ShroomLocation + EloBuddy.GameMapId.SummonersRift);
-                Directory.CreateDirectory(ShroomLocation + EloBuddy.GameMapId.TwistedTreeline);
+                Directory.CreateDirectory(ShroomLocation + GameMapId.SummonersRift);
+                Directory.CreateDirectory(ShroomLocation + GameMapId.HowlingAbyss);
+                Directory.CreateDirectory(ShroomLocation + GameMapId.SummonersRift);
+                Directory.CreateDirectory(ShroomLocation + GameMapId.TwistedTreeline);
                 CreateFile();
             }
             else if (!File.Exists(xFile) || !File.Exists(zFile) || !File.Exists(yFile))
@@ -151,9 +150,9 @@
             for (var i = 0; i < xInt.Count() && i < yInt.Count() && i < zInt.Count(); i++)
             {
                 Position.Add(new Vector3(xInt[i], zInt[i], yInt[i]));
-                if (Program.debug["debugpos"].Cast<CheckBox>().CurrentValue)
+                if (Program.Debug["debugpos"].Cast<CheckBox>().CurrentValue)
                 {
-                    EloBuddy.Chat.Print(Position[i].ToString());
+                    Chat.Print(Position[i].ToString());
                 }
             }
 
@@ -196,9 +195,9 @@
 
             GetShroomLocation();
 
-            if (Program.debug["debugpos"].Cast<CheckBox>().CurrentValue)
+            if (Program.Debug["debugpos"].Cast<CheckBox>().CurrentValue)
             {
-                EloBuddy.Chat.Print("Sucessfully Initialized FileHandler");
+                Chat.Print("Sucessfully Initialized FileHandler");
             }
 
             #endregion

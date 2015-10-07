@@ -4,7 +4,6 @@
     using System.Linq;
 
     using EloBuddy;
-    using EloBuddy.SDK;
     using EloBuddy.SDK.Menu.Values;
 
     using SharpDX;
@@ -91,7 +90,7 @@
         /// </summary>
         private void CreateTables()
         {
-            if (Game.MapId == EloBuddy.GameMapId.SummonersRift)
+            if (Game.MapId == GameMapId.SummonersRift)
             {
                 // Custom List
                 if (FileHandler.Position.Any() &&
@@ -166,7 +165,7 @@
                 this.SummonersRift.Add(new Vector3(13404f, 51.3669f, 2482f));
                 this.SummonersRift.Add(new Vector3(11854f, -68.06037f, 3922f));
             }
-            else if (Game.MapId == EloBuddy.GameMapId.HowlingAbyss)
+            else if (Game.MapId == GameMapId.HowlingAbyss)
             {
                 // Custom List
                 if (FileHandler.Position.Any() &&
@@ -196,7 +195,7 @@
                 this.HowlingAbyss.Add(new Vector3(7677f, -178.3095f, 8643f));
                 this.HowlingAbyss.Add(new Vector3(6487f, -178.3095f, 7145f));
             }
-            else if (Game.MapId == EloBuddy.GameMapId.CrystalScar)
+            else if (Game.MapId == GameMapId.CrystalScar)
             {
                 // Custom List
                 if (FileHandler.Position.Any() &&
@@ -208,7 +207,7 @@
                     }
                 }
             }
-            else if (Game.MapId == EloBuddy.GameMapId.TwistedTreeline)
+            else if (Game.MapId == GameMapId.TwistedTreeline)
             {
                 // Custom List
                 if (FileHandler.Position.Any() &&
@@ -250,7 +249,7 @@
             }
             else
             {
-                EloBuddy.Chat.Print("Please Lower/Increase the amount of Custom Shroom Locations for this assembly to work.");
+                Chat.Print("Please Lower/Increase the amount of Custom Shroom Locations for this assembly to work.");
             }
         }
     }
