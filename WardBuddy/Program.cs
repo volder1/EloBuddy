@@ -19,14 +19,15 @@
         /// <summary>
         /// List of Ally Ward Positions
         /// </summary>
-        private static Dictionary<GameObject, Vector3> WardPositions = new Dictionary<GameObject, Vector3>
+        /*private static Dictionary<GameObject, Vector3> WardPositions = new Dictionary<GameObject, Vector3>
         {
 
-        };
+        };*/
 
         private static bool IsWarded(Vector3 position)
         {
-            return WardPositions.Any(obj => obj.Key.Distance(position) <= 200);
+            return ObjectManager.Get<Obj_Ward>().Any(obj => obj.Distance(position) <= 200);
+                //WardPositions.Any(obj => obj.Key.Distance(position) <= 200);
         }
 
         /// <summary>
@@ -99,7 +100,7 @@
         /// <summary>
         /// Gets the Ward Range
         /// </summary>
-        private static float wardRange = 1000f;
+        private const float WardRange = 1000f;
 
         /// <summary>
         /// Gets the Last Time a Ward was Placed.
@@ -111,7 +112,7 @@
         /// </summary>
         private static AIHeroClient PlayerInstance
         {
-            get { return EloBuddy.Player.Instance; }
+            get { return Player.Instance; }
         }
 
         /// <summary>
@@ -136,13 +137,13 @@
 
             try
             {
-                sWard = new Item(2044, wardRange);
-                vWard = new Item(2043, wardRange);
-                sightStone = new Item(2049, wardRange);
-                rSightStone = new Item(2045, wardRange);
-                trinket = new Item(3340, wardRange);
-                gsT = new Item(3361, wardRange);
-                gvT = new Item(3362, wardRange);
+                sWard = new Item(2044, WardRange);
+                vWard = new Item(2043, WardRange);
+                sightStone = new Item(2049, WardRange);
+                rSightStone = new Item(2045, WardRange);
+                trinket = new Item(3340, WardRange);
+                gsT = new Item(3361, WardRange);
+                gvT = new Item(3362, WardRange);
 
                 WardBuddy = MainMenu.AddMenu("WardBuddy", "WardBuddy");
 
@@ -180,8 +181,8 @@
                 fileHandler = new FileHandler();
 
                 Game.OnTick += Game_OnTick;
-                Obj_Ward.OnCreate += Obj_Ward_OnCreate;
-                Obj_Ward.OnDelete += Obj_Ward_OnDelete;
+                //Obj_Ward.OnCreate += Obj_Ward_OnCreate;
+                //Obj_Ward.OnDelete += Obj_Ward_OnDelete;
                 Drawing.OnDraw += Drawing_OnDraw;
             }
             catch (Exception e)
@@ -196,7 +197,7 @@
         /// </summary>
         /// <param name="sender">The Sender</param>
         /// <param name="args">The Args</param>
-        private static void Obj_Ward_OnDelete(GameObject sender, EventArgs args)
+        /*private static void Obj_Ward_OnDelete(GameObject sender, EventArgs args)
         {
             if (sender.IsAlly)
             {
@@ -205,14 +206,14 @@
                     WardPositions.Remove(sender);
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Called when a Ward is Created.
         /// </summary>
         /// <param name="sender">The Sender</param>
         /// <param name="args">The Args</param>
-        private static void Obj_Ward_OnCreate(GameObject sender, EventArgs args)
+        /*private static void Obj_Ward_OnCreate(GameObject sender, EventArgs args)
         {
             if (sender.IsAlly)
             {
@@ -221,7 +222,7 @@
                     WardPositions.Add(sender, sender.Position);
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Called when Game Updates
