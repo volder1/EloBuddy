@@ -201,30 +201,9 @@
         /// <param name="args">The Attack Arg.</param>
         private static void Orbwalker_OnPreAttack(AttackableUnit target, EventArgs args)
         {
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
-            {
-                /*var t = target as AIHeroClient;
-                var useCard = comboMenu["useCard"].Cast<CheckBox>().CurrentValue;
-                var chooser = comboMenu["chooser"].Cast<Slider>().DisplayName;
-
-                if (useCard && t != null)
-                {
-                    switch (chooser)
-                    {
-                        case "Smart":
-                            var selectedCard = HeroCardSelection(t);
-                            Combo(t, selectedCard);
-                            break;
-                        default:
-                            Combo(t, chooser);
-                            break;
-                    }
-                }*/
-            }
-
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
-                var minion = target as Obj_AI_Base;
+                var minion = target as Obj_AI_Minion;
                 var useCard = LaneClearMenu["useCard"].Cast<CheckBox>().CurrentValue;
                 var chooser = LaneClearMenu["chooser"].Cast<Slider>().DisplayName;
 
@@ -245,7 +224,7 @@
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
-                var minion = target as Obj_AI_Base;
+                var minion = target as Obj_AI_Minion;
                 var useCard = JungleClearMenu["useCard"].Cast<CheckBox>().CurrentValue;
                 var chooser = JungleClearMenu["chooser"].Cast<Slider>().DisplayName;
 
@@ -267,7 +246,7 @@
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
             {
                 var t = target as AIHeroClient;
-                var m = target as Obj_AI_Base;
+                var m = target as Obj_AI_Minion;
                 var useCard = HarassMenu["useCard"].Cast<CheckBox>().CurrentValue;
                 var chooser = ComboMenu["chooser"].Cast<Slider>().DisplayName;
 
