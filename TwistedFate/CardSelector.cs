@@ -3,6 +3,7 @@
     using System;
     using EloBuddy;
     using EloBuddy.SDK;
+    using EloBuddy.SDK.Menu.Values;
 
     public enum Cards
     {
@@ -24,7 +25,14 @@
         public static Cards Select;
         public static int LastWSent = 0;
         public static int LastSendWSent = 0;
-
+        
+        public static int Delay
+        {
+            get
+            {
+                return Program.MiscMenu["delay"].Cast<CheckBox>().CurrentValue ? 5000 : 500;
+            }
+        }
 
         static CardSelector()
         {
@@ -62,7 +70,7 @@
 
             if ((wState == SpellState.Ready &&
                  wName == "PickACard" &&
-                 (Status != SelectStatus.Selecting || Environment.TickCount - LastWSent > 500)) ||
+                 (Status != SelectStatus.Selecting || Environment.TickCount - LastWSent > Delay)) ||
                 ObjectManager.Player.IsDead)
             {
                 Status = SelectStatus.Ready;
