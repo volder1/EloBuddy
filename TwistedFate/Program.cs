@@ -139,7 +139,7 @@
             JungleClearMenu = MainMenu.AddSubMenu("Jungle Clear Menu", "jgMenu");
             JungleClearMenu.AddGroupLabel("JungleClear Settings");
             JungleClearMenu.Add("useQ", new CheckBox("Use Q in JungleClear", false));
-            JungleClearMenu.Add("useCard", new CheckBox("Use W in LaneClear"));
+            JungleClearMenu.Add("useCard", new CheckBox("Use W in JungleClear"));
             JungleClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
             JungleClearMenu.AddSeparator();
 
