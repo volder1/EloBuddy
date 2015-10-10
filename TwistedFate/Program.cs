@@ -592,11 +592,11 @@
                         case "Smart":
                             var selectedCard = HeroCardSelection(wTarget);
                             Combo(wTarget, selectedCard);
-                            Orbwalker.ForcedTarget = wTarget;
+                            //Orbwalker.ForcedTarget = wTarget;
                             break;
                         default:
                             Combo(wTarget, chooser);
-                            Orbwalker.ForcedTarget = wTarget;
+                            //Orbwalker.ForcedTarget = wTarget;
                             break;
                     }
                 }
