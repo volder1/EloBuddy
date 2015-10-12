@@ -89,6 +89,24 @@
         }
 
         /// <summary>
+        /// Temp Method to find Health Percent
+        /// </summary>
+        /// <returns></returns>
+        private static float HealthPercent()
+        {
+            return (PlayerInstance.Health / PlayerInstance.MaxHealth) * 100;
+        }
+
+        /// <summary>
+        /// Temp Method to find Mana Percent
+        /// </summary>
+        /// <returns></returns>
+        private static float ManaPercent()
+        {
+            return (PlayerInstance.Mana / PlayerInstance.MaxMana) * 100;
+        }
+
+        /// <summary>
         /// Checks if Nidalee is in Cougar Form
         /// </summary>
         /// <returns></returns>
@@ -513,7 +531,7 @@
                     R.Cast();
                 }
                 else if (autoHeal && useR && IsReady(SpellTimer["Primalsurge"])
-                    && PlayerInstance.HealthPercent <= MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue
+                    && HealthPercent() <= MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue
                     && !Q.IsReady() && !EntityManager.Heroes.Enemies.Any(t => t.IsValidTarget() && EHuman.IsInRange(t)))
                 {
                     R.Cast();
@@ -891,7 +909,7 @@
 
             var lowestHealthAlly = EntityManager.Heroes.Allies.Where(a => EHuman.IsInRange(a) && !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
 
-            if (PlayerInstance.HealthPercent <= MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue)
+            if (HealthPercent() <= MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue)
             {
                 EHuman.Cast(PlayerInstance);
             }
