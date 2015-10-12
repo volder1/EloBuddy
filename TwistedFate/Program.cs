@@ -1,8 +1,6 @@
 ﻿namespace TwistedBuddy
 {
     using System;
-    using System.Drawing;
-    using System.Linq;
 
     using EloBuddy;
     using EloBuddy.SDK;
@@ -12,13 +10,10 @@
     using EloBuddy.SDK.Menu.Values;
     using EloBuddy.SDK.Rendering;
 
+    using SharpDX;
+
     internal class Program
     {
-        /// <summary>
-        /// Twisted Fate's Name
-        /// </summary>
-        public const string ChampionName = "TwistedFate";
-
         /// <summary>
         /// Q
         /// </summary>
@@ -40,17 +35,9 @@
         public static Spell.Active R;
 
         /// <summary>
-        /// Menu
+        /// Twisted Fate's Name
         /// </summary>
-        public static Menu MainMenu, CardSelectorMenu, ComboMenu, LaneClearMenu, JungleClearMenu, HarassMenu, KillStealMenu, DrawingMenu, MiscMenu;
-
-        /// <summary>
-        /// Gets the player.
-        /// </summary>
-        private static AIHeroClient PlayerInstance
-        {
-            get { return Player.Instance; }
-        }
+        public const string ChampionName = "TwistedFate";
 
         /// <summary>
         /// Called when program starts
@@ -66,7 +53,7 @@
         /// <param name="args">The Args.</param>
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
-            if (PlayerInstance.BaseSkinName != ChampionName)
+            if (Player.Instance.BaseSkinName != ChampionName)
             {
                 return;
             }
@@ -77,25 +64,25 @@
             R = new Spell.Active(SpellSlot.R, 5500);
 
             // Menu
-            MainMenu = EloBuddy.SDK.Menu.MainMenu.AddMenu("Twisted Fate", "TwistedFate");
+            Essentials.MainMenu = MainMenu.AddMenu("Twisted Fate", "TwistedFate");
 
             // Card Selector Menu
-            CardSelectorMenu = MainMenu.AddSubMenu("Card Selector Menu", "csMenu");
-            CardSelectorMenu.AddGroupLabel("Card Selector Settings");
-            CardSelectorMenu.Add("useY", new KeyBind("Use Yellow Card", false, KeyBind.BindTypes.HoldActive, "W".ToCharArray()[0]));
-            CardSelectorMenu.Add("useB", new KeyBind("Use Blue Card", false, KeyBind.BindTypes.HoldActive, "E".ToCharArray()[0]));
-            CardSelectorMenu.Add("useR", new KeyBind("Use Red Card", false, KeyBind.BindTypes.HoldActive, "T".ToCharArray()[0]));
+            Essentials.CardSelectorMenu = Essentials.MainMenu.AddSubMenu("Card Selector Menu", "csMenu");
+            Essentials.CardSelectorMenu.AddGroupLabel("Card Selector Settings");
+            Essentials.CardSelectorMenu.Add("useY", new KeyBind("Use Yellow Card", false, KeyBind.BindTypes.HoldActive, "W".ToCharArray()[0]));
+            Essentials.CardSelectorMenu.Add("useB", new KeyBind("Use Blue Card", false, KeyBind.BindTypes.HoldActive, "E".ToCharArray()[0]));
+            Essentials.CardSelectorMenu.Add("useR", new KeyBind("Use Red Card", false, KeyBind.BindTypes.HoldActive, "T".ToCharArray()[0]));
 
             // Combo
-            ComboMenu = MainMenu.AddSubMenu("Combo Menu", "comboMenu");
-            ComboMenu.AddGroupLabel("Combo Settings");
-            ComboMenu.Add("useQ", new CheckBox("Use Q in Combo"));
-            ComboMenu.Add("useCard", new CheckBox("Use W in Combo"));
-            ComboMenu.Add("useQStun", new CheckBox("Use Q only if Stunned"));
-            ComboMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
-            ComboMenu.AddSeparator();
+            Essentials.ComboMenu = Essentials.MainMenu.AddSubMenu("Combo Menu", "comboMenu");
+            Essentials.ComboMenu.AddGroupLabel("Combo Settings");
+            Essentials.ComboMenu.Add("useQ", new CheckBox("Use Q in Combo"));
+            Essentials.ComboMenu.Add("useCard", new CheckBox("Use W in Combo"));
+            Essentials.ComboMenu.Add("useQStun", new CheckBox("Use Q only if Stunned"));
+            Essentials.ComboMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
+            Essentials.ComboMenu.AddSeparator();
 
-            var comboCardChooserSlider = ComboMenu.Add("chooser", new Slider("mode", 0, 0, 3));
+            var comboCardChooserSlider = Essentials.ComboMenu.Add("chooser", new Slider("mode", 0, 0, 3));
             var comboCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             comboCardChooserSlider.DisplayName = comboCardArray[comboCardChooserSlider.CurrentValue];
             comboCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
@@ -104,14 +91,14 @@
             };
 
             // Harass Menu
-            HarassMenu = MainMenu.AddSubMenu("Harass Menu", "harassMenu");
-            HarassMenu.AddGroupLabel("Harass Settings");
-            HarassMenu.Add("useQ", new CheckBox("Use Q in Harass"));
-            HarassMenu.Add("useCard", new CheckBox("Use W in Harass"));
-            HarassMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
-            HarassMenu.AddSeparator();
+            Essentials.HarassMenu = Essentials.MainMenu.AddSubMenu("Harass Menu", "harassMenu");
+            Essentials.HarassMenu.AddGroupLabel("Harass Settings");
+            Essentials.HarassMenu.Add("useQ", new CheckBox("Use Q in Harass"));
+            Essentials.HarassMenu.Add("useCard", new CheckBox("Use W in Harass"));
+            Essentials.HarassMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
+            Essentials.HarassMenu.AddSeparator();
 
-            var harassCardChooserSlider = HarassMenu.Add("chooser", new Slider("mode", 0, 0, 3));
+            var harassCardChooserSlider = Essentials.HarassMenu.Add("chooser", new Slider("mode", 0, 0, 3));
             var harassCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             harassCardChooserSlider.DisplayName = harassCardArray[harassCardChooserSlider.CurrentValue];
             harassCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
@@ -120,14 +107,14 @@
             };
 
             // Lane Clear Menu
-            LaneClearMenu = MainMenu.AddSubMenu("Lane Clear", "laneclearMenu");
-            LaneClearMenu.AddGroupLabel("LaneClear Settings");
-            LaneClearMenu.Add("useQ", new CheckBox("Use Q in LaneClear", false));
-            LaneClearMenu.Add("useCard", new CheckBox("Use W in LaneClear"));
-            LaneClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
-            LaneClearMenu.AddSeparator();
+            Essentials.LaneClearMenu = Essentials.MainMenu.AddSubMenu("Lane Clear", "laneclearMenu");
+            Essentials.LaneClearMenu.AddGroupLabel("LaneClear Settings");
+            Essentials.LaneClearMenu.Add("useQ", new CheckBox("Use Q in LaneClear", false));
+            Essentials.LaneClearMenu.Add("useCard", new CheckBox("Use W in LaneClear"));
+            Essentials.LaneClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
+            Essentials.LaneClearMenu.AddSeparator();
 
-            var laneclearCardChooserSlider = LaneClearMenu.Add("chooser", new Slider("mode", 0, 0, 3));
+            var laneclearCardChooserSlider = Essentials.LaneClearMenu.Add("chooser", new Slider("mode", 0, 0, 3));
             var laneclearCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             laneclearCardChooserSlider.DisplayName = laneclearCardArray[laneclearCardChooserSlider.CurrentValue];
             laneclearCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
@@ -136,14 +123,14 @@
             };
             
             // Jungle Clear Menu
-            JungleClearMenu = MainMenu.AddSubMenu("Jungle Clear Menu", "jgMenu");
-            JungleClearMenu.AddGroupLabel("JungleClear Settings");
-            JungleClearMenu.Add("useQ", new CheckBox("Use Q in JungleClear", false));
-            JungleClearMenu.Add("useCard", new CheckBox("Use W in JungleClear"));
-            JungleClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
-            JungleClearMenu.AddSeparator();
+            Essentials.JungleClearMenu = Essentials.MainMenu.AddSubMenu("Jungle Clear Menu", "jgMenu");
+            Essentials.JungleClearMenu.AddGroupLabel("JungleClear Settings");
+            Essentials.JungleClearMenu.Add("useQ", new CheckBox("Use Q in JungleClear", false));
+            Essentials.JungleClearMenu.Add("useCard", new CheckBox("Use W in JungleClear"));
+            Essentials.JungleClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
+            Essentials.JungleClearMenu.AddSeparator();
 
-            var jungleclearCardChooserSlider = JungleClearMenu.Add("chooser", new Slider("mode", 0, 0, 3));
+            var jungleclearCardChooserSlider = Essentials.JungleClearMenu.Add("chooser", new Slider("mode", 0, 0, 3));
             var jungleclearCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             jungleclearCardChooserSlider.DisplayName = jungleclearCardArray[jungleclearCardChooserSlider.CurrentValue];
             jungleclearCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
@@ -152,32 +139,32 @@
             };
 
             // Kill Steal Menu
-            KillStealMenu = MainMenu.AddSubMenu("Kill Steal Menu", "ksMenu");
-            KillStealMenu.AddGroupLabel("KillSteal Settings");
-            KillStealMenu.Add("useQ", new CheckBox("Use Q to KS"));
-            KillStealMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 15));
-            KillStealMenu.AddSeparator();
+            Essentials.KillStealMenu = Essentials.MainMenu.AddSubMenu("Kill Steal Menu", "ksMenu");
+            Essentials.KillStealMenu.AddGroupLabel("KillSteal Settings");
+            Essentials.KillStealMenu.Add("useQ", new CheckBox("Use Q to KS"));
+            Essentials.KillStealMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 15));
+            Essentials.KillStealMenu.AddSeparator();
 
             // Drawing Menu
-            DrawingMenu = MainMenu.AddSubMenu("Drawing Menu", "drawMenu");
-            DrawingMenu.AddGroupLabel("Drawing Settings");
-            DrawingMenu.Add("drawQ", new CheckBox("Draw Q Range"));
-            DrawingMenu.Add("drawR", new CheckBox("Draw R Range"));
-            DrawingMenu.AddSeparator();
+            Essentials.DrawingMenu = Essentials.MainMenu.AddSubMenu("Drawing Menu", "drawMenu");
+            Essentials.DrawingMenu.AddGroupLabel("Drawing Settings");
+            Essentials.DrawingMenu.Add("drawQ", new CheckBox("Draw Q Range"));
+            Essentials.DrawingMenu.Add("drawR", new CheckBox("Draw R Range"));
+            Essentials.DrawingMenu.AddSeparator();
 
-            MiscMenu = MainMenu.AddSubMenu("Misc Menu", "miscMenu");
-            MiscMenu.AddGroupLabel("Misc Settings");
-            MiscMenu.Add("autoQ", new CheckBox("Automatically Q's a CCed Target"));
-            MiscMenu.Add("autoY", new CheckBox("Automatically select Yellow Card when R"));
-            MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card", 25));
-            MiscMenu.Add("delay", new CheckBox("Delay Card Choosing", false));
+            // Misc Menu
+            Essentials.MiscMenu = Essentials.MainMenu.AddSubMenu("Misc Menu", "miscMenu");
+            Essentials.MiscMenu.AddGroupLabel("Misc Settings");
+            Essentials.MiscMenu.Add("autoQ", new CheckBox("Automatically Q's a CCed Target"));
+            Essentials.MiscMenu.Add("autoY", new CheckBox("Automatically select Yellow Card when R"));
+            Essentials.MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card", 25));
+            Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 800, 175, 1000));
 
-            Chat.Print("Advanced Twisted Fate - By KarmaPanda", Color.Green);
+            Chat.Print("TwistedBuddy 2.0.0.0 - By KarmaPanda", Color.Green);
 
             // Events
             Game.OnTick += Game_OnTick;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
@@ -188,335 +175,9 @@
         /// <param name="args">The Args</param>
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.IsMe && args.SData.Name == "gate" && MiscMenu["autoY"].Cast<CheckBox>().CurrentValue)
+            if (sender.IsMe && args.SData.Name == "gate" && Essentials.MiscMenu["autoY"].Cast<CheckBox>().CurrentValue)
             {
                 CardSelector.StartSelecting(Cards.Yellow);
-            }
-        }
-
-        /// <summary>
-        /// Post Attack
-        /// </summary>
-        /// <param name="target">The Target Orbwalker is Aiming For</param>
-        /// <param name="args">The Attack Arg.</param>
-        private static void Orbwalker_OnPreAttack(AttackableUnit target, EventArgs args)
-        {
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
-            {
-                var minion = target as Obj_AI_Minion;
-                var useCard = LaneClearMenu["useCard"].Cast<CheckBox>().CurrentValue;
-                var chooser = LaneClearMenu["chooser"].Cast<Slider>().DisplayName;
-
-                if (useCard && minion != null)
-                {
-                    switch (chooser)
-                    {
-                        case "Smart":
-                            var selectedCard = MinionCardSelection(minion);
-                            LaneClear(minion, selectedCard);
-                            break;
-                        default:
-                            LaneClear(minion, chooser);
-                            break;
-                    }
-                }
-            }
-
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
-            {
-                var minion = target as Obj_AI_Minion;
-                var useCard = JungleClearMenu["useCard"].Cast<CheckBox>().CurrentValue;
-                var chooser = JungleClearMenu["chooser"].Cast<Slider>().DisplayName;
-
-                if (useCard && minion != null)
-                {
-                    switch (chooser)
-                    {
-                        case "Smart":
-                            var selectedCard = MinionCardSelection(minion);
-                            JungleClear(minion, selectedCard);
-                            break;
-                        default:
-                            JungleClear(minion, chooser);
-                            break;
-                    }
-                }
-            }
-
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
-            {
-                var t = target as AIHeroClient;
-                var m = target as Obj_AI_Minion;
-                var useCard = HarassMenu["useCard"].Cast<CheckBox>().CurrentValue;
-                var chooser = ComboMenu["chooser"].Cast<Slider>().DisplayName;
-
-                if (useCard && t != null)
-                {
-                    switch (chooser)
-                    {
-                        case "Smart":
-                            var selectedCard = MinionCardSelection(m);
-                            Harass(m, selectedCard);
-                            break;
-                        default:
-                            Harass(m, chooser);
-                            break;
-                    }
-                }
-
-                if (useCard && m != null)
-                {
-                    if (m.Health <= ObjectManager.Player.GetAutoAttackDamage(m) + PlayerInstance.GetSpellDamage(m, SpellSlot.W))
-                    {
-                        switch (chooser)
-                        {
-                            case "Smart":
-                                var selectedCard = HeroCardSelection(t);
-                                Harass(t, selectedCard);
-                                break;
-                            default:
-                                Harass(t, chooser);
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Does Auto Q
-        /// </summary>
-        private static void AutoQ()
-        {
-            var heroes = EntityManager.Heroes.Enemies.Where(t => t.HasBuff("Stun"));
-
-            foreach (var t in heroes)
-            {
-                if (Q.IsReady())
-                {
-                    Q.Cast(t.ServerPosition);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Does Combo
-        /// </summary>
-        /// <param name="t">The Target</param>
-        /// <param name="selectedCard">The Card that is selected.</param>
-        private static void Combo(AIHeroClient t, string selectedCard)
-        {
-            if (t == null)
-            {
-                return;
-            }
-
-            switch (selectedCard)
-            {
-                case "Red":
-                    CardSelector.StartSelecting(Cards.Red);
-                    break;
-                case "Yellow":
-                    CardSelector.StartSelecting(Cards.Yellow);
-                    break;
-                case "Blue":
-                    CardSelector.StartSelecting(Cards.Blue);
-                    break;
-                default:
-                    return;
-            }
-        }
-
-        /// <summary>
-        /// Does Harass with Minion
-        /// </summary>
-        /// <param name="t">The Minion</param>
-        /// <param name="selectedCard">The Card that is selected.</param>
-        private static void Harass(Obj_AI_Base t, string selectedCard)
-        {
-            if (t == null)
-            {
-                return;
-            }
-
-            switch(selectedCard)
-            {
-                case "Red":
-                    CardSelector.StartSelecting(Cards.Red);
-                    break;
-                case "Yellow":
-                    CardSelector.StartSelecting(Cards.Yellow);
-                    break;
-                case "Blue":
-                    CardSelector.StartSelecting(Cards.Blue);
-                    break;
-                default:
-                    return;
-            }
-        }
-
-        /// <summary>
-        /// Does Harass with Target
-        /// </summary>
-        /// <param name="t">The Target</param>
-        /// <param name="selectedCard">The Card that is selected.</param>
-        private static void Harass(AIHeroClient t, string selectedCard)
-        {
-            if (t == null)
-            {
-                return;
-            }
-
-            switch (selectedCard)
-            {
-                case "Red":
-                    CardSelector.StartSelecting(Cards.Red);
-                    break;
-                case "Yellow":
-                    CardSelector.StartSelecting(Cards.Yellow);
-                    break;
-                case "Blue":
-                    CardSelector.StartSelecting(Cards.Blue);
-                    break;
-                default:
-                    return;
-            }
-        }
-
-        /// <summary>
-        /// Does LaneClear
-        /// </summary>
-        /// <param name="t">The Target</param>
-        /// <param name="selectedCard">The Card that is selected.</param>
-        private static void LaneClear(Obj_AI_Base t, string selectedCard)
-        {
-            if (t == null)
-            {
-                return;
-            }
-
-            switch (selectedCard)
-            {
-                case "Red":
-                    CardSelector.StartSelecting(Cards.Red);
-                    break;
-                case "Yellow":
-                    CardSelector.StartSelecting(Cards.Yellow);
-                    break;
-                case "Blue":
-                    CardSelector.StartSelecting(Cards.Blue);
-                    break;
-                default:
-                    return;
-            }
-        }
-
-        /// <summary>
-        /// Does LaneClear
-        /// </summary>
-        /// <param name="t">The Target</param>
-        /// <param name="selectedCard">The Card that is selected.</param>
-        private static void JungleClear(Obj_AI_Base t, string selectedCard)
-        {
-            if (t == null)
-            {
-                return;
-            }
-
-            switch (selectedCard)
-            {
-                case "Red":
-                    CardSelector.StartSelecting(Cards.Red);
-                    break;
-                case "Yellow":
-                    CardSelector.StartSelecting(Cards.Yellow);
-                    break;
-                case "Blue":
-                    CardSelector.StartSelecting(Cards.Blue);
-                    break;
-                default:
-                    return;
-            }
-        }
-
-        /// <summary>
-        /// Returns the card that should be picked in that scenario
-        /// </summary>
-        /// <param name="t">The Target</param>
-        /// <returns>The Card that should be used.</returns>
-        private static string MinionCardSelection(Obj_AI_Base t)
-        {
-            string card;
-            var minionsaroundTarget = ObjectManager.Get<Obj_AI_Base>().Count(target => target.IsMinion && target.Distance(t) <= 200);
-            var manaW = MiscMenu["manaW"].Cast<Slider>().CurrentValue;
-
-            if (t.IsAlly)
-            {
-                return null;
-            }
-
-            if (PlayerInstance.ManaPercent <= manaW || t.IsStructure())
-            {
-                card = "Blue";
-                return card;
-            }
-            else if (PlayerInstance.ManaPercent > 25 
-                && t.Team == GameObjectTeam.Neutral 
-                && (t.Name == "SRU_Blue" 
-                || t.Name == "SRU_Gromp" 
-                || t.Name == "SRU_Murkwolf" 
-                || t.Name == "SRU_Razorbeak" 
-                || t.Name == "SRU_Red") 
-                && minionsaroundTarget <= 2)
-            {
-                card = "Yellow";
-                return card;
-            }
-            else if (PlayerInstance.ManaPercent > 25 && minionsaroundTarget > 2)
-            {
-                card = "Red";
-                return card;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Returns the card that should be picked in that scenario
-        /// </summary>
-        /// <param name="t">The Target</param>
-        /// <returns>The Card that should be used.</returns>
-        private static string HeroCardSelection(Obj_AI_Base t)
-        {
-            string card;
-            var alliesaroundTarget = EntityManager.Heroes.Enemies.Count(target => target.Distance(t) <= 200);
-            var manaW = MiscMenu["manaW"].Cast<Slider>().CurrentValue;
-
-            if (t.IsAlly)
-            {
-                return null;
-            }
-
-            if (PlayerInstance.ManaPercent <= manaW)
-            {
-                card = "Blue";
-                return card;
-            }
-            else if (PlayerInstance.ManaPercent > 25 && alliesaroundTarget >= 2)
-            {
-                card = "Red";
-                return card;
-            }
-            else if (PlayerInstance.ManaPercent > 25 && alliesaroundTarget == 1)
-            {
-                card = "Yellow";
-                return card;
-            }
-            else
-            {
-                return null;
             }
         }
 
@@ -526,20 +187,22 @@
         /// <param name="args">The Args.</param>
         private static void Drawing_OnDraw(EventArgs args)
         {
-            if (DrawingMenu["drawQ"].Cast<CheckBox>().CurrentValue)
+            if (Essentials.DrawingMenu["drawQ"].Cast<CheckBox>().CurrentValue)
             {
-                if (PlayerInstance != null)
+                if (Player.Instance != null)
                 {
-                    Circle.Draw(Q.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, Q.Range, PlayerInstance.Position);
+                    Circle.Draw(Q.IsReady() ? Color.Green : Color.Red, Q.Range, Player.Instance.Position);
                 }
             }
 
-            if (DrawingMenu["drawR"].Cast<CheckBox>().CurrentValue)
+            if (!Essentials.DrawingMenu["drawR"].Cast<CheckBox>().CurrentValue)
             {
-                if (PlayerInstance != null)
-                {
-                    Circle.Draw(R.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, R.Range, PlayerInstance.Position);
-                }
+                return;
+            }
+
+            if (Player.Instance != null)
+            {
+                Circle.Draw(R.IsReady() ? Color.Green : Color.Red, R.Range, Player.Instance.Position);
             }
         }
 
@@ -548,181 +211,52 @@
         /// </summary>
         /// <param name="args">The Args.</param>
         private static void Game_OnTick(EventArgs args)
-        {          
-            var useY = CardSelectorMenu["useY"].Cast<KeyBind>();
-            var useB = CardSelectorMenu["useB"].Cast<KeyBind>();
-            var useR = CardSelectorMenu["useR"].Cast<KeyBind>();
+        {
+            var useY = Essentials.CardSelectorMenu["useY"].Cast<KeyBind>().CurrentValue;
+            var useB = Essentials.CardSelectorMenu["useB"].Cast<KeyBind>().CurrentValue;
+            var useR = Essentials.CardSelectorMenu["useR"].Cast<KeyBind>().CurrentValue;
 
-            if (useY.CurrentValue)
+            if (useY)
             {
                 CardSelector.StartSelecting(Cards.Yellow);
             }
-            if (useB.CurrentValue)
+            if (useB)
             {
                 CardSelector.StartSelecting(Cards.Blue);
             }
-            if (useR.CurrentValue)
+            if (useR)
             {
                 CardSelector.StartSelecting(Cards.Red);
             }
 
-            if (MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue)
+            if (Essentials.MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue)
             {
-                AutoQ();
+                StateManager.AutoQ();
+            }
+
+            if (Essentials.KillStealMenu["useQ"].Cast<CheckBox>().CurrentValue)
+            {
+                StateManager.KillSteal();
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
-                var qTarget = TargetSelector.GetTarget(Q.Range, DamageType.Mixed);
-                var useQ = ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
-                var useQStun = ComboMenu["useQStun"].Cast<CheckBox>().CurrentValue;
-                var manaManagerQ = ComboMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
-
-                var wTarget = TargetSelector.GetTarget(
-                    PlayerInstance.AttackRange + 150,
-                    DamageType.Mixed,
-                    PlayerInstance.ServerPosition);
-                var useCard = ComboMenu["useCard"].Cast<CheckBox>().CurrentValue;
-                var chooser = ComboMenu["chooser"].Cast<Slider>().DisplayName;
-
-                if (useCard && wTarget != null)
-                {
-                    switch (chooser)
-                    {
-                        case "Smart":
-                            var selectedCard = HeroCardSelection(wTarget);
-                            Combo(wTarget, selectedCard);
-                            //Orbwalker.ForcedTarget = wTarget;
-                            break;
-                        default:
-                            Combo(wTarget, chooser);
-                            //Orbwalker.ForcedTarget = wTarget;
-                            break;
-                    }
-                }
-
-                // Cast Q if possible.
-                if (useQ && qTarget != null)
-                {
-                    if (useQStun)
-                    {
-                        if (Q.IsInRange(qTarget) && Q.IsReady() && PlayerInstance.ManaPercent >= manaManagerQ && qTarget.HasBuff("Stun"))
-                        {
-                            var pred = Q.GetPrediction(qTarget);
-
-                            if (pred.HitChance == HitChance.High)
-                            {
-                                Q.Cast(pred.CastPosition);
-                            }
-                        }                         
-                    }
-                    else
-                    {
-                        if (Q.IsInRange(qTarget) && Q.IsReady() && PlayerInstance.ManaPercent >= manaManagerQ)
-                        {
-                            var pred = Q.GetPrediction(qTarget);
-
-                            if (pred.HitChance == HitChance.High)
-                            {
-                                Q.Cast(pred.CastPosition);
-                            }
-                        }
-                    }
-                }
+                StateManager.Combo();
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
-                var qMinion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition, Q.Range, false).OrderBy(t => t.Health).FirstOrDefault();//ObjectManager.Get<Obj_AI_Base>().Where(t => t.IsEnemy && t.IsMinion && Q.IsInRange(t)).OrderBy(t => t.Health).FirstOrDefault();
-                var useQ = LaneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
-                var manaManagerQ = LaneClearMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
-
-                // Cast Q if possible.
-                if (useQ && qMinion != null)
-                {
-                    if (Q.IsReady() && PlayerInstance.ManaPercent >= manaManagerQ)
-                    {
-                        var minionPrediction = Prediction.Position.PredictLinearMissile(qMinion, Q.Range, Q.Width, Q.CastDelay, Q.Speed, int.MaxValue, PlayerInstance.ServerPosition);//Prediction.Position.PredictUnitPosition(qMinion, Q.Speed);
-
-                        if (minionPrediction != null)
-                        {
-                            if (minionPrediction.HitChance == HitChance.High)
-                            {
-                                 Q.Cast(minionPrediction.CastPosition);
-                            }
-                        }
-                    }
-                }
+                StateManager.LaneClear();
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
-                var qMinion = EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, Q.Range, false).OrderByDescending(t => t.Health).FirstOrDefault();//ObjectManager.Get<Obj_AI_Base>().Where(t => t.Team == GameObjectTeam.Neutral && Q.IsInRange(t)).OrderBy(t => t.MaxHealth).FirstOrDefault();
-                var useQ = JungleClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
-                var manaManagerQ = JungleClearMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
-
-                // Cast Q if possible.
-                if (useQ && qMinion != null)
-                {
-                    if (Q.IsReady() && PlayerInstance.ManaPercent >= manaManagerQ)
-                    {
-                        var minionPrediction = Prediction.Position.PredictLinearMissile(qMinion, Q.Range, Q.Width, Q.CastDelay, Q.Speed, int.MaxValue, PlayerInstance.ServerPosition); //Prediction.Position.PredictUnitPosition(qMinion, Q.Speed);
-
-                        if (minionPrediction != null)
-                        {
-                            if (minionPrediction.HitChance == HitChance.High)
-                            {
-                                Q.Cast(minionPrediction.CastPosition);
-                            }
-                        }
-                    }
-                }
+                StateManager.JungleClear();
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
             {
-                var qTarget = TargetSelector.GetTarget(Q.Range, DamageType.Mixed);
-                var useQ = HarassMenu["useQ"].Cast<CheckBox>().CurrentValue;
-                var manaManagerQ = HarassMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
-
-                if (useQ)
-                {
-                    if (qTarget != null)
-                    {
-                        if (Q.IsInRange(qTarget) && Q.IsReady() && PlayerInstance.ManaPercent >= manaManagerQ)
-                        {
-                            var pred = Q.GetPrediction(qTarget);
-                            if (pred.HitChance == HitChance.High)
-                            {
-                                Q.Cast(pred.CastPosition);
-                            }
-                        }                        
-                    }
-                }
-            }
-
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.None))
-            {
-                var useQ = KillStealMenu["useQ"].Cast<CheckBox>().CurrentValue;
-                var manaManagerQ = KillStealMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
-
-                if (useQ)
-                {
-                    var t = TargetSelector.GetTarget(Q.Range, DamageType.Mixed);
-
-                    if (t != null && Q.IsReady())
-                    {
-                        if (t.Health < PlayerInstance.GetSpellDamage(t, SpellSlot.Q) && PlayerInstance.ManaPercent >= manaManagerQ)
-                        {
-                            var pred = Q.GetPrediction(t);
-
-                            if (pred != null && pred.HitChance == HitChance.High)
-                            {
-                                Q.Cast(pred.CastPosition);
-                            }
-                        }
-                    }
-                }
+                StateManager.Harass();
             }
         }
     }
