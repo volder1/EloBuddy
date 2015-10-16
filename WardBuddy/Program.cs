@@ -232,7 +232,7 @@
         {
             try
             {
-                if (PlayerInstance.IsDead || PlayerInstance.IsRecalling)
+                if (PlayerInstance.IsDead || PlayerInstance.HasBuff("Recall"))
                 {
                     return;
                 }
