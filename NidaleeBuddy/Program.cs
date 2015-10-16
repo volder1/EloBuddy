@@ -7,6 +7,7 @@
 
     using EloBuddy;
     using EloBuddy.SDK;
+    using EloBuddy.SDK.Constants;
     using EloBuddy.SDK.Enumerations;
     using EloBuddy.SDK.Events;
     using EloBuddy.SDK.Menu;
@@ -471,7 +472,7 @@
                 TimeStamp["Javelin"] = Game.Time + (6 + (6 * PlayerInstance.PercentCooldownMod));
             }
 
-            if (sender.IsMe && args.SData.ConsideredAsAutoAttack && PlayerInstance.HasBuff("Takedown"))
+            if (sender.IsMe && args.SData.IsAutoAttack() && PlayerInstance.HasBuff("Takedown"))
             {
                 TimeStamp["Takedown"] = Game.Time + (5 + (5 * PlayerInstance.PercentCooldownMod));
             }
@@ -1026,7 +1027,7 @@
                 JungleSteal();
             }
 
-            if (!CatForm() && !PlayerInstance.IsRecalling && MiscMenu["autoHeal"].Cast<CheckBox>().CurrentValue)
+            if (!CatForm() && !PlayerInstance.HasBuff("Recall") && MiscMenu["autoHeal"].Cast<CheckBox>().CurrentValue)
             {
                 AutoHeal();
             }
