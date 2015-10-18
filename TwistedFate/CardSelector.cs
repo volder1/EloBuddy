@@ -91,6 +91,11 @@
                     Status = SelectStatus.Selected;
                 }
 
+                if (Status != SelectStatus.Selecting)
+                {
+                    return;
+                }
+
                 if (LastCard == Cards.Blue && wName == "bluecardlock"
                     && Environment.TickCount - Delay > LastW)
                 {
@@ -98,13 +103,13 @@
                 }
 
                 if (LastCard == Cards.Yellow && wName == "goldcardlock"
-                         && Environment.TickCount - Delay > LastW)
+                    && Environment.TickCount - Delay > LastW)
                 {
                     Player.CastSpell(SpellSlot.W, false);
                 }
 
                 if (LastCard == Cards.Red && wName == "redcardlock"
-                         && Environment.TickCount - Delay > LastW)
+                    && Environment.TickCount - Delay > LastW)
                 {
                     Player.CastSpell(SpellSlot.W, false);
                 }

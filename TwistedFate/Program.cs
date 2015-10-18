@@ -160,7 +160,7 @@
             Essentials.MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card", 25));
             Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 800, 175, 1000));
 
-            Chat.Print("TwistedBuddy 2.0.0.0 - By KarmaPanda", Color.Green);
+            Chat.Print("TwistedBuddy 2.0.0.1 - By KarmaPanda", Color.Green);
 
             // Events
             Game.OnTick += Game_OnTick;
