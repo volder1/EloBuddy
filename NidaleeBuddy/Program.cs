@@ -67,6 +67,11 @@
         private static Spell.Targeted Smite;
 
         /// <summary>
+        /// Ignite
+        /// </summary>
+        private static Spell.Targeted Ignite;
+
+        /// <summary>
         /// Attack range for Human Form
         /// </summary>
         private const float HumanRange = 525;
@@ -96,15 +101,6 @@
         private static float HealthPercent()
         {
             return (PlayerInstance.Health / PlayerInstance.MaxHealth) * 100;
-        }
-
-        /// <summary>
-        /// Temp Method to find Mana Percent
-        /// </summary>
-        /// <returns></returns>
-        private static float ManaPercent()
-        {
-            return (PlayerInstance.Mana / PlayerInstance.MaxMana) * 100;
         }
 
         /// <summary>
@@ -210,7 +206,7 @@
         /// <summary>
         /// Jungle Mob List for Twisted Treeline
         /// </summary>
-        private static readonly string[] JungleMobsListTT = { "TT_NWraith1.1", "TT_NWraith4.1", "TT_NGolem2.1", "TT_NGolem5.1", "TT_NWolf3.1", "TT_NWolf6.1", "TT_Spiderboss8.1" };
+        private static readonly string[] JungleMobsListTwistedTreeline = { "TT_NWraith1.1", "TT_NWraith4.1", "TT_NGolem2.1", "TT_NGolem5.1", "TT_NWolf3.1", "TT_NWolf6.1", "TT_Spiderboss8.1" };
 
         /// <summary>
         /// Stores the current tickcount of the spell.
@@ -278,6 +274,12 @@
                 WCat = new Spell.Skillshot(SpellSlot.W, 375, SkillShotType.Circular, 500, int.MaxValue, 400);
                 ECat = new Spell.Skillshot(SpellSlot.E, 300, SkillShotType.Cone, 250, int.MaxValue, (int)(15.00 * Math.PI / 180.00));
 
+                // Ignite
+                if (HasSpell("ignite"))
+                {
+                    Ignite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerdot"), 600);
+                }
+
                 // Smite
                 /*if (HasSpell("smite"))
                 {
@@ -299,6 +301,7 @@
             ComboMenu.AddGroupLabel("Combo Settings");
             ComboMenu.Add("useQHuman", new CheckBox("Use Q in Human Form"));
             ComboMenu.Add("useWHuman", new CheckBox("Use W in Human Form"));
+            ComboMenu.AddLabel("Cougar Form Settings");
             ComboMenu.Add("useQCat", new CheckBox("Use Q in Cougar Form"));
             ComboMenu.Add("useWCat", new CheckBox("Use W in Cougar Form"));
             ComboMenu.Add("useECat", new CheckBox("Use E in Cougar Form"));
@@ -316,6 +319,7 @@
             JungleClearMenu = NidaleeBuddy.AddSubMenu("Jungle Clear", "JungleClear");
             JungleClearMenu.AddGroupLabel("JungleClear Settings");
             JungleClearMenu.Add("useQHuman", new CheckBox("Use Q in Human Form"));
+            JungleClearMenu.AddLabel("Cougar Form Settings");
             JungleClearMenu.Add("useQCat", new CheckBox("Use Q in Cougar Form"));
             JungleClearMenu.Add("useWCat", new CheckBox("Use W in Cougar Form"));
             JungleClearMenu.Add("useECat", new CheckBox("Use E in Cougar Form"));
@@ -399,7 +403,7 @@
             Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
             Game.OnTick += Game_OnTick;
             Game.OnTick += SpellsOnUpdate;
-            AIHeroClient.OnProcessSpellCast += AIHeroClient_OnProcessSpellCast;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
@@ -439,7 +443,7 @@
         /// </summary>
         /// <param name="sender">The Sender</param>
         /// <param name="args">The Args</param>
-        private static void AIHeroClient_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (sender.IsMe && args.SData.Name.ToLower() == "pounce")
             {
@@ -574,7 +578,7 @@
 
                 if (wTarget != null)
                 {
-                    if (useR && IsHunted(wTarget) && WBOTH.IsInRange(wTarget) && !Q.IsReady() && R.IsReady()
+                    if (useR && IsHunted(wTarget) && WBOTH.IsInRange(wTarget) && W.IsLearned && !Q.IsReady() && R.IsReady()
                         && IsReady(SpellTimer["Takedown"])
                         && IsReady(SpellTimer["Pounce"])
                         && IsReady(SpellTimer["ExPounce"])
@@ -660,32 +664,34 @@
 
                 var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange); //ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
 
-                if (minion != null)
+                if (minion == null)
                 {
-                    if (useR
-                        && PlayerInstance.Distance(minion) > CatRange
-                        && !IsReady(SpellTimer["Takedown"])
-                        && !IsReady(SpellTimer["Pounce"])
-                        && !IsReady(SpellTimer["Swipe"]))
-                    {
-                        R.Cast();
-                    }
+                    return;
+                }
+                if (useR
+                    && PlayerInstance.Distance(minion) > CatRange
+                    && !IsReady(SpellTimer["Takedown"])
+                    && !IsReady(SpellTimer["Pounce"])
+                    && !IsReady(SpellTimer["Swipe"]))
+                {
+                    R.Cast();
                 }
             }
             else
             {
                 var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange); //ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
 
-                if (minion != null)
+                if (minion == null)
                 {
-                    if (useR && R.IsReady()
-                        && PlayerInstance.Distance(minion) <= CatRange
-                        && IsReady(SpellTimer["Takedown"])
-                        && IsReady(SpellTimer["Pounce"])
-                        && IsReady(SpellTimer["Swipe"]))
-                    {
-                        R.Cast();
-                    }                    
+                    return;
+                }
+                if (useR && R.IsReady()
+                    && PlayerInstance.Distance(minion) <= CatRange
+                    && IsReady(SpellTimer["Takedown"])
+                    && IsReady(SpellTimer["Pounce"])
+                    && IsReady(SpellTimer["Swipe"]))
+                {
+                    R.Cast();
                 }
             }
         }
@@ -831,10 +837,13 @@
 
                     if (useSmite)
                     {
-                        if (t.IsValidTarget()
-                            && t.Health <= GetSmiteDamage())
+                        if (Smite != null)
                         {
-                            Smite.Cast(t);
+                            if (t.IsValidTarget()
+                                && t.Health <= GetSmiteDamage())
+                            {
+                                Smite.Cast(t);
+                            }                            
                         }
                     }
 
@@ -857,7 +866,7 @@
             
             if (Game.MapId == GameMapId.TwistedTreeline)
             {
-                var t = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => QHuman.IsInRange(u) && u.IsVisible && JungleMobsListTT.Contains(u.BaseSkinName));
+                var t = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => QHuman.IsInRange(u) && u.IsVisible && JungleMobsListTwistedTreeline.Contains(u.BaseSkinName));
 
                 if (t == null)
                 {
@@ -873,10 +882,13 @@
 
                 if (useSmite)
                 {
-                    if (t.IsValidTarget()
-                        && t.Health <= GetSmiteDamage())
+                    if (Smite != null)
                     {
-                        Smite.Cast(t);
+                        if (t.IsValidTarget()
+                            && t.Health <= GetSmiteDamage())
+                        {
+                            Smite.Cast(t);
+                        }                        
                     }
                 }
 
@@ -1004,7 +1016,10 @@
         {
             try
             {
-                SetSmiteSlot();
+                if (HasSpell("smite"))
+                {
+                    SetSmiteSlot();
+                }
             }
             catch (Exception e)
             {
