@@ -63,8 +63,8 @@
             if (Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name == "PickACard" && Status == SelectStatus.Ready
                 && Environment.TickCount - LastW > 170 + Game.Ping / 2)
             {
-                Player.CastSpell(SpellSlot.W, Player.Instance.ServerPosition);
                 LastW = Environment.TickCount;
+                Player.CastSpell(SpellSlot.W, Player.Instance.ServerPosition);
                 LastCard = card;
             }
         }

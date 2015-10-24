@@ -32,6 +32,7 @@
         {
             string card;
             var minionsaroundTarget = ObjectManager.Get<Obj_AI_Minion>().Count(target => !target.IsAlly && target.IsMinion && target.Distance(t) <= 200);
+            var enemyW = MiscMenu["enemyW"].Cast<Slider>().CurrentValue;
             var manaW = MiscMenu["manaW"].Cast<Slider>().CurrentValue;
 
             if (ManaPercent() <= manaW)
@@ -47,13 +48,13 @@
                     || t.Name == "SRU_Murkwolf"
                     || t.Name == "SRU_Razorbeak"
                     || t.Name == "SRU_Red")
-                && minionsaroundTarget < 2)
+                && minionsaroundTarget < enemyW)
             {
                 card = "Yellow";
                 return card;
             }
 
-            if (ManaPercent() > manaW && minionsaroundTarget > 2)
+            if (ManaPercent() > manaW && minionsaroundTarget >= enemyW)
             {
                 card = "Red";
                 return card;
@@ -70,6 +71,7 @@
         {
             string card;
             var alliesaroundTarget = EntityManager.Heroes.Enemies.Count(target => target.Distance(t) <= 200);
+            var enemyW = MiscMenu["enemyW"].Cast<Slider>().CurrentValue;
             var manaW = MiscMenu["manaW"].Cast<Slider>().CurrentValue;
 
             if (ManaPercent() <= manaW)
@@ -77,12 +79,14 @@
                 card = "Blue";
                 return card;
             }
-            if (ManaPercent() > manaW && alliesaroundTarget >= 2)
+
+            if (ManaPercent() > manaW && alliesaroundTarget >= enemyW)
             {
                 card = "Red";
                 return card;
             }
-            if (ManaPercent() > manaW && alliesaroundTarget == 1)
+
+            if (ManaPercent() > manaW && alliesaroundTarget < enemyW)
             {
                 card = "Yellow";
                 return card;

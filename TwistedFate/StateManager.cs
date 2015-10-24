@@ -16,22 +16,24 @@
         /// <param name="selectedCard">The Card that is selected.</param>
         public static void SelectCard(Obj_AI_Base t, string selectedCard)
         {
-            if (t != null)
+            if (t == null)
             {
-                switch (selectedCard)
-                {
-                    case "Red":
-                        CardSelector.StartSelecting(Cards.Red);
-                        break;
-                    case "Yellow":
-                        CardSelector.StartSelecting(Cards.Yellow);
-                        break;
-                    case "Blue":
-                        CardSelector.StartSelecting(Cards.Blue);
-                        break;
-                    default:
-                        return;
-                }
+                return;
+            }
+
+            switch (selectedCard)
+            {
+                case "Red":
+                    CardSelector.StartSelecting(Cards.Red);
+                    break;
+                case "Yellow":
+                    CardSelector.StartSelecting(Cards.Yellow);
+                    break;
+                case "Blue":
+                    CardSelector.StartSelecting(Cards.Blue);
+                    break;
+                default:
+                    return;
             }
         }
 
@@ -337,7 +339,7 @@
         {
             var heroes = EntityManager.Heroes.Enemies.Where(t => t.HasBuff("Stun"));
 
-            foreach (var pred in heroes.Select(t => Program.Q.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance == HitChance.Medium && Program.Q.IsReady()))
+            foreach (var pred in heroes.Select(t => Program.Q.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance == HitChance.High && Program.Q.IsReady()))
             {
                 Program.Q.Cast(pred.CastPosition);
             }
