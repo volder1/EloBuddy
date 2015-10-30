@@ -4,8 +4,6 @@
     using System.Linq;
 
     using EloBuddy;
-    using EloBuddy.SDK;
-    using EloBuddy.SDK.Menu.Values;
 
     using SharpDX;
 
@@ -20,9 +18,9 @@
         /// List of Locations in Howling Abyss
         /// </summary>
         public List<Vector3> Pink = new List<Vector3>();
-
+        
         /// <summary>
-        /// Initializes a new instance of the <see cref="WardTables"/> class.
+        /// Initializes the Ward Location class.
         /// </summary>
         public WardLocation()
         {
@@ -48,7 +46,7 @@
         /// </summary>
         private void CreateTables()
         {
-            if (Game.MapId == EloBuddy.GameMapId.SummonersRift)
+            if (Game.MapId == GameMapId.SummonersRift)
             {
                 // Custom List
                 if (Program.GetMenuValue(Program.FileHandlerMenu, "toggleC", "CheckBox"))
@@ -105,7 +103,6 @@
             }
             else
             {
-                return;
             }
         }
     }

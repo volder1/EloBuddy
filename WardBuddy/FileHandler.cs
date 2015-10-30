@@ -6,8 +6,6 @@
     using System.Linq;
 
     using EloBuddy;
-    using EloBuddy.SDK;
-    using EloBuddy.SDK.Menu.Values;
     using EloBuddy.Sandbox;
 
     using SharpDX;
@@ -29,7 +27,7 @@
         /// <summary>
         /// The root of the folder.
         /// </summary>
-        private static readonly string WardBuddy = EloBuddy.Sandbox.SandboxConfig.DataDirectory + @"\WardBuddy\";
+        private static readonly string WardBuddy = SandboxConfig.DataDirectory + @"\WardBuddy\";
 
         /// <summary>
         /// File Location for Normal Wards for X
@@ -154,7 +152,7 @@
             if (!Directory.Exists(WardBuddy))
             {
                 Directory.CreateDirectory(WardBuddy);
-                Directory.CreateDirectory(WardBuddy + EloBuddy.GameMapId.SummonersRift);
+                Directory.CreateDirectory(WardBuddy + GameMapId.SummonersRift);
                 CreateFile();
             }
             else if (!File.Exists(normalxFile) 

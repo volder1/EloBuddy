@@ -1,52 +1,47 @@
 ﻿namespace WardBuddy
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Drawing;
 
     using EloBuddy;
     using EloBuddy.SDK;
-    using EloBuddy.SDK.Enumerations;
     using EloBuddy.SDK.Events;
     using EloBuddy.SDK.Menu;
     using EloBuddy.SDK.Menu.Values;
+
     using SharpDX;
+
+    using Color = System.Drawing.Color;
 
     internal class Program
     {
-
         /// <summary>
-        /// List of Ally Ward Positions
+        /// Checks if the position is warded
         /// </summary>
-        /*private static Dictionary<GameObject, Vector3> WardPositions = new Dictionary<GameObject, Vector3>
-        {
-
-        };*/
-
+        /// <param name="position">The Position</param>
+        /// <returns>If the position is warded.</returns>
         private static bool IsWarded(Vector3 position)
         {
-            return ObjectManager.Get<Obj_Ward>().Any(obj => obj.Distance(position) <= 200);
-                //WardPositions.Any(obj => obj.Key.Distance(position) <= 200);
+            return ObjectManager.Get<Obj_AI_Base>().Any(obj => obj.IsWard() && obj.Distance(position) <= 200);
         }
 
         /// <summary>
         /// Gets the Value of a CheckBox or KeyBind
         /// </summary>
-        /// <param name="Menu">The menu you want to fetch</param>
-        /// <param name="Item">The item you want to fetch</param>
-        /// <param name="Type">Is it a CheckBox or KeyBind</param>
+        /// <param name="menu">The menu you want to fetch</param>
+        /// <param name="item">The item you want to fetch</param>
+        /// <param name="type">Is it a CheckBox or KeyBind</param>
         /// <returns>The value of the CheckBox or KeyBind.</returns>
-        public static bool GetMenuValue(Menu Menu, string Item, string Type)
+        public static bool GetMenuValue(Menu menu, string item, string type)
         {
             try
             {
-                switch (Type)
+                switch (type)
                 {
                     case "CheckBox":
-                        return Menu[Item].Cast<CheckBox>().CurrentValue;
+                        return menu[item].Cast<CheckBox>().CurrentValue;
                     case "KeyBind":
-                        return Menu[Item].Cast<KeyBind>().CurrentValue;
+                        return menu[item].Cast<KeyBind>().CurrentValue;
                     default:
                         return false;
                 }
@@ -61,14 +56,14 @@
         /// <summary>
         /// Gets the Value of a Slider Menu
         /// </summary>
-        /// <param name="Menu">The menu you want to fetch</param>
-        /// <param name="Item">The item you want to fetch</param>
+        /// <param name="menu">The menu you want to fetch</param>
+        /// <param name="item">The item you want to fetch</param>
         /// <returns>The value of the Slider.</returns>
-        public static int GetMenuValue(Menu Menu, string Item)
+        public static int GetMenuValue(Menu menu, string item)
         {
             try
             {
-                return Menu[Item].Cast<Slider>().CurrentValue;
+                return menu[item].Cast<Slider>().CurrentValue;
             }
             catch (Exception e)
             {
@@ -85,7 +80,7 @@
         /// <summary>
         /// Initializes the FileHandler
         /// </summary>
-        private static FileHandler fileHandler;
+        public static FileHandler Handler { get; private set; }
 
         /// <summary>
         /// Initializes the Menu
@@ -105,7 +100,7 @@
         /// <summary>
         /// Gets the Last Time a Ward was Placed.
         /// </summary>
-        private static int Time;
+        private static int time;
 
         /// <summary>
         /// Gets the player.
@@ -118,8 +113,7 @@
         /// <summary>
         /// Called when Program Initializes
         /// </summary>
-        /// <param name="args">The Program Args</param>
-        private static void Main(string[] args)
+        private static void Main()
         {
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
         }
@@ -150,39 +144,37 @@
                 FileHandlerMenu = WardBuddy.AddSubMenu("FileHandler", "FileHandler");
                 FileHandlerMenu.AddGroupLabel("FileHandler Settings");
                 FileHandlerMenu.AddSeparator();
-                FileHandlerMenu.Add("toggleC", new CheckBox("Use Custom Locations", true));
-                FileHandlerMenu.Add("toggleD", new CheckBox("Use Default Locations", true));
+                FileHandlerMenu.Add("toggleC", new CheckBox("Use Custom Locations"));
+                FileHandlerMenu.Add("toggleD", new CheckBox("Use Default Locations"));
                 
                 WardMenu = WardBuddy.AddSubMenu("Ward", "Ward");
                 WardMenu.AddGroupLabel("Ward Settings");
                 WardMenu.AddSeparator();
-                WardMenu.Add("normal", new CheckBox("Use Normal Ward", true));
-                WardMenu.Add("pink", new CheckBox("Use Pink Ward", true));
+                WardMenu.Add("normal", new CheckBox("Use Normal Ward"));
+                WardMenu.Add("pink", new CheckBox("Use Pink Ward"));
                 WardMenu.AddSeparator();
                 WardMenu.AddGroupLabel("How should the Ward be placed?");
                 WardMenu.Add("always", new CheckBox("Always ward any position", false));
-                WardMenu.Add("usekey", new CheckBox("Use keybind to ward nearest ward.", true));
+                WardMenu.Add("usekey", new CheckBox("Use keybind to ward nearest ward."));
                 WardMenu.Add("key", new KeyBind("Place ward with keybind", false, KeyBind.BindTypes.HoldActive, "Z".ToCharArray()[0]));
 
                 DrawingMenu = WardBuddy.AddSubMenu("Drawing", "Drawing");
                 DrawingMenu.AddGroupLabel("Drawing Settings");
                 DrawingMenu.AddSeparator();
-                DrawingMenu.Add("normal", new CheckBox("Draw Normal Ward Positions", true));
-                DrawingMenu.Add("pink", new CheckBox("Draw Pink Ward Positions", true));
+                DrawingMenu.Add("normal", new CheckBox("Draw Normal Ward Positions"));
+                DrawingMenu.Add("pink", new CheckBox("Draw Pink Ward Positions"));
                 DrawingMenu.AddSeparator();
                 DrawingMenu.AddGroupLabel("Debug Settings");
-                DrawingMenu.Add("text", new CheckBox("Draw Player Coordinates", true));
+                DrawingMenu.Add("text", new CheckBox("Draw Player Coordinates"));
                 DrawingMenu.Add("x", new Slider("X", 500, 0, 1920));
                 DrawingMenu.Add("y", new Slider("Y", 500, 0, 1080));
 
-                Chat.Print("WardBuddy Initialized");
+                Chat.Print("WardBuddy Initialized by KarmaPanda");
 
                 wardLocation = new WardLocation();
-                fileHandler = new FileHandler();
+                Handler = new FileHandler();
 
                 Game.OnTick += Game_OnTick;
-                //Obj_Ward.OnCreate += Obj_Ward_OnCreate;
-                //Obj_Ward.OnDelete += Obj_Ward_OnDelete;
                 Drawing.OnDraw += Drawing_OnDraw;
             }
             catch (Exception e)
@@ -190,39 +182,6 @@
                 Chat.Print("Failed to Initialize WardBuddy. Exception: " + e.Message);
             }
         }
-
-
-        /// <summary>
-        /// Called when a Ward is Deleted
-        /// </summary>
-        /// <param name="sender">The Sender</param>
-        /// <param name="args">The Args</param>
-        /*private static void Obj_Ward_OnDelete(GameObject sender, EventArgs args)
-        {
-            if (sender.IsAlly)
-            {
-                if (sender.Name == "SightWard" || sender.Name == "VisionWard")
-                {
-                    WardPositions.Remove(sender);
-                }
-            }
-        }*/
-
-        /// <summary>
-        /// Called when a Ward is Created.
-        /// </summary>
-        /// <param name="sender">The Sender</param>
-        /// <param name="args">The Args</param>
-        /*private static void Obj_Ward_OnCreate(GameObject sender, EventArgs args)
-        {
-            if (sender.IsAlly)
-            {
-                if (sender.Name == "SightWard" || sender.Name == "VisionWard")
-                {
-                    WardPositions.Add(sender, sender.Position);
-                }
-            }
-        }*/
 
         /// <summary>
         /// Called when Game Updates
@@ -247,51 +206,57 @@
                             if (trinket.IsOwned(PlayerInstance) && trinket.IsReady() && !IsWarded(place))
                             {
                                 trinket.Cast(place);
-                                Time = Environment.TickCount + 5000;
+                                time = Environment.TickCount + 5000;
                             }
-                            if (sightStone.IsOwned(PlayerInstance) && sightStone.IsReady() && !IsWarded(place) && (Environment.TickCount > Time))
+                            if (sightStone.IsOwned(PlayerInstance) && sightStone.IsReady() && !IsWarded(place) && (Environment.TickCount > time))
                             {
                                 sightStone.Cast(place);
-                                Time = Environment.TickCount + 5000;
+                                time = Environment.TickCount + 5000;
                             }
-                            if (rSightStone.IsOwned(PlayerInstance) && rSightStone.IsReady() && !IsWarded(place) && (Environment.TickCount > Time))
+                            if (rSightStone.IsOwned(PlayerInstance) && rSightStone.IsReady() && !IsWarded(place) && (Environment.TickCount > time))
                             {
                                 rSightStone.Cast(place);
-                                Time = Environment.TickCount + 5000;
+                                time = Environment.TickCount + 5000;
                             }
-                            if (gsT.IsOwned(PlayerInstance) && gsT.IsReady() && !IsWarded(place) && (Environment.TickCount > Time)) 
+                            if (gsT.IsOwned(PlayerInstance) && gsT.IsReady() && !IsWarded(place) && (Environment.TickCount > time)) 
                             {
                                 gsT.Cast(place);
-                                Time = Environment.TickCount + 5000;
+                                time = Environment.TickCount + 5000;
                             }
-                            if (sWard.IsOwned(PlayerInstance) && sWard.IsReady() && !IsWarded(place) && (Environment.TickCount > Time))
+                            if (!sWard.IsOwned(PlayerInstance) || !sWard.IsReady() || IsWarded(place)
+                                || (Environment.TickCount <= time))
                             {
-                                sWard.Cast(place);
-                                Time = Environment.TickCount + 5000;
+                                continue;
                             }
+                            sWard.Cast(place);
+                            time = Environment.TickCount + 5000;
                         }
                     }
                 }
 
-                if (GetMenuValue(WardMenu, "pink", "CheckBox"))
+                if (!GetMenuValue(WardMenu, "pink", "CheckBox"))
                 {
-                    if (GetMenuValue(WardMenu, "always", "CheckBox")
-                        || GetMenuValue(WardMenu, "usekey", "CheckBox") && GetMenuValue(WardMenu, "key", "KeyBind"))
+                    return;
+                }
+                if (!GetMenuValue(WardMenu, "always", "CheckBox")
+                    && (!GetMenuValue(WardMenu, "usekey", "CheckBox") || !GetMenuValue(WardMenu, "key", "KeyBind")))
+                {
+                    return;
+                }
+                foreach (var place in wardLocation.Pink.Where(pos => pos.Distance(ObjectManager.Player.Position) <= 1000))
+                {
+                    if (vWard.IsOwned(PlayerInstance) && vWard.IsReady() && !IsWarded(place))
                     {
-                        foreach (var place in wardLocation.Pink.Where(pos => pos.Distance(ObjectManager.Player.Position) <= 1000))
-                        {
-                            if (vWard.IsOwned(PlayerInstance) && vWard.IsReady() && !IsWarded(place))
-                            {
-                                vWard.Cast(place);
-                                Time = Environment.TickCount + 5000;
-                            }
-                            if (gvT.IsOwned(PlayerInstance) && gvT.IsReady() && !IsWarded(place) && (Environment.TickCount > Time))
-                            {
-                                gvT.Cast(place);
-                                Time = Environment.TickCount + 5000;
-                            }
-                        }
+                        vWard.Cast(place);
+                        time = Environment.TickCount + 5000;
                     }
+                    if (!gvT.IsOwned(PlayerInstance) || !gvT.IsReady() || IsWarded(place)
+                        || (Environment.TickCount <= time))
+                    {
+                        continue;
+                    }
+                    gvT.Cast(place);
+                    time = Environment.TickCount + 5000;
                 }
             }
             catch (Exception e)
@@ -308,32 +273,34 @@
         {
             try
             {
-                if (Game.MapId == EloBuddy.GameMapId.SummonersRift)
+                if (Game.MapId != GameMapId.SummonersRift)
                 {
-                    if (GetMenuValue(DrawingMenu, "text", "CheckBox"))
-                    {
-                        Drawing.DrawText(new Vector2(
-                            (float)GetMenuValue(DrawingMenu, "x"),
-                            (float)GetMenuValue(DrawingMenu, "y")),
-                            System.Drawing.Color.Red,
-                            PlayerInstance.Position.ToString(), 25);
-                    }
+                    return;
+                }
+                if (GetMenuValue(DrawingMenu, "text", "CheckBox"))
+                {
+                    Drawing.DrawText(new Vector2(
+                        GetMenuValue(DrawingMenu, "x"),
+                        GetMenuValue(DrawingMenu, "y")),
+                        Color.Red,
+                        PlayerInstance.Position.ToString(), 25);
+                }
 
-                    if (GetMenuValue(DrawingMenu, "normal", "CheckBox") && wardLocation.Normal.Any())
+                if (GetMenuValue(DrawingMenu, "normal", "CheckBox") && wardLocation.Normal.Any())
+                {
+                    foreach (var place in wardLocation.Normal.Where(pos => pos.Distance(ObjectManager.Player.Position) <= 1500))
                     {
-                        foreach (var place in wardLocation.Normal.Where(pos => pos.Distance(ObjectManager.Player.Position) <= 1500))
-                        {
-                            Drawing.DrawCircle(place, 100, IsWarded(place) ? System.Drawing.Color.Red : System.Drawing.Color.Green);
-                        }
+                        Drawing.DrawCircle(place, 100, IsWarded(place) ? Color.Red : Color.Green);
                     }
+                }
 
-                    if (GetMenuValue(DrawingMenu, "pink", "CheckBox") && wardLocation.Pink.Any())
-                    {
-                        foreach (var place in wardLocation.Pink.Where(pos => pos.Distance(ObjectManager.Player.Position) <= 1500))
-                        {
-                            Drawing.DrawCircle(place, 100, IsWarded(place) ? System.Drawing.Color.Red : System.Drawing.Color.Pink);
-                        }
-                    }
+                if (!GetMenuValue(DrawingMenu, "pink", "CheckBox") || !wardLocation.Pink.Any())
+                {
+                    return;
+                }
+                foreach (var place in wardLocation.Pink.Where(pos => pos.Distance(ObjectManager.Player.Position) <= 1500))
+                {
+                    Drawing.DrawCircle(place, 100, IsWarded(place) ? Color.Red : Color.Pink);
                 }
             }
             catch (Exception e)
