@@ -188,36 +188,37 @@
                 if (target != null)
                 {
                     if (PlayerInstance.ManaPercent >= ComboMenu["manaQ"].Cast<Slider>().CurrentValue
-                        && (target.IsValidTarget(Q.Range) && Q.IsReady()))
+                        && (Q.IsReady() && Q.IsInRange(target)))
                     {
                         var pred = Q.GetPrediction(target);
-                            //Prediction.Position.PredictCircularMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, PlayerInstance.ServerPosition); 
 
-                        if (pred.HitChance == HitChance.High)
+                        if (pred.HitChance >= HitChance.Medium)
                         {
                             Q.Cast(pred.CastPosition);
                         }
                     }
                 }
             }
-            if (ComboMenu["useE"].Cast<CheckBox>().CurrentValue)
+
+            if (!ComboMenu["useE"].Cast<CheckBox>().CurrentValue)
             {
-                var target = TargetSelector.GetTarget(E.Range, DamageType.Magical, PlayerInstance.ServerPosition);
+                return;
+            }
 
-                if (target != null)
-                {
-                    if (PlayerInstance.ManaPercent >= ComboMenu["manaE"].Cast<Slider>().CurrentValue
-                        && (target.IsValidTarget(E.Range) && E.IsReady()))
-                    {
-                        var pred = E.GetPrediction(target);
-                            //Prediction.Position.PredictCircularMissile(target, E.Range, E.Radius, E.CastDelay, E.Speed, PlayerInstance.Position);
+            var etarget = TargetSelector.GetTarget(E.Range, DamageType.Magical, PlayerInstance.ServerPosition);
 
-                        if (pred.HitChance == HitChance.High)
-                        {
-                            E.Cast(pred.CastPosition);
-                        }
-                    }
-                }
+            if (etarget == null
+                || (!(PlayerInstance.ManaPercent >= ComboMenu["manaE"].Cast<Slider>().CurrentValue)
+                    || (!E.IsReady() || !E.IsInRange(etarget))))
+            {
+                return;
+            }
+
+            var ePrediction = E.GetPrediction(etarget);
+
+            if (ePrediction.HitChance >= HitChance.Medium)
+            {
+                E.Cast(ePrediction.CastPosition);
             }
         }
 
@@ -234,11 +235,11 @@
                 {
                     if (PlayerInstance.ManaPercent >= HarassMenu["manaQ"].Cast<Slider>().CurrentValue)
                     {
-                        if (target.IsValidTarget(Q.Range) && Q.IsReady())
+                        if (Q.IsInRange(target) && Q.IsReady())
                         {
-                            var pred = Q.GetPrediction(target); // Prediction.Position.PredictCircularMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, PlayerInstance.Position);
+                            var pred = Q.GetPrediction(target);
 
-                            if (pred.HitChance == HitChance.High)
+                            if (pred.HitChance >= HitChance.Medium)
                             {
                                 Q.Cast(pred.CastPosition);
                             }
@@ -246,25 +247,29 @@
                     }
                 }
             }
-            if (HarassMenu["useE"].Cast<CheckBox>().CurrentValue)
+            if (!HarassMenu["useE"].Cast<CheckBox>().CurrentValue)
             {
-                var target = TargetSelector.GetTarget(E.Range, DamageType.Magical, PlayerInstance.ServerPosition);
+                return;
+            }
+            var eTarget = TargetSelector.GetTarget(E.Range, DamageType.Magical, PlayerInstance.ServerPosition);
 
-                if (target != null)
-                {
-                    if (PlayerInstance.ManaPercent >= HarassMenu["manaE"].Cast<Slider>().CurrentValue)
-                    {
-                        if (target.IsValidTarget(E.Range) && E.IsReady())
-                        {
-                            var pred = E.GetPrediction(target); //Prediction.Position.PredictCircularMissile(target, E.Range, E.Radius, E.CastDelay, E.Speed, PlayerInstance.Position);
+            if (eTarget == null)
+            {
+                return;
+            }
+            if (!(PlayerInstance.ManaPercent >= HarassMenu["manaE"].Cast<Slider>().CurrentValue))
+            {
+                return;
+            }
+            if (!E.IsInRange(eTarget) || !E.IsReady())
+            {
+                return;
+            }
+            var ePrediction = E.GetPrediction(eTarget);
 
-                            if (pred.HitChance == HitChance.High)
-                            {
-                                E.Cast(pred.CastPosition);
-                            }
-                        }
-                    }
-                }
+            if (ePrediction.HitChance >= HitChance.Medium)
+            {
+                E.Cast(ePrediction.CastPosition);
             }
         }
 
@@ -389,17 +394,26 @@
         /// <param name="e">The Spell Information</param>
         private static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
         {
-            if (InterruptMenu["useE"].Cast<CheckBox>().CurrentValue || e.DangerLevel == DangerLevel.High)
+            if (sender == null || sender.IsAlly)
             {
-                if (sender.IsValidTarget(E.Range) && E.IsReady())
-                {
-                    var pred = E.GetPrediction(sender);
+                return;
+            }
 
-                    if (pred.HitChance == HitChance.High)
-                    {
-                        E.Cast(pred.CastPosition);
-                    }
-                }
+            if (!InterruptMenu["useE"].Cast<CheckBox>().CurrentValue && e.DangerLevel != DangerLevel.High)
+            {
+                return;
+            }
+
+            if (!E.IsInRange(sender) || !E.IsReady())
+            {
+                return;
+            }
+
+            var pred = E.GetPrediction(sender);
+
+            if (pred.HitChance >= HitChance.Medium)
+            {
+                E.Cast(pred.CastPosition);
             }
         }
 
@@ -410,30 +424,38 @@
         /// <param name="e">The Spell Information</param>
         private static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
         {
+            if (sender == null || sender.IsAlly)
+            {
+                return;
+            }
+
             if (GapcloserMenu["useQ"].Cast<CheckBox>().CurrentValue)
             {
-                if (sender.IsValidTarget(Q.Range) && Q.IsReady())
+                if (Q.IsInRange(sender) && Q.IsReady())
                 {
                     var pred = Q.GetPrediction(sender);
 
-                    if (pred.HitChance == HitChance.High)
+                    if (pred.HitChance >= HitChance.Medium)
                     {
                         Q.Cast(pred.CastPosition);
                     }
                 }
             }
 
-            if (GapcloserMenu["useE"].Cast<CheckBox>().CurrentValue)
+            if (!GapcloserMenu["useE"].Cast<CheckBox>().CurrentValue)
             {
-                if (sender.IsValidTarget(E.Range) && E.IsReady())
-                {
-                    var pred = E.GetPrediction(sender);
+                return;
+            }
 
-                    if (pred.HitChance == HitChance.High)
-                    {
-                        E.Cast(pred.CastPosition);
-                    }
-                }
+            if (!E.IsInRange(sender) || !E.IsReady())
+            {
+                return;
+            }
+            var ePrediction = E.GetPrediction(sender);
+
+            if (ePrediction.HitChance >= HitChance.Medium)
+            {
+                E.Cast(ePrediction.CastPosition);
             }
         }
 
@@ -446,11 +468,10 @@
         {
             var t = target as AIHeroClient;
             var m = target as Obj_AI_Base;
+            var alliesNearPlayer = EntityManager.Heroes.Allies.Count(a => PlayerInstance.Distance(a) <= PlayerInstance.AttackRange);
 
             if (t != null)
             {
-                var alliesNearPlayer = EntityManager.Heroes.Allies.Count(a => PlayerInstance.Distance(a) <= PlayerInstance.AttackRange);
-
                 if (alliesNearPlayer <= 1)
                 {
                     return;
@@ -461,17 +482,19 @@
                 }
             }
 
-            if (m != null)
+            if (m == null)
             {
-                var alliesNearPlayer = EntityManager.Heroes.Allies.Count(a => PlayerInstance.Distance(a) <= PlayerInstance.AttackRange);
-                if (alliesNearPlayer <= 1)
-                {
-                    return;
-                }
-                if (MiscMenu["disableMAA"].Cast<CheckBox>().CurrentValue)
-                {
-                    args.Process = false;
-                }
+                return;
+            }
+
+            if (alliesNearPlayer <= 1)
+            {
+                return;
+            }
+
+            if (MiscMenu["disableMAA"].Cast<CheckBox>().CurrentValue)
+            {
+                args.Process = false;
             }
         }
 
@@ -504,19 +527,19 @@
         /// <param name="args">The Args</param>
         private static void Drawing_OnDraw(EventArgs args)
         {
-            var PlayerPosition = PlayerInstance.Position;
+            var playerPosition = PlayerInstance.Position;
 
             if (DrawingMenu["drawQ"].Cast<CheckBox>().CurrentValue)
             {
-                Circle.Draw(Q.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, Q.Range, PlayerPosition);
+                Circle.Draw(Q.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, Q.Range, playerPosition);
             }
             if (DrawingMenu["drawW"].Cast<CheckBox>().CurrentValue)
             {
-                Circle.Draw(W.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, W.Range, PlayerPosition);
+                Circle.Draw(W.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, W.Range, playerPosition);
             }
             if (DrawingMenu["drawE"].Cast<CheckBox>().CurrentValue)
             {
-                Circle.Draw(E.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, E.Range, PlayerPosition);
+                Circle.Draw(E.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, E.Range, playerPosition);
             }
         }
     }
