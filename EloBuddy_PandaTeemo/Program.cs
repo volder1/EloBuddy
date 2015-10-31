@@ -56,14 +56,19 @@
         public static int LastR;
 
         /// <summary>
+        /// Last time R was Used in LaneClear
+        /// </summary>
+        public static int LaneClearLastR;
+
+        /// <summary>
+        /// Initializes File Handler
+        /// </summary>
+        public static FileHandler Handler;
+
+        /// <summary>
         /// Initializes Shroom Positions
         /// </summary>
         private static ShroomTables shroomPositions;
-
-        /// <summary>
-        /// Initializes FileHandler
-        /// </summary>
-        private static FileHandler fileHandler;
 
         /// <summary>
         /// Initializes the Menu
@@ -82,9 +87,14 @@
         /// Gets Teemo E Damage
         /// </summary>
         /// <returns>The Damage Done to the unit.</returns>
-        public static double TeemoE()
+        public static double TeemoE(Obj_AI_Base target)
         {
-            { return (new float[] { 0, 10, 20, 30, 40, 50 }[E.Level] + (0.30f * (PlayerInstance.FlatMagicDamageMod))); } //PlayerInstance.GetSpellDamage(target, SpellSlot.E); }
+            {
+                return target.CalculateDamageOnUnit(
+                    target,
+                    DamageType.Magical,
+                    new float[] { 0, 10, 20, 30, 40, 50 }[E.Level] + (0.30f * (PlayerInstance.FlatMagicDamageMod)));
+            }
         }
 
         /// <summary>
@@ -139,12 +149,11 @@
             // LaneClear Menu
             LaneClearMenu = PandaTeemo.AddSubMenu("LaneClear", "LaneClear");
             LaneClearMenu.AddGroupLabel("LaneClear Settings");
-            LaneClearMenu.Add("qclear", new CheckBox("LaneClear with Q"));
+            LaneClearMenu.Add("qclear", new CheckBox("LaneClear with Q", false));
             LaneClearMenu.Add("qManaManager", new Slider("Q Mana Manager", 50));
             LaneClearMenu.Add("attackTurret", new CheckBox("Attack Turret"));
             LaneClearMenu.Add("attackWard", new CheckBox("Attack Ward"));
             LaneClearMenu.Add("rclear", new CheckBox("LaneClear with R"));
-            LaneClearMenu.Add("userKill", new CheckBox("Use R only if Killable", false));
             LaneClearMenu.Add("minionR", new Slider("Minion for R", 3, 1, 4));
 
             // JungleClear Menu
@@ -215,7 +224,7 @@
             Chat.Print("PandaTeemo EloBuddy Edition Loaded by KarmaPanda", Color.LightBlue);
 
             // Loads ShroomPosition
-            fileHandler = new FileHandler();
+            Handler = new FileHandler();
             shroomPositions = new ShroomTables();
         }
 
@@ -224,19 +233,21 @@
         /// </summary>
         /// <param name="sender">Enemy</param>
         /// <param name="e">The Arguments</param>
-        static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
+        private static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
         {
             var intq = InterruptMenu["intq"].Cast<CheckBox>().CurrentValue;
 
-            if (intq && Q.IsReady())
+            if (!intq || !Q.IsReady())
             {
-                if (sender != null)
-                {
-                    if (e.DangerLevel == DangerLevel.High)
-                    {
-                        Q.Cast(sender);
-                    }
-                }
+                return;
+            }
+            if (sender == null)
+            {
+                return;
+            }
+            if (e.DangerLevel == DangerLevel.High)
+            {
+                Q.Cast(sender);
             }
         }
 
@@ -245,18 +256,19 @@
         /// </summary>
         /// <param name="sender">Enemy</param>
         /// <param name="e">The Arguments</param>
-        static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
+        private static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
         {
             var gapR = InterruptMenu["gapR"].Cast<CheckBox>().CurrentValue;
 
-            if (gapR && sender.IsValidTarget() && sender.IsFacing(PlayerInstance))
+            if (!gapR || !sender.IsValidTarget() || !sender.IsFacing(PlayerInstance))
             {
-                var pred = R.GetPrediction(sender);
+                return;
+            }
+            var pred = R.GetPrediction(sender);
                 
-                if (pred.HitChance == HitChance.High)
-                {
-                    R.Cast(sender.Position);
-                }
+            if (pred.HitChance >= HitChance.High)
+            {
+                R.Cast(sender.Position);
             }
         }
 
@@ -265,7 +277,7 @@
         /// </summary>
         /// <param name="target">The Target that was attacked</param>
         /// <param name="args">The Args</param>
-        static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
+        private static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
         {
             var t = target as AIHeroClient;
             var checkAa = MiscMenu["checkAA"].Cast<CheckBox>().CurrentValue;
@@ -342,29 +354,30 @@
 
                 #endregion
             }
-            if (t != null && Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
+            if (t == null || !Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
             {
-                var useQHarass = HarassMenu["qharass"].Cast<CheckBox>().CurrentValue;
-
-                #region Q Cast
-
-                if (checkAa)
-                {
-                    if (useQHarass && Q.IsReady() && PlayerInstance.Distance(t) < Q.Range - checkaaRange)
-                    {
-                        Q.Cast(t);
-                    }
-                }
-                else
-                {
-                    if (useQHarass && Q.IsReady() && PlayerInstance.Distance(t) < Q.Range)
-                    {
-                        Q.Cast(t);
-                    }
-                }
-
-                #endregion
+                return;
             }
+            var useQHarass = HarassMenu["qharass"].Cast<CheckBox>().CurrentValue;
+
+            #region Q Cast
+
+            if (checkAa)
+            {
+                if (useQHarass && Q.IsReady() && PlayerInstance.Distance(t) < Q.Range - checkaaRange)
+                {
+                    Q.Cast(t);
+                }
+            }
+            else
+            {
+                if (useQHarass && Q.IsReady() && PlayerInstance.Distance(t) < Q.Range)
+                {
+                    Q.Cast(t);
+                }
+            }
+
+            #endregion
         }
 
         /// <summary>
@@ -372,11 +385,11 @@
         /// </summary>
         /// <param name="target">The Target</param>
         /// <param name="args">Before Attack Arg</param>
-        static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
+        private static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
             {
-                foreach (var m in ObjectManager.Get<Obj_AI_Base>().Where(creep => creep.IsMinion && creep.IsEnemy && PlayerInstance.IsInAutoAttackRange(creep)).OrderBy(creep => creep.Health).Where(m => m != null).Where(m => m.Health <= ObjectManager.Player.GetAutoAttackDamage(m) + TeemoE()))
+                foreach (var m in ObjectManager.Get<Obj_AI_Base>().Where(creep => creep.IsMinion && creep.IsEnemy && PlayerInstance.IsInAutoAttackRange(creep)).OrderBy(creep => creep.Health).Where(m => m != null).Where(m => m.Health <= PlayerInstance.GetAutoAttackDamage(m) + TeemoE(m)))
                 {
                     Orbwalker.DisableAttacking = true;
                     Orbwalker.DisableMovement = true;
@@ -413,7 +426,7 @@
                 else
                 {
                     if (enemy != null
-                        && minion.Health > ObjectManager.Player.GetAutoAttackDamage(minion) + TeemoE())
+                        && minion.Health > PlayerInstance.GetAutoAttackDamage(minion) + TeemoE(minion))
                     {
                         if (PlayerInstance.IsInAutoAttackRange(enemy))
                         {
@@ -424,7 +437,7 @@
                             Orbwalker.DisableMovement = false;
                         }
                     }
-                    else if (minion.Health <= ObjectManager.Player.GetAutoAttackDamage(minion) + TeemoE())
+                    else if (minion.Health <= PlayerInstance.GetAutoAttackDamage(minion) + TeemoE(minion))
                     {
                         Orbwalker.DisableAttacking = true;
                         Orbwalker.DisableMovement = true;
@@ -463,7 +476,7 @@
             else
             {
                 if (enemy != null
-                    && minion.Health > ObjectManager.Player.GetAutoAttackDamage(minion) + TeemoE())
+                    && minion.Health > PlayerInstance.GetAutoAttackDamage(minion) + TeemoE(minion))
                 {
                     if (!PlayerInstance.IsInAutoAttackRange(enemy))
                     {
@@ -475,7 +488,7 @@
                     Orbwalker.DisableAttacking = false;
                     Orbwalker.DisableMovement = false;
                 }
-                else if (minion.Health <= ObjectManager.Player.GetAutoAttackDamage(minion) + TeemoE())
+                else if (minion.Health <= PlayerInstance.GetAutoAttackDamage(minion) + TeemoE(minion))
                 {
                     Orbwalker.DisableAttacking = true;
                     Orbwalker.DisableMovement = true;
@@ -493,13 +506,13 @@
         /// <param name="args">The Spell</param>
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.IsMe)
+            if (!sender.IsMe)
             {
-                //Game.PrintChat(args.SData.Name.ToLower());
-                if (args.SData.Name.ToLower() == "teemorcast")
-                {
-                    LastR = Environment.TickCount;
-                }
+                return;
+            }
+            if (args.SData.Name.ToLower() == "teemorcast")
+            {
+                LastR = Environment.TickCount;
             }
         }
 
@@ -530,7 +543,7 @@
             var useW = ComboMenu["wcombo"].Cast<CheckBox>().CurrentValue;
             var useR = ComboMenu["rcombo"].Cast<CheckBox>().CurrentValue;
             var wCombat = ComboMenu["wCombat"].Cast<CheckBox>().CurrentValue;
-            var rCount = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo;
+            var rCount = PlayerInstance.Spellbook.GetSpell(SpellSlot.R).Ammo;
             var rCharge = ComboMenu["rCharge"].Cast<Slider>().CurrentValue;
 
             if (W.IsReady() && useW && !wCombat)
@@ -557,7 +570,7 @@
             {
                 return;
             }
-            if (predictionR.HitChance == HitChance.High)
+            if (predictionR.HitChance >= HitChance.High)
             {
                 R.Cast(predictionR.CastPosition);
             }
@@ -573,9 +586,12 @@
 
             if (ksq)
             {
-                var target = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget()
-                    && Q.IsInRange(t)
-                    && PlayerInstance.GetSpellDamage(t, SpellSlot.R) >= t.Health).OrderBy(t => t.Health).FirstOrDefault();
+                var target =
+                    EntityManager.Heroes.Enemies.Where(
+                        t =>
+                        t.IsValidTarget() && Q.IsInRange(t) && PlayerInstance.GetSpellDamage(t, SpellSlot.Q) >= t.Health)
+                        .OrderBy(t => t.Health)
+                        .FirstOrDefault();
 
                 if (target != null && Q.IsReady())
                 {
@@ -583,77 +599,66 @@
                 }
             }
 
-            if (ksr)
+            if (!ksr)
             {
-                var target = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget()
-                    && R.IsInRange(t)
-                    && PlayerInstance.GetSpellDamage(t, SpellSlot.R) >= t.Health).OrderBy(t => t.Health).FirstOrDefault();
+                return;
+            }
 
-                if (target != null && R.IsReady())
-                {
-                    var pred = R.GetPrediction(target);
+            var rTarget =
+                EntityManager.Heroes.Enemies.Where(
+                    t =>
+                    t.IsValidTarget() && R.IsInRange(t) && PlayerInstance.GetSpellDamage(t, SpellSlot.R) >= t.Health)
+                    .OrderBy(t => t.Health)
+                    .FirstOrDefault();
+
+            if (rTarget == null || !R.IsReady())
+            {
+                return;
+            }
+            var pred = R.GetPrediction(rTarget);
                     
-                    if (pred.HitChance == HitChance.High)
-                    {
-                        R.Cast(pred.CastPosition);
-                    }
-                }
+            if (pred.HitChance >= HitChance.High)
+            {
+                R.Cast(pred.CastPosition);
             }
         }
 
         /// <summary>
-        /// Lane Clear (Still waiting for GetCircularFarmLocation)
+        /// LaneClear
         /// </summary>
         private static void LaneClear()
         {
             var qClear = LaneClearMenu["qclear"].Cast<CheckBox>().CurrentValue;
             var qManaManager = LaneClearMenu["qManaManager"].Cast<Slider>().CurrentValue;
-            var qMinion = ObjectManager.Get<Obj_AI_Base>().Where(t => Q.IsInRange(t) && t.IsValidTarget() && t.IsMinion && t.IsEnemy).OrderBy(t => t.Health).FirstOrDefault();
+            var qMinion = EntityManager.MinionsAndMonsters.EnemyMinions.Where(t => Q.IsInRange(t) && t.IsValidTarget() && t.IsMinion && t.IsEnemy).OrderBy(t => t.Health).FirstOrDefault();
 
             if (qMinion != null)
             {
                 if (Q.IsReady()
                 && qClear
-                && qMinion.Health < PlayerInstance.GetSpellDamage(qMinion, SpellSlot.Q) 
+                && qMinion.Health <= PlayerInstance.GetSpellDamage(qMinion, SpellSlot.Q) 
                 && qManaManager <= (int)PlayerInstance.ManaPercent)
                 {
                     Q.Cast(qMinion);
                 }
             }
 
-            var allMinionsR = ObjectManager.Get<Obj_AI_Base>().Where(t => R.IsInRange(t) && t.IsValidTarget() && t.IsMinion && t.IsEnemy).OrderBy(t => t.Health);
-
-            if (!allMinionsR.Any())
-            {
-                return;
-            }
-
-            var rLocation = Prediction.Position.PredictCircularMissileAoe(allMinionsR.ToArray(), R.Range, R.Radius, R.CastDelay, R.Speed, PlayerInstance.Position);
             var useR = LaneClearMenu["rclear"].Cast<CheckBox>().CurrentValue;
-            var userKill = LaneClearMenu["userKill"].Cast<CheckBox>().CurrentValue;
-            var minionR = LaneClearMenu["minionR"].Cast<Slider>().CurrentValue;
 
             if (!useR)
             {
                 return;
             }
-            if (rLocation == null)
+
+            var allMinionsR = EntityManager.MinionsAndMonsters.EnemyMinions.Where(t => R.IsInRange(t) && t.IsValidTarget()).OrderBy(t => t.Health);
+            var rLocation = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(allMinionsR, R.Width, (int)R.Range);
+            var minionR = LaneClearMenu["minionR"].Cast<Slider>().CurrentValue;
+
+            if (rLocation.HitNumber >= minionR
+                && Environment.TickCount - LaneClearLastR >= 5000)
             {
-                return;
-            }
-            if (userKill)
-            {
-                foreach (var pred in rLocation.Where(pred => pred.CollisionObjects.Count() >= minionR).Where(pred => R.IsReady() && R.IsInRange(pred.CastPosition)))
-                {
-                    R.Cast(pred.CastPosition);
-                }
-            }
-            else
-            {
-                foreach (var pred in rLocation.Where(pred => pred.CollisionObjects.Count() >= minionR).Where(pred => R.IsReady() && R.IsInRange(pred.CastPosition)))
-                {
-                    R.Cast(pred.CastPosition);
-                }
+                R.Cast(rLocation.CastPosition);
+                LaneClearLastR = Environment.TickCount;
             }
         }
 
@@ -664,36 +669,29 @@
         {
             var useQ = JungleClearMenu["qclear"].Cast<CheckBox>().CurrentValue;
             var useR = JungleClearMenu["rclear"].Cast<CheckBox>().CurrentValue;
-            var ammoR = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo;
+            var ammoR = PlayerInstance.Spellbook.GetSpell(SpellSlot.R).Ammo;
             var qManaManager = JungleClearMenu["qManaManager"].Cast<Slider>().CurrentValue;
+            var jungleMobQ = EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, Q.Range).FirstOrDefault();
+            var jungleMobR = EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, R.Range);
 
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
+            if (useQ && jungleMobQ != null)
             {
-                try
+                if (Q.IsReady() && qManaManager <= (int)PlayerInstance.ManaPercent)
                 {
-                    var jungleMobQ = EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, Q.Range, false).OrderByDescending(t => t.Health).FirstOrDefault();
-                    var jungleMobR = EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, R.Range, false).OrderByDescending(t => t.Health);
-
-                    if (useQ && jungleMobQ != null)
-                    {
-                        if (Q.IsReady() && qManaManager <= (int)PlayerInstance.ManaPercent)
-                        {
-                            Q.Cast(jungleMobQ);
-                        }
-                    }
-
-                    if (useR && jungleMobR.FirstOrDefault() != null)
-                    {
-                        if (R.IsReady() && ammoR >= 1)
-                        {
-                            R.Cast(jungleMobR.FirstOrDefault().ServerPosition);
-                        }
-                    }
+                    Q.Cast(jungleMobQ);
                 }
-                catch (Exception e)
-                {
-                    Chat.Print("PandaTeemo| Exception occured in JungleClear: " + e.Message);
-                }
+            }
+
+            var firstjunglemobR = jungleMobR.FirstOrDefault();
+
+            if (!useR || firstjunglemobR == null)
+            {
+                return;
+            }
+
+            if (R.IsReady() && ammoR >= 1)
+            {
+                R.Cast(firstjunglemobR.ServerPosition);
             }
         }
 
@@ -709,81 +707,90 @@
                 Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             }
 
-            if (!R.IsReady() || PlayerInstance.HasBuff("Recall") || autoRPanic)
+            if (!R.IsReady() || autoRPanic)
             {
                 return;
             }
 
-            var target = EntityManager.Heroes.Enemies.FirstOrDefault(t => R.IsInRange(t) && t.IsValidTarget());
+            var rCharge = MiscMenu["rCharge"].Cast<Slider>().CurrentValue;
+            var rCount = PlayerInstance.Spellbook.GetSpell(SpellSlot.R).Ammo;
 
-            if (target != null)
+            switch (Game.MapId)
             {
-                if (target.HasBuff("zhonyasringshield") && R.IsReady() && R.IsInRange(target))
-                {
-                    R.Cast(target.Position);
-                }
-            }
-            else
-            {
-                var rCharge = MiscMenu["rCharge"].Cast<Slider>().CurrentValue;
-                var rCount = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo;
-
-                switch (Game.MapId)
-                {
-                    case GameMapId.SummonersRift:
-                        if (!shroomPositions.SummonersRift.Any())
+                case GameMapId.SummonersRift:
+                    if (!shroomPositions.SummonersRift.Any())
+                    {
+                        return;
+                    }
+                    foreach (
+                        var place in
+                            shroomPositions.SummonersRift.Where(
+                                pos => pos.Distance(PlayerInstance.ServerPosition) <= R.Range && !IsShroomed(pos))
+                                .Where(place => rCharge <= rCount && Environment.TickCount - LastR > 5000))
+                    {
+                        R.Cast(place);
+                    }
+                    break;
+                case GameMapId.HowlingAbyss:
+                    if (!shroomPositions.HowlingAbyss.Any())
+                    {
+                        return;
+                    }
+                    foreach (
+                        var place in
+                            shroomPositions.HowlingAbyss.Where(
+                                pos => pos.Distance(PlayerInstance.ServerPosition) <= R.Range && !IsShroomed(pos))
+                                .Where(place => rCharge <= rCount && Environment.TickCount - LastR > 5000))
+                    {
+                        R.Cast(place);
+                    }
+                    break;
+                case GameMapId.CrystalScar:
+                    if (!shroomPositions.CrystalScar.Any())
+                    {
+                        return;
+                    }
+                    foreach (
+                        var place in
+                            shroomPositions.CrystalScar.Where(
+                                pos => pos.Distance(PlayerInstance.ServerPosition) <= R.Range && !IsShroomed(pos))
+                                .Where(place => rCharge <= rCount && Environment.TickCount - LastR > 5000))
+                    {
+                        R.Cast(place);
+                    }
+                    break;
+                case GameMapId.TwistedTreeline:
+                    if (!shroomPositions.TwistedTreeline.Any())
+                    {
+                        return;
+                    }
+                    foreach (
+                        var place in
+                            shroomPositions.TwistedTreeline.Where(
+                                pos => pos.Distance(PlayerInstance.ServerPosition) <= R.Range && !IsShroomed(pos))
+                                .Where(place => rCharge <= rCount && Environment.TickCount - LastR > 5000))
+                    {
+                        R.Cast(place);
+                    }
+                    break;
+                default:
+                    if (Game.MapId.ToString() == "Unknown")
+                    {
+                        if (!shroomPositions.ButcherBridge.Any())
                         {
                             return;
                         }
-                        foreach (var place in shroomPositions.SummonersRift.Where(pos => pos.Distance(ObjectManager.Player.Position) <= R.Range && !IsShroomed(pos)).Where(place => rCharge <= rCount && Environment.TickCount - LastR > 5000))
+                        foreach (
+                            var place in
+                                shroomPositions.ButcherBridge.Where(
+                                    pos =>
+                                    pos.Distance(PlayerInstance.ServerPosition) <= R.Range && !IsShroomed(pos))
+                                    .Where(place => rCharge <= rCount && Environment.TickCount - LastR > 5000))
                         {
                             R.Cast(place);
                         }
-                        break;
-                    case GameMapId.HowlingAbyss:
-                        if (!shroomPositions.HowlingAbyss.Any())
-                        {
-                            return;
-                        }
-                        foreach (var place in shroomPositions.HowlingAbyss.Where(pos => pos.Distance(ObjectManager.Player.Position) <= R.Range && !IsShroomed(pos)).Where(place => rCharge <= rCount && Environment.TickCount - LastR > 5000))
-                        {
-                            R.Cast(place);
-                        }
-                        break;
-                    case GameMapId.CrystalScar:
-                        if (!shroomPositions.CrystalScar.Any())
-                        {
-                            return;
-                        }
-                        foreach (var place in shroomPositions.CrystalScar.Where(pos => pos.Distance(ObjectManager.Player.Position) <= R.Range && !IsShroomed(pos)).Where(place => rCharge <= rCount && Environment.TickCount - LastR > 5000))
-                        {
-                            R.Cast(place);
-                        }
-                        break;
-                    case GameMapId.TwistedTreeline:
-                        if (!shroomPositions.TwistedTreeline.Any())
-                        {
-                            return;
-                        }
-                        foreach (var place in shroomPositions.TwistedTreeline.Where(pos => pos.Distance(ObjectManager.Player.Position) <= R.Range && !IsShroomed(pos)).Where(place => rCharge <= rCount && Environment.TickCount - LastR > 5000))
-                        {
-                            R.Cast(place);
-                        }
-                        break;
-                    default:
-                        if (Game.MapId.ToString() == "Unknown")
-                        {
-                            if (!shroomPositions.ButcherBridge.Any())
-                            {
-                                return;
-                            }
-                            foreach (var place in shroomPositions.ButcherBridge.Where(pos => pos.Distance(ObjectManager.Player.Position) <= R.Range && !IsShroomed(pos)).Where(place => rCharge <= rCount && Environment.TickCount - LastR > 5000))
-                            {
-                                R.Cast(place);
-                            }
-                        }
-                        break;
-                }
+                    }
+                    break;
             }
         }
 
@@ -803,13 +810,13 @@
             // Uses W if avaliable and if toggle is on
             if (useW && W.IsReady())
             {
-                W.Cast(PlayerInstance);
+                W.Cast();
             }
 
             // Uses R if avaliable and if toggle is on
-            if (useR && R.IsReady() && rCharge <= ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
+            if (useR && R.IsReady() && rCharge <= PlayerInstance.Spellbook.GetSpell(SpellSlot.R).Ammo)
             {
-                R.Cast(PlayerInstance.Position);
+                R.Cast(PlayerInstance.ServerPosition);
             }
         }
 
@@ -820,7 +827,7 @@
         {
             var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
             var allMinionsQ =
-                EntityManager.MinionsAndMonsters.EnemyMinions.Where(t => Q.IsInRange(t)).OrderBy(t => t.Health);//ObjectManager.Get<Obj_AI_Base>().Where(t => t.IsEnemy && Q.IsInRange(t) && t.IsValidTarget()).OrderBy(t => t.Health);
+                EntityManager.MinionsAndMonsters.EnemyMinions.Where(t => Q.IsInRange(t)).OrderBy(t => t.Health);
 
             if (target == null)
             {
@@ -877,6 +884,17 @@
                 AutoW();
             }
 
+            if (MiscMenu["autoR"].Cast<CheckBox>().CurrentValue)
+            {
+                AutoShroom();
+            }
+
+            if (KillStealMenu["KSQ"].Cast<CheckBox>().CurrentValue
+                || KillStealMenu["KSR"].Cast<CheckBox>().CurrentValue)
+            {
+                KillSteal();
+            }   
+
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
                 Combo();
@@ -896,17 +914,6 @@
             {
                 Flee();
             }
-
-            if (MiscMenu["autoR"].Cast<CheckBox>().CurrentValue)
-            {
-                AutoShroom();
-            }
-
-            if (KillStealMenu["KSQ"].Cast<CheckBox>().CurrentValue
-                || KillStealMenu["KSR"].Cast<CheckBox>().CurrentValue)
-            {
-                KillSteal();
-            }   
         }
 
         /// <summary>
@@ -959,7 +966,7 @@
                 {
                     return;
                 }
-                foreach (var place in shroomPositions.SummonersRift.Where(pos => pos.Distance(ObjectManager.Player.Position) <= DrawingMenu["DrawVision"].Cast<Slider>().CurrentValue))
+                foreach (var place in shroomPositions.SummonersRift.Where(pos => pos.Distance(PlayerInstance.Position) <= DrawingMenu["DrawVision"].Cast<Slider>().CurrentValue))
                 {
                     if (colorBlind)
                     {
@@ -977,7 +984,7 @@
                 {
                     return;
                 }
-                foreach (var place in shroomPositions.CrystalScar.Where(pos => pos.Distance(ObjectManager.Player.Position) <= DrawingMenu["DrawVision"].Cast<Slider>().CurrentValue))
+                foreach (var place in shroomPositions.CrystalScar.Where(pos => pos.Distance(PlayerInstance.Position) <= DrawingMenu["DrawVision"].Cast<Slider>().CurrentValue))
                 {
                     if (colorBlind)
                     {
@@ -995,7 +1002,7 @@
                 {
                     return;
                 }
-                foreach (var place in shroomPositions.HowlingAbyss.Where(pos => pos.Distance(ObjectManager.Player.Position) <= DrawingMenu["DrawVision"].Cast<Slider>().CurrentValue))
+                foreach (var place in shroomPositions.HowlingAbyss.Where(pos => pos.Distance(PlayerInstance.Position) <= DrawingMenu["DrawVision"].Cast<Slider>().CurrentValue))
                 {
                     if (colorBlind)
                     {
@@ -1013,7 +1020,7 @@
                 {
                     return;
                 }
-                foreach (var place in shroomPositions.TwistedTreeline.Where(pos => pos.Distance(ObjectManager.Player.Position) <= DrawingMenu["DrawVision"].Cast<Slider>().CurrentValue))
+                foreach (var place in shroomPositions.TwistedTreeline.Where(pos => pos.Distance(PlayerInstance.Position) <= DrawingMenu["DrawVision"].Cast<Slider>().CurrentValue))
                 {
                     if (colorBlind)
                     {
@@ -1031,7 +1038,7 @@
                     var place in
                         shroomPositions.ButcherBridge.Where(
                             pos =>
-                            pos.Distance(ObjectManager.Player.Position)
+                            pos.Distance(PlayerInstance.Position)
                             <= DrawingMenu["DrawVision"].Cast<Slider>().CurrentValue))
                 {
                     if (colorBlind)
