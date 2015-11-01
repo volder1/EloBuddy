@@ -36,6 +36,11 @@
         public static Spell.Skillshot E;
 
         /// <summary>
+        /// Spell E2
+        /// </summary>
+        public static Spell.Active E2;
+
+        /// <summary>
         /// Spell R
         /// </summary>
         public static Spell.Skillshot R;
@@ -178,10 +183,11 @@
                 return;
             }
 
-            Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear);//, 250, 85, 1150);
+            Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear, 250, 85, 1150);
             W = new Spell.Skillshot(SpellSlot.W, 1075, SkillShotType.Linear, 250, 110, 1200);
-            E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular);//, 250, 280, 950);
-            R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Linear);//, 1000, 190, int.MaxValue);
+            E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular, 250, 280, 950);
+            E2 = new Spell.Active(SpellSlot.E);
+            R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Linear, 1000, 190, int.MaxValue);
 
             LuxMenu = MainMenu.AddMenu("Lux", "Lux");
             LuxMenu.AddGroupLabel("This addon is made by KarmaPanda and should not be redistributed in any way.");
@@ -193,6 +199,7 @@
             ComboMenu.Add("useQ", new CheckBox("Combo using Q"));
             ComboMenu.Add("useE", new CheckBox("Combo using E"));
             ComboMenu.Add("useR", new CheckBox("Combo using R"));
+            ComboMenu.Add("sliderR", new Slider("Amount of Enemies before casting R", 3, 1, 5));
             ComboMenu.AddLabel("Prediction Settings");
             var combopredictionSlider = ComboMenu.Add("Slider", new Slider("mode", 0, 0, 2));
             var combopredictionArray = new[] { "High", "Medium", "Low" };
@@ -329,6 +336,13 @@
         /// <param name="args">The Args</param>
         private static void Game_OnTick(EventArgs args)
         {
+            if (!Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && LuxEObject == null)
+            {
+                Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear);
+                E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular);
+                R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Linear);
+            }
+
             if (KillStealMenu["useQ"].Cast<CheckBox>().CurrentValue
                 || KillStealMenu["useE"].Cast<CheckBox>().CurrentValue
                 || KillStealMenu["useR"].Cast<CheckBox>().CurrentValue)
@@ -378,6 +392,7 @@
             var useQ = ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var useE = ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
             var useR = ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
+            var sliderR = ComboMenu["sliderR"].Cast<Slider>().CurrentValue;
 
             if (useQ && Q.IsReady() && ManaManager(SpellSlot.Q))
             {
@@ -409,7 +424,7 @@
                 }
             }
 
-            if (LuxEObject != null && useE)
+            if (LuxEObject != null && LuxEObject.IsVisible && E.IsReady() && useE)
             {
                 var target =
                     EntityManager.Heroes.Enemies.Where(
@@ -417,7 +432,7 @@
 
                 if (target.Any())
                 {
-                    E.Cast(LuxEObject.Position);
+                    E2.Cast();
                 }
             }
             
@@ -434,7 +449,7 @@
 
             var rPrediction = R.GetPrediction(rTarget);
 
-            if (rPrediction != null && rTarget.IsValidTarget() && rPrediction.HitChance >= GetHitChance("Combo") && rPrediction.CollisionObjects.Count() >= 3)
+            if (rPrediction != null && rTarget.IsValidTarget() && rPrediction.HitChance >= GetHitChance("Combo") && rPrediction.CollisionObjects.Count() >= sliderR)
             {
                 R.Cast(rPrediction.CastPosition);
             }            
@@ -478,7 +493,7 @@
                 }
             }
 
-            if (!useE || LuxEObject == null)
+            if (!useE || !E.IsReady() || LuxEObject == null)
             {
                 return;
             }
@@ -488,7 +503,7 @@
 
             if (target.Any())
             {
-                E.Cast(LuxEObject.Position);
+                E2.Cast();
             }
         }
 
@@ -497,6 +512,10 @@
         /// </summary>
         private static void LaneClear()
         {
+            Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear, 250, 85, 1150);
+            E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular, 250, 280, 950);
+            R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Linear, 1000, 190, int.MaxValue);
+
             var useQ = LaneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var useE = LaneClearMenu["useE"].Cast<CheckBox>().CurrentValue;
             var useR = LaneClearMenu["useR"].Cast<CheckBox>().CurrentValue;
@@ -530,7 +549,7 @@
                 }
             }
 
-            if (useE && !E.IsReady() && LuxEObject != null)
+            if (useE && E.IsReady() && LuxEObject != null)
             {
                 var target =
                     EntityManager.MinionsAndMonsters.EnemyMinions.Where(
@@ -538,7 +557,7 @@
 
                 if (target.Any())
                 {
-                    E.Cast(LuxEObject.Position);
+                    E2.Cast();
                 }
             }
 
@@ -611,7 +630,7 @@
 
                     if (enemies.Any())
                     {
-                        E.Cast(LuxEObject.Position);
+                        E2.Cast();
                     }
                 }
             }
