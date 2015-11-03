@@ -285,7 +285,7 @@
         /// </summary>
         /// <param name="sender">The Object</param>
         /// <param name="args">The Args</param>
-        static void GameObject_OnCreate(GameObject sender, EventArgs args)
+        private static void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
             if (sender.Name == "Lux_Base_E_mis.troy")
             {
@@ -298,7 +298,7 @@
         /// </summary>
         /// <param name="sender">The Object</param>
         /// <param name="args">The Args</param>
-        static void GameObject_OnDelete(GameObject sender, EventArgs args)
+        private static void GameObject_OnDelete(GameObject sender, EventArgs args)
         {
             if (sender.Name == "Lux_Base_E_tar_nova.troy")
             {
@@ -424,7 +424,7 @@
                 }
             }
 
-            if (LuxEObject != null && LuxEObject.IsVisible && E.IsReady() && useE)
+            if (LuxEObject != null && E.IsReady() && useE)
             {
                 var target =
                     EntityManager.Heroes.Enemies.Where(
@@ -449,10 +449,11 @@
 
             var rPrediction = R.GetPrediction(rTarget);
 
-            if (rPrediction != null && rTarget.IsValidTarget() && rPrediction.HitChance >= GetHitChance("Combo") && rPrediction.CollisionObjects.Count() >= sliderR)
+            if (rPrediction != null && rTarget.IsValidTarget() && rPrediction.HitChance >= GetHitChance("Combo")
+                && rPrediction.GetCollisionObjects<AIHeroClient>().Count() >= sliderR)
             {
                 R.Cast(rPrediction.CastPosition);
-            }            
+            }
         }
 
         /// <summary>
