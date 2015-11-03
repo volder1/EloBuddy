@@ -160,9 +160,9 @@
             Essentials.MiscMenu.AddGroupLabel("Card Selector Configuration");
             Essentials.MiscMenu.Add("enemyW", new Slider("How many enemies before selecting Red Card (SMART)", 3, 0, 5));
             Essentials.MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
-            Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 800, 175, 1000));
+            Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 175, 175, 1000));
 
-            Chat.Print("TwistedBuddy 2.0.0.2 - By KarmaPanda", Color.Green);
+            Chat.Print("TwistedBuddy 2.0.0.3 - By KarmaPanda", Color.Green);
 
             // Events
             Game.OnTick += Game_OnTick;

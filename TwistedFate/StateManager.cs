@@ -46,33 +46,23 @@
                 EntityManager.MinionsAndMonsters.GetLaneMinions(
                     EntityManager.UnitTeam.Enemy,
                     Player.Instance.ServerPosition,
-                    Program.Q.Range).OrderBy(t => t.Health).FirstOrDefault();
+                    Program.Q.Range).OrderBy(t => t.Health);
             var useQ = Essentials.LaneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var manaManagerQ = Essentials.LaneClearMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
 
-            if (useQ && qMinion != null)
+            if (useQ && (Program.Q.IsReady() && Essentials.ManaPercent() >= manaManagerQ))
             {
-                if (Program.Q.IsReady() && Essentials.ManaPercent() >= manaManagerQ)
-                {
-                    var minionPrediction = Prediction.Position.PredictLinearMissile(
-                        qMinion,
-                        Program.Q.Range,
-                        Program.Q.Width,
-                        Program.Q.CastDelay,
-                        Program.Q.Speed,
-                        int.MaxValue,
-                        Player.Instance.ServerPosition);
+                var minionPrediction = EntityManager.MinionsAndMonsters.GetLineFarmLocation(
+                    qMinion,
+                    Program.Q.Width,
+                    (int)Program.Q.Range);
 
-                    if (minionPrediction != null)
-                    {
-                        if (minionPrediction.HitChance == HitChance.High)
-                        {
-                            Program.Q.Cast(minionPrediction.CastPosition);
-                        }
-                    }
+                if (minionPrediction.HitNumber >= 3)
+                {
+                    Program.Q.Cast(minionPrediction.CastPosition);
                 }
             }
-            
+
             var minion =
                 EntityManager.MinionsAndMonsters.GetLaneMinions(
                     EntityManager.UnitTeam.Enemy,
