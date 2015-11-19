@@ -79,9 +79,9 @@
             Essentials.ComboMenu.Add("useQ", new CheckBox("Use Q in Combo"));
             Essentials.ComboMenu.Add("useCard", new CheckBox("Use W in Combo"));
             Essentials.ComboMenu.Add("useQStun", new CheckBox("Use Q only if Stunned"));
+            Essentials.ComboMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.ComboMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
             Essentials.ComboMenu.AddSeparator();
-
             var comboCardChooserSlider = Essentials.ComboMenu.Add("chooser", new Slider("mode", 0, 0, 3));
             var comboCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             comboCardChooserSlider.DisplayName = comboCardArray[comboCardChooserSlider.CurrentValue];
@@ -95,9 +95,9 @@
             Essentials.HarassMenu.AddGroupLabel("Harass Settings");
             Essentials.HarassMenu.Add("useQ", new CheckBox("Use Q in Harass"));
             Essentials.HarassMenu.Add("useCard", new CheckBox("Use W in Harass"));
+            Essentials.HarassMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.HarassMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
             Essentials.HarassMenu.AddSeparator();
-
             var harassCardChooserSlider = Essentials.HarassMenu.Add("chooser", new Slider("mode", 0, 0, 3));
             var harassCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             harassCardChooserSlider.DisplayName = harassCardArray[harassCardChooserSlider.CurrentValue];
@@ -111,9 +111,9 @@
             Essentials.LaneClearMenu.AddGroupLabel("LaneClear Settings");
             Essentials.LaneClearMenu.Add("useQ", new CheckBox("Use Q in LaneClear", false));
             Essentials.LaneClearMenu.Add("useCard", new CheckBox("Use W in LaneClear"));
+            Essentials.LaneClearMenu.Add("qPred", new Slider("Use Q if Hit x Minions", 3, 1, 5));
             Essentials.LaneClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
             Essentials.LaneClearMenu.AddSeparator();
-
             var laneclearCardChooserSlider = Essentials.LaneClearMenu.Add("chooser", new Slider("mode", 0, 0, 3));
             var laneclearCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             laneclearCardChooserSlider.DisplayName = laneclearCardArray[laneclearCardChooserSlider.CurrentValue];
@@ -127,9 +127,9 @@
             Essentials.JungleClearMenu.AddGroupLabel("JungleClear Settings");
             Essentials.JungleClearMenu.Add("useQ", new CheckBox("Use Q in JungleClear", false));
             Essentials.JungleClearMenu.Add("useCard", new CheckBox("Use W in JungleClear"));
+            Essentials.JungleClearMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.JungleClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
             Essentials.JungleClearMenu.AddSeparator();
-
             var jungleclearCardChooserSlider = Essentials.JungleClearMenu.Add("chooser", new Slider("mode", 0, 0, 3));
             var jungleclearCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             jungleclearCardChooserSlider.DisplayName = jungleclearCardArray[jungleclearCardChooserSlider.CurrentValue];
@@ -142,6 +142,7 @@
             Essentials.KillStealMenu = Essentials.MainMenu.AddSubMenu("Kill Steal Menu", "ksMenu");
             Essentials.KillStealMenu.AddGroupLabel("KillSteal Settings");
             Essentials.KillStealMenu.Add("useQ", new CheckBox("Use Q to KS"));
+            Essentials.KillStealMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.KillStealMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 15));
             Essentials.KillStealMenu.AddSeparator();
 
@@ -162,7 +163,7 @@
             Essentials.MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
             Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 175, 175, 1000));
 
-            Chat.Print("TwistedBuddy 2.0.0.3 - By KarmaPanda", Color.Green);
+            Chat.Print("TwistedBuddy 2.0.0.4 - By KarmaPanda", Color.Green);
 
             // Events
             Game.OnTick += Game_OnTick;
