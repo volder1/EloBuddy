@@ -90,33 +90,28 @@
                 // Farm Menu
                 FarmMenu = Nasus.AddSubMenu("Farm", "Farm");
                 FarmMenu.AddGroupLabel("Spell Usage Settings");
-                FarmMenu.AddSeparator();
                 FarmMenu.AddLabel("Q Settings");
                 FarmMenu.Add("useQ", new CheckBox("Last Hit Minion with Q"));
                 FarmMenu.Add("disableAA", new CheckBox("Don't LastHit Minion without Q", false));
-                FarmMenu.AddSeparator();
                 FarmMenu.AddLabel("Harass Settings");
                 FarmMenu.Add("useQH", new CheckBox("Use Q on Champion", false));
                 FarmMenu.Add("useEH", new CheckBox("Use E on Champion", false));
                 FarmMenu.Add("manaEH", new Slider("Mana % before E (Harass)", 30));
-                FarmMenu.AddSeparator();
                 FarmMenu.AddLabel("Lane Clear Settings");
                 FarmMenu.Add("useELC", new CheckBox("Use E in LaneClear"));
+                FarmMenu.Add("useELCS", new Slider("Minions before Casting E", 2, 1, 6));
                 FarmMenu.Add("manaELC", new Slider("Mana % before E (Lane Clear)", 30));
 
                 // Combo Menu
                 ComboMenu = Nasus.AddSubMenu("Combo", "Combo");
                 ComboMenu.AddGroupLabel("Spell Usage Settings");
-                ComboMenu.AddSeparator();
                 ComboMenu.Add("useQ", new CheckBox("Use Q in Combo"));
                 ComboMenu.Add("useW", new CheckBox("Use W in Combo"));
                 ComboMenu.Add("useE", new CheckBox("Use E in Combo"));
                 ComboMenu.Add("useR", new CheckBox("Use R in Combo"));
-                ComboMenu.AddSeparator();
                 ComboMenu.AddGroupLabel("ManaManager");
                 ComboMenu.Add("manaW", new Slider("Mana % before W", 25));
                 ComboMenu.Add("manaE", new Slider("Mana % before E", 30));
-                ComboMenu.AddSeparator();
                 ComboMenu.AddGroupLabel("R Settings");
                 ComboMenu.Add("hpR", new Slider("Use R at % HP", 25));
                 ComboMenu.Add("intR", new Slider("Use R when x Enemies are Around", 1, 0, 5));
@@ -125,14 +120,12 @@
                 // Kill Steal Menu
                 KillStealMenu = Nasus.AddSubMenu("Kill Steal", "KillSteal");
                 KillStealMenu.AddGroupLabel("Spell Usage Settings");
-                KillStealMenu.AddSeparator();
                 KillStealMenu.Add("useE", new CheckBox("Use E in Kill Steal"));
 
                 // Drawing Menu
                 DrawingMenu = Nasus.AddSubMenu("Drawing", "Drawing");
                 DrawingMenu.AddGroupLabel("Spell Drawing Settings");
-                DrawingMenu.AddSeparator();
-                DrawingMenu.Add("drawQ", new CheckBox("Draw Killable Minions with Q"));
+                DrawingMenu.Add("drawQ", new CheckBox("Draw Killable Minions with Q", false));
                 DrawingMenu.Add("drawW", new CheckBox("Draw W Range", false));
                 DrawingMenu.Add("drawE", new CheckBox("Draw E Range", false));
 
@@ -155,21 +148,23 @@
         /// </summary>
         /// <param name="target">The Target</param>
         /// <param name="args">The Args</param>
-        static void Orbwalker_OnAttack(AttackableUnit target, EventArgs args)
+        private static void Orbwalker_OnAttack(AttackableUnit target, EventArgs args)
         {
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit)
-                || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
+            if (!Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit)
+                && !Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
             {
-                var t = target as Obj_AI_Base;
-                var useQ = FarmMenu["useQ"].Cast<CheckBox>().CurrentValue;
+                return;
+            }
+            var t = target as Obj_AI_Base;
+            var useQ = FarmMenu["useQ"].Cast<CheckBox>().CurrentValue;
 
-                if (useQ && t != null)
-                {
-                    if (t.IsValidTarget() && Q.IsReady())
-                    {
-                        Q.Cast();
-                    }
-                }
+            if (!useQ || t == null)
+            {
+                return;
+            }
+            if (t.IsValidTarget() && Q.IsReady())
+            {
+                Q.Cast();
             }
         }
 
@@ -178,31 +173,34 @@
         /// </summary>
         /// <param name="target">The Target</param>
         /// <param name="args">The Args</param>
-        static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
+        private static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
         {
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit)
-                || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)
-                || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+            if (!Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit)
+                && !Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)
+                && !Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
-                var t = target as Obj_AI_Base;
-                var useQ = FarmMenu["useQ"].Cast<CheckBox>().CurrentValue;
-                var aaDisable = FarmMenu["disableAA"].Cast<CheckBox>().CurrentValue;
+                return;
+            }
+            var t = target as Obj_AI_Base;
+            var useQ = FarmMenu["useQ"].Cast<CheckBox>().CurrentValue;
+            var aaDisable = FarmMenu["disableAA"].Cast<CheckBox>().CurrentValue;
 
-                if (aaDisable && !PlayerInstance.HasBuff("SiphoningStrike"))
-                {
-                    args.Process = false;
-                }
+            if (aaDisable && !PlayerInstance.HasBuff("SiphoningStrike"))
+            {
+                args.Process = false;
+            }
 
-                if (useQ && t != null)
-                {
-                    if (t.IsValidTarget() && Q.IsReady())
-                    {
-                        if (GetDamage(t) >= t.Health)
-                        {
-                            Q.Cast();
-                        }
-                    }
-                }
+            if (!useQ || t == null)
+            {
+                return;
+            }
+            if (!t.IsValidTarget() || !Q.IsReady())
+            {
+                return;
+            }
+            if (GetDamage(t) >= t.Health)
+            {
+                Q.Cast();
             }
         }
 
@@ -213,21 +211,23 @@
         /// <param name="args">The Args</param>
         private static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
         {
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)
-                || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
+            if (!Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)
+                && !Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
             {
-                var t = target as AIHeroClient;
-                var useQ = ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
-                var useQH = FarmMenu["useQH"].Cast<CheckBox>().CurrentValue;
+                return;
+            }
 
-                if (t == null || (!useQ && !useQH))
-                {
-                    return;
-                }
-                if (t.IsValidTarget() && Q.IsReady())
-                {
-                    Q.Cast();
-                }
+            var t = target as AIHeroClient;
+            var useQ = ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
+            var useQH = FarmMenu["useQH"].Cast<CheckBox>().CurrentValue;
+
+            if (t == null || (!useQ && !useQH))
+            {
+                return;
+            }
+            if (t.IsValidTarget() && Q.IsReady())
+            {
+                Q.Cast();
             }
         }
 
@@ -301,7 +301,7 @@
         }
 
         /// <summary>
-        /// Gets Q + AA Damage Totally Done to Target (Ported from ElEasy)
+        /// Gets Q + AA Damage Totally Done to Target
         /// </summary>
         /// <param name="target">The Target</param>
         /// <returns>Damage Totally Done to Target</returns>
@@ -321,7 +321,7 @@
                 dmgItem = PlayerInstance.GetAutoAttackDamage(target) * 1.25;
             }
 
-            return new float[] { 0, 30, 50, 70, 90, 110 }[Q.Level] + PlayerInstance.FlatPhysicalDamageMod + PlayerInstance.GetBuffCount("NasusQStacks") + PlayerInstance.GetAutoAttackDamage(target) + dmgItem; // PlayerInstance.GetSpellDamage(target, SpellSlot.Q, DamageLibrary.SpellStages.DamagePerStack)
+            return target.CalculateDamageOnUnit(target, DamageType.Mixed, new float[] { 0, 30, 50, 70, 90, 110 }[Q.Level] + PlayerInstance.FlatPhysicalDamageMod + PlayerInstance.GetBuffCount("NasusQStacks")) + PlayerInstance.GetAutoAttackDamage(target) + dmgItem;
         }
     }
 }

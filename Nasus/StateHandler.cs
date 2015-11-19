@@ -38,7 +38,7 @@
             {
                 return;
             }
-            if (pred.HitChance == HitChance.High)
+            if (pred.HitChance >= HitChance.High)
             {
                 Program.E.Cast(pred.CastPosition);
             }
@@ -81,7 +81,7 @@
             }
             var target = EntityManager.Heroes.Enemies.Where(t => Program.E.IsInRange(t) && t.IsValidTarget());
 
-            foreach (var pred in target.Select(t => Program.E.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance == HitChance.High))
+            foreach (var pred in target.Select(t => Program.E.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance >= HitChance.High))
             {
                 Program.E.Cast(pred.CastPosition);
             }
@@ -93,6 +93,7 @@
         public static void LaneClear()
         {
             var useELC = Program.FarmMenu["useELC"].Cast<CheckBox>().CurrentValue;
+            var useELCS = Program.FarmMenu["useELCS"].Cast<Slider>().CurrentValue;
             var manaELC = Program.FarmMenu["manaELC"].Cast<Slider>().CurrentValue;
 
             if (!Program.E.IsReady() || !useELC || !(Player.Instance.ManaPercent >= manaELC))
@@ -101,15 +102,11 @@
             }
             var minion = EntityManager.MinionsAndMonsters.EnemyMinions.Where(t => Program.E.IsInRange(t) && t.IsValidTarget()).ToArray();
 
-            var pred = Prediction.Position.PredictCircularMissileAoe(minion, Program.E.Range, Program.E.Radius, Program.E.CastDelay, Program.E.Speed, Player.Instance.ServerPosition);
+            var pred = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.E.Width, (int)Program.E.Range);
 
-            if (pred == null)
+            if (pred.HitNumber >= useELCS)
             {
-                return;
-            }
-            foreach(var p in pred)
-            {
-                Program.E.Cast(p.CastPosition);
+                Program.E.Cast(pred.CastPosition);
             }
         }
 
@@ -143,7 +140,7 @@
                 var target = EntityManager.Heroes.Enemies.Where(t => Program.E.IsInRange(t)
                     && t.IsValidTarget());
 
-                foreach (var pred in target.Select(t => Program.E.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance == HitChance.High))
+                foreach (var pred in target.Select(t => Program.E.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance >= HitChance.High))
                 {
                     Program.E.Cast(pred.CastPosition);
                 }
