@@ -19,6 +19,11 @@
         /// <summary>
         /// Initializes and Contains the Menu.
         /// </summary>
+        public static Menu LastHitMenu;
+
+        /// <summary>
+        /// Initializes and Contains the Menu.
+        /// </summary>
         public static Menu HarassMenu;
 
         /// <summary>
@@ -75,11 +80,18 @@
             ComboMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
             ComboMenu.Add("qCountC", new Slider("Use Q if Hit x Champion(s)", 3, 1, 5));
             ComboMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 0, 0, 7));
-            ComboMenu.Add("rCountC", new Slider("Use R if Hit x Champion(s)", 2, 1, 5));
+            ComboMenu.Add("rCountC", new Slider("Use R if Hit x Champion(s)", 4, 1, 5));
             ComboMenu.AddLabel("Prediction Settings");
             ComboMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
             ComboMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));
             ComboMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 75));
+
+            LastHitMenu = LeJinx.AddSubMenu("LastHit", "LastHit");
+            LastHitMenu.AddGroupLabel("LastHit Settings");
+            LastHitMenu.Add("useQ", new CheckBox("Use Q"));
+            LastHitMenu.Add("qCountM", new Slider("Use Q if Hit x Minions", 4, 1, 7));
+            LastHitMenu.AddLabel("ManaManager");
+            LastHitMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
 
             HarassMenu = LeJinx.AddSubMenu("Harass", "Harass");
             HarassMenu.AddLabel("Harass Settings");

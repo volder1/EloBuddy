@@ -6,6 +6,8 @@
     using EloBuddy.SDK;
     using EloBuddy.SDK.Menu.Values;
 
+    using SharpDX.Win32;
+
     /// <summary>
     /// Class that executes the modes.
     /// </summary>
@@ -48,7 +50,7 @@
                 {
                     var wPrediction = Program.W.GetPrediction(target);
 
-                    if (wPrediction != null && wPrediction.HitChancePercent >= wSlider)
+                    if (wPrediction != null && !wPrediction.Collision && wPrediction.HitChancePercent >= wSlider)
                     {
                         if (wRange && Player.Instance.IsInAutoAttackRange(target))
                         {
@@ -95,6 +97,50 @@
         }
 
         /// <summary>
+        /// Does LastHit Method
+        /// </summary>
+        public static void LastHit()
+        {
+            var useQ = JinXxxMenu.LastHitMenu["useQ"].Cast<CheckBox>().CurrentValue;
+            var manaQ = JinXxxMenu.LastHitMenu["manaQ"].Cast<Slider>().CurrentValue;
+            var minions =
+                EntityManager.MinionsAndMonsters.GetLaneMinions(
+                    EntityManager.UnitTeam.Enemy,
+                    Player.Instance.ServerPosition,
+                    Essentials.FishBonesRange()).OrderByDescending(t => t.Distance(Player.Instance));
+
+            if (useQ && Program.Q.IsReady() && Essentials.FishBones())
+            {
+                foreach (
+                    var minion in
+                        minions.Where(
+                            minion =>
+                            Player.Instance.Distance(minion) <= Essentials.MinigunRange
+                            && Orbwalker.LasthitableMinions.Contains(minion)
+                            && Essentials.QModeSelector(minion, JinXxxMenu.LastHitMenu) == "Minigun"))
+                {
+                    Program.Q.Cast();
+                    Orbwalker.ForcedTarget = minion;
+                }
+            }
+            else if (useQ && Program.Q.IsReady() && !Essentials.FishBones() && Player.Instance.ManaPercent >= manaQ)
+            {
+                foreach (
+                    var minion in
+                        minions.Where(
+                            minion =>
+                            !Player.Instance.IsInAutoAttackRange(minion)
+                            && Player.Instance.Distance(minion) <= Essentials.FishBonesRange()
+                            && Orbwalker.LasthitableMinions.Contains(minion)
+                            && Essentials.QModeSelector(minion, JinXxxMenu.LastHitMenu) == "FishBones"))
+                {
+                    Program.Q.Cast();
+                    Orbwalker.ForcedTarget = minion;
+                }
+            }
+        }
+
+        /// <summary>
         /// Does Harass Method
         /// </summary>
         public static void Harass()
@@ -127,7 +173,7 @@
 
                 var wPrediction = Program.W.GetPrediction(target);
 
-                if (!(wPrediction.HitChancePercent >= wSlider))
+                if (!(wPrediction.HitChancePercent >= wSlider) || wPrediction.Collision)
                 {
                     return;
                 }

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using System.Security.Permissions;
 
     using EloBuddy;
     using EloBuddy.SDK;
@@ -187,6 +186,11 @@
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
             {
                 StateManager.Harass();
+            }
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
+            {
+                StateManager.LastHit();
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
