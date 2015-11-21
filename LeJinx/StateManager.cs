@@ -22,6 +22,7 @@
             var useR = JinXxxMenu.ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
             var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
             var wRange2 = JinXxxMenu.ComboMenu["wRange2"].Cast<Slider>().CurrentValue;
+            var eRange = JinXxxMenu.ComboMenu["eRange"].Cast<Slider>().CurrentValue;
             var manaQ = JinXxxMenu.ComboMenu["manaQ"].Cast<Slider>().CurrentValue;
             var manaW = JinXxxMenu.ComboMenu["manaW"].Cast<Slider>().CurrentValue;
             var manaE = JinXxxMenu.ComboMenu["manaE"].Cast<Slider>().CurrentValue;
@@ -72,11 +73,14 @@
 
                 if (target != null)
                 {
-                    var ePrediction = Program.E.GetPrediction(target);
-
-                    if (ePrediction != null && ePrediction.HitChancePercent >= eSlider)
+                    if (Player.Instance.Distance(target) <= eRange)
                     {
-                        Program.E.Cast(ePrediction.CastPosition);
+                        var ePrediction = Program.E.GetPrediction(target);
+
+                        if (ePrediction != null && ePrediction.HitChancePercent >= eSlider)
+                        {
+                            Program.E.Cast(ePrediction.CastPosition);
+                        }
                     }
                 }
             }
@@ -155,6 +159,7 @@
             var useW = JinXxxMenu.HarassMenu["useW"].Cast<CheckBox>().CurrentValue;
             var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
             var wRange2 = JinXxxMenu.HarassMenu["wRange2"].Cast<Slider>().CurrentValue;
+            var wRange3 = JinXxxMenu.MiscMenu["wRange3"].Cast<Slider>().CurrentValue;
             var manaQ = JinXxxMenu.HarassMenu["manaQ"].Cast<Slider>().CurrentValue;
             var manaW = JinXxxMenu.HarassMenu["manaW"].Cast<Slider>().CurrentValue;
             var wSlider = JinXxxMenu.HarassMenu["wSlider"].Cast<Slider>().CurrentValue;

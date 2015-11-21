@@ -147,17 +147,17 @@
 
             if (drawQ)
             {
-                Circle.Draw(Q.IsReady() ? Color.Red : Color.Green, Essentials.FishBones() ? Essentials.FishBonesRange() : Essentials.MinigunRange);
+                Circle.Draw(Q.IsReady() ? Color.Red : Color.Green, !Essentials.FishBones() ? Essentials.FishBonesRange() : Essentials.MinigunRange, Player.Instance.Position);
             }
 
             if (drawW)
             {
-                Circle.Draw(W.IsReady() ? Color.Red : Color.Green, W.Radius);
+                Circle.Draw(W.IsReady() ? Color.Red : Color.Green, W.Range, Player.Instance.Position);
             }
 
             if (drawE)
             {
-                Circle.Draw(E.IsReady() ? Color.Red : Color.Green, E.Radius);
+                Circle.Draw(E.IsReady() ? Color.Red : Color.Green, E.Range, Player.Instance.Position);
             }
 
             if (predW)

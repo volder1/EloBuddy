@@ -17,6 +17,16 @@
     internal class Essentials
     {
         /// <summary>
+        /// Jungle Mob List 
+        /// </summary>
+        public static readonly string[] JungleMobsList = { "SRU_Red", "SRU_Blue", "SRU_Dragon", "SRU_Baron", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Krug", "Sru_Crab" };
+
+        /// <summary>
+        /// Jungle Mob List for Twisted Treeline
+        /// </summary>
+        public static readonly string[] JungleMobsListTwistedTreeline = { "TT_NWraith1.1", "TT_NWraith4.1", "TT_NGolem2.1", "TT_NGolem5.1", "TT_NWolf3.1", "TT_NWolf6.1", "TT_Spiderboss8.1" };
+
+        /// <summary>
         /// Thank you ScienceARK for this method
         /// </summary>
         /// <returns>If Jinx is using FishBones.</returns>
@@ -276,17 +286,29 @@
             }
 
             /// <summary>
-            /// Calculates the Damage done with R
+            /// Calculates the Damage done with R (Fluxy's Method)
             /// </summary>
             /// <param name="target">The Target</param>
             /// <returns>Returns the Damage done with R</returns>
             private static float RDamage(Obj_AI_Base target)
             {
-                return Player.Instance.CalculateDamageOnUnit(
-                    target,
-                    DamageType.Physical,
-                    (target.MaxHealth - target.Health * new[] { 0, 0.25f, 0.30f, 0.45f }[Program.R.Level]));
-                //- target.FlatPhysicalReduction);
+                if (!Program.R.IsLearned) return 0;
+                var level = Program.R.Level - 1;
+
+                if (target.Distance(Player.Instance) < 1350)
+                {
+                    return Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
+                        (float)
+                            (new double[] { 25, 35, 45 }[level] +
+                             new double[] { 25, 30, 35 }[level] / 100 * (target.MaxHealth - target.Health) +
+                             0.1 * Player.Instance.FlatPhysicalDamageMod));
+                }
+
+                return Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
+                    (float)
+                        (new double[] { 250, 350, 450 }[level] +
+                         new double[] { 25, 30, 35 }[level] / 100 * (target.MaxHealth - target.Health) +
+                         1 * Player.Instance.FlatPhysicalDamageMod));
             }
         }
     }

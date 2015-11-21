@@ -1,5 +1,6 @@
 ﻿namespace Jinx
 {
+    using EloBuddy;
     using EloBuddy.SDK.Menu;
     using EloBuddy.SDK.Menu.Values;
 
@@ -86,6 +87,7 @@
             ComboMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 75));
             ComboMenu.AddLabel("Extra Settings");
             ComboMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 300, 0, 1450));
+            ComboMenu.Add("eRange", new Slider("Only Use E if Player Range from Target is more than x", 300, 0, 900));
             ComboMenu.Add("rRange2", new Slider("Don't Use R if Player Range from Target is x", 750, 0, 10000));
 
             LastHitMenu = JinXxx.AddSubMenu("LastHit", "LastHit");
@@ -140,10 +142,9 @@
             JungleClearMenu.Add("qCountM", new Slider("Use Q if Hit x Mob(s)", 2, 1, 3));
             JungleClearMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
 
-            /*JungleStealMenu = LeJinx.AddSubMenu("Jungle Steal", "JungleSteal");
+            JungleStealMenu = JinXxx.AddSubMenu("Jungle Steal", "JungleSteal");
             JungleStealMenu.AddLabel("Jungle Steal Settings");
-            JungleClearMenu.Add("toggle", new CheckBox("Use Jungle Steal"));
-            JungleStealMenu.Add("useR", new CheckBox("Use R"));
+            JungleStealMenu.Add("toggle", new CheckBox("Use Jungle Steal", false));
             JungleStealMenu.Add("manaR", new Slider("ManaManager for R", 25));
             JungleStealMenu.Add("rRange", new Slider("Range from mob before using R", 1500, 0, 10000));
             if (Game.MapId == GameMapId.SummonersRift)
@@ -173,7 +174,7 @@
                 JungleStealMenu.Add("TT_NGolem5.1", new CheckBox("Golem", false));
                 JungleStealMenu.Add("TT_NWolf3.1", new CheckBox("Wolf", false));
                 JungleStealMenu.Add("TT_NWolf6.1", new CheckBox("Wolf", false));
-            }*/
+            }
 
             DrawingMenu = JinXxx.AddSubMenu("Drawing", "Drawing");
             DrawingMenu.AddLabel("Drawing Settings");
@@ -198,11 +199,18 @@
             MiscMenu.Add("gapcloserE", new CheckBox("Use E to Gapcloser"));
             MiscMenu.Add("gapclosermanaE", new Slider("Mana % before using E to Gapclose", 25));
             MiscMenu.AddLabel("Spell Settings");
-            //MiscMenu.Add("autoW", new CheckBox("Automatically use W in certain situations"));
+            MiscMenu.Add("autoW", new CheckBox("Automatically use W in certain situations"));
             MiscMenu.Add("autoE", new CheckBox("Automatically uses E in certain situations"));
             MiscMenu.Add("wRange", new CheckBox("Use W only if target is in AA range"));
             MiscMenu.Add("rRange", new Slider("Range from enemy before using R (Doesn't effect JungleSteal)", 2000, 0, 10000));
+            MiscMenu.AddLabel("Auto W Settings (You must have Auto W on)");
+            MiscMenu.Add("stunW", new CheckBox("Use W on Stunned Enemy"));
+            MiscMenu.Add("dashW", new CheckBox("Use W on Dashing Enemy"));
+            MiscMenu.Add("charmW", new CheckBox("Use W on Charmed Enemy"));
+            MiscMenu.Add("tauntW", new CheckBox("Use W on Taunted Enemy"));
+            MiscMenu.Add("fearW", new CheckBox("Use W on Feared Enemy"));
             MiscMenu.AddLabel("Prediction Settings");
+            MiscMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
             MiscMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));
         }
     }

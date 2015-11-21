@@ -62,13 +62,13 @@
                                             drawR) / aiHeroClient.MaxHealth));
 
                     Line.DrawLine(
-                        Color.FromArgb(100, Color.Black),
+                        Color.FromArgb(100, Color.Red),
                         9f,
                         new Vector2(pos.X, pos.Y),
                         new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y));
 
                     Line.DrawLine(
-                        Color.Black,
+                        Color.Red,
                         3,
                         new Vector2(pos.X + (damage > fullbar ? fullbar : damage) + 1, pos.Y - 4),
                         new Vector2(pos.X + (damage > fullbar ? fullbar : damage) + 1, pos.Y + 5));

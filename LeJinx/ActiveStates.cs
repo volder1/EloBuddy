@@ -5,6 +5,7 @@
 
     using EloBuddy;
     using EloBuddy.SDK;
+    using EloBuddy.SDK.Events;
     using EloBuddy.SDK.Menu.Values;
 
     /// <summary>
@@ -25,17 +26,96 @@
             }
 
             var toggleK = JinXxxMenu.KillStealMenu["toggle"].Cast<CheckBox>().CurrentValue;
-            //var toggleJ = JinXxxMenu.JungleStealMenu["toggle"].Cast<CheckBox>().CurrentValue;
+            var toggleJ = JinXxxMenu.JungleStealMenu["toggle"].Cast<CheckBox>().CurrentValue;
+            var toggleaW = JinXxxMenu.MiscMenu["autoW"].Cast<CheckBox>().CurrentValue;
 
             if (toggleK)
             {
                 KillSteal();
             }
 
-            /*if (toggleJ)
+            if (toggleJ)
             {
                 JungleSteal();
-            }*/
+            }
+
+            if (toggleaW)
+            {
+                AutoW();
+            }
+        }
+
+        /// <summary>
+        /// Executes the Auto W Method
+        /// </summary>
+        private static void AutoW()
+        {
+            var stunW = JinXxxMenu.MiscMenu["stunW"].Cast<CheckBox>().CurrentValue;
+            var dashW = JinXxxMenu.MiscMenu["dashW"].Cast<CheckBox>().CurrentValue;
+            var charmW = JinXxxMenu.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
+            var tauntW = JinXxxMenu.MiscMenu["tauntW"].Cast<CheckBox>().CurrentValue;
+            var fearW = JinXxxMenu.MiscMenu["fearW"].Cast<CheckBox>().CurrentValue;
+            var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<Slider>().CurrentValue;
+            var wSlider = JinXxxMenu.MiscMenu["wSlider"].Cast<Slider>().CurrentValue;
+            var enemy = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget() && Program.W.IsInRange(t)).OrderByDescending(t => t.Distance(Player.Instance));
+
+            foreach (var target in enemy)
+            {
+                if (Player.Instance.Distance(target) < wRange)
+                {
+                    return;
+                }
+
+                if (stunW && target.IsStunned)
+                {
+                    var prediction = Program.W.GetPrediction(target);
+
+                    if (prediction.HitChancePercent >= wSlider)
+                    {
+                        Program.W.Cast(prediction.CastPosition);
+                    }
+                }
+
+                if (dashW && target.IsDashing())
+                {
+                    var prediction = Program.W.GetPrediction(target);
+
+                    if (prediction.HitChancePercent >= wSlider)
+                    {
+                        Program.W.Cast(prediction.CastPosition);
+                    }
+                }
+
+                if (charmW && target.IsCharmed)
+                {
+                    var prediction = Program.W.GetPrediction(target);
+
+                    if (prediction.HitChancePercent >= wSlider)
+                    {
+                        Program.W.Cast(prediction.CastPosition);
+                    }
+                }
+
+                if (tauntW && target.IsTaunted)
+                {
+                    var prediction = Program.W.GetPrediction(target);
+
+                    if (prediction.HitChancePercent >= wSlider)
+                    {
+                        Program.W.Cast(prediction.CastPosition);
+                    }
+                }
+
+                if (fearW && target.IsFeared)
+                {
+                    var prediction = Program.W.GetPrediction(target);
+
+                    if (prediction.HitChancePercent >= wSlider)
+                    {
+                        Program.W.Cast(prediction.CastPosition);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -79,7 +159,7 @@
             }
 
 
-            if (useW && Player.Instance.ManaPercent >= manaW && Program.W.IsReady())
+            else if (useW && Player.Instance.ManaPercent >= manaW && Program.W.IsReady())
             {
                 var enemy =
                     EntityManager.Heroes.Enemies.Where(
@@ -100,7 +180,7 @@
                 }
             }
 
-            if (useR && Player.Instance.ManaPercent >= manaR && Program.R.IsReady())
+            else if (useR && Player.Instance.ManaPercent >= manaR && Program.R.IsReady())
             {
                 var enemy =
                     EntityManager.Heroes.Enemies.Where(
@@ -123,13 +203,80 @@
             }
         }
 
-        /*
+        
         /// <summary>
         /// Executes the Jungle Steal Method
         /// </summary>
         private static void JungleSteal()
         {
-            
-        }*/
+            var manaR = JinXxxMenu.JungleStealMenu["manaR"].Cast<Slider>().CurrentValue;
+            var rRange = JinXxxMenu.JungleStealMenu["rRange"].Cast<Slider>().CurrentValue;
+
+            if (Player.Instance.ManaPercent >= manaR)
+            {
+                if (Game.MapId == GameMapId.SummonersRift)
+                {
+                    var jungleMob =
+                        EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(
+                            u =>
+                            u.IsVisible && Essentials.JungleMobsList.Contains(u.BaseSkinName)
+                            && Essentials.DamageLibrary.CalculateDamage(u, false, false, false, true) >= u.Health);
+
+                    if (jungleMob == null)
+                    {
+                        return;
+                    }
+
+                    if (!JinXxxMenu.JungleStealMenu[jungleMob.BaseSkinName].Cast<CheckBox>().CurrentValue)
+                    {
+                        return;
+                    }
+
+                    var enemy = EntityManager.Heroes.Enemies.Where(t => t.Distance(jungleMob) <= 100).OrderByDescending(t => t.Distance(jungleMob));
+
+                    if (enemy.Any())
+                    {
+                        foreach (var target in enemy.Where(target => Player.Instance.Distance(target) < rRange))
+                        {
+                            if (target.Distance(jungleMob) <= 100)
+                            {
+                                Program.R.Cast(jungleMob.ServerPosition);
+                            }
+                        }
+                    }
+                }
+                if (Game.MapId == GameMapId.TwistedTreeline)
+                {
+                    var jungleMob =
+                        EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(
+                            u =>
+                            u.IsVisible && Essentials.JungleMobsListTwistedTreeline.Contains(u.BaseSkinName)
+                            && Essentials.DamageLibrary.CalculateDamage(u, false, false, false, true) >= u.Health);
+
+                    if (jungleMob == null)
+                    {
+                        return;
+                    }
+
+                    if (!JinXxxMenu.JungleStealMenu[jungleMob.BaseSkinName].Cast<CheckBox>().CurrentValue)
+                    {
+                        return;
+                    }
+
+                    var enemy = EntityManager.Heroes.Enemies.Where(t => t.Distance(jungleMob) <= 100).OrderByDescending(t => t.Distance(jungleMob));
+
+                    if (enemy.Any())
+                    {
+                        foreach (var target in enemy.Where(target => Player.Instance.Distance(target) < rRange))
+                        {
+                            if (target.Distance(jungleMob) <= 100)
+                            {
+                                Program.R.Cast(jungleMob.ServerPosition);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
