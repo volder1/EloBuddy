@@ -1,4 +1,4 @@
-﻿namespace LeJinx
+﻿namespace Jinx
 {
     using System;
     using System.Linq;
@@ -64,13 +64,41 @@
             JinXxxMenu.Initialize();
             Indicator = new DamageIndicator.DamageIndicator();
 
-            Chat.Print("Jin-XXX by KarmaPanda", Color.Green);
+            Chat.Print("Jin-XXX by KarmaPanda");
 
-            Game.OnTick += Game_OnTick;
-            Game.OnTick += ActiveStates.Game_OnTick;
+            Game.OnUpdate += Game_OnUpdate;
+            Game.OnUpdate += ActiveStates.Game_OnUpdate;
             Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
             Gapcloser.OnGapcloser += Gapcloser_OnGapcloser;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        /// <summary>
+        /// Called when a Spell gets Casted
+        /// </summary>
+        /// <param name="sender">The Sender</param>
+        /// <param name="args">The Spell</param>
+        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            var autoE = JinXxxMenu.MiscMenu["autoE"].Cast<CheckBox>().CurrentValue;
+            var eSlider = JinXxxMenu.MiscMenu["eSlider"].Cast<Slider>().CurrentValue;
+
+            if (!autoE || !E.IsReady())
+            {
+                return;
+            }
+
+            if (!sender.IsEnemy || !sender.IsValidTarget(E.Range) || !Essentials.ShouldUseE(args.SData.Name))
+            {
+                return;
+            }
+            var prediction = E.GetPrediction(sender);
+
+            if (prediction.HitChancePercent >= eSlider)
+            {
+                E.Cast(prediction.CastPosition);
+            }
         }
 
         /// <summary>
@@ -168,7 +196,7 @@
         /// Called every time the Game Ticks
         /// </summary>
         /// <param name="args">The Args</param>
-        private static void Game_OnTick(EventArgs args)
+        private static void Game_OnUpdate(EventArgs args)
         {
             if (Orbwalker.ForcedTarget != null)
             {

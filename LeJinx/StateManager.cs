@@ -1,12 +1,10 @@
-﻿namespace LeJinx
+﻿namespace Jinx
 {
     using System.Linq;
 
     using EloBuddy;
     using EloBuddy.SDK;
     using EloBuddy.SDK.Menu.Values;
-
-    using SharpDX.Win32;
 
     /// <summary>
     /// Class that executes the modes.
@@ -23,6 +21,7 @@
             var useE = JinXxxMenu.ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
             var useR = JinXxxMenu.ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
             var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
+            var wRange2 = JinXxxMenu.ComboMenu["wRange2"].Cast<Slider>().CurrentValue;
             var manaQ = JinXxxMenu.ComboMenu["manaQ"].Cast<Slider>().CurrentValue;
             var manaW = JinXxxMenu.ComboMenu["manaW"].Cast<Slider>().CurrentValue;
             var manaE = JinXxxMenu.ComboMenu["manaE"].Cast<Slider>().CurrentValue;
@@ -48,17 +47,20 @@
 
                 if (target != null)
                 {
-                    var wPrediction = Program.W.GetPrediction(target);
-
-                    if (wPrediction != null && !wPrediction.Collision && wPrediction.HitChancePercent >= wSlider)
+                    if (Player.Instance.Distance(target) >= wRange2)
                     {
-                        if (wRange && Player.Instance.IsInAutoAttackRange(target))
+                        var wPrediction = Program.W.GetPrediction(target);
+
+                        if (wPrediction != null && !wPrediction.Collision && wPrediction.HitChancePercent >= wSlider)
                         {
-                            Program.W.Cast(wPrediction.CastPosition);
-                        }
-                        else if (!wRange)
-                        {
-                            Program.W.Cast(wPrediction.CastPosition);
+                            if (wRange && Player.Instance.IsInAutoAttackRange(target))
+                            {
+                                Program.W.Cast(wPrediction.CastPosition);
+                            }
+                            else if (!wRange)
+                            {
+                                Program.W.Cast(wPrediction.CastPosition);
+                            }
                         }
                     }
                 }
@@ -82,15 +84,19 @@
             if (useR && Player.Instance.ManaPercent >= manaR && Program.R.IsReady())
             {
                 var rRange = JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue;
+                var rRange2 = JinXxxMenu.ComboMenu["rRange2"].Cast<Slider>().CurrentValue;
                 var target = TargetSelector.GetTarget(rRange, DamageType.Physical);
 
                 if (target != null)
                 {
-                    var rPrediction = Program.R.GetPrediction(target);
-
-                    if (rPrediction != null && rPrediction.HitChancePercent >= rSlider && EntityManager.Heroes.Enemies.Count(t => t.Distance(rPrediction.CastPosition) <= 100) >= rCountC)
+                    if (Player.Instance.Distance(target) >= rRange2)
                     {
-                        Program.R.Cast(rPrediction.CastPosition);
+                        var rPrediction = Program.R.GetPrediction(target);
+
+                        if (rPrediction != null && rPrediction.HitChancePercent >= rSlider && EntityManager.Heroes.Enemies.Count(t => t.Distance(rPrediction.CastPosition) <= 100) >= rCountC)
+                        {
+                            Program.R.Cast(rPrediction.CastPosition);
+                        }
                     }
                 }
             }
@@ -148,6 +154,7 @@
             var useQ = JinXxxMenu.HarassMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var useW = JinXxxMenu.HarassMenu["useW"].Cast<CheckBox>().CurrentValue;
             var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
+            var wRange2 = JinXxxMenu.HarassMenu["wRange2"].Cast<Slider>().CurrentValue;
             var manaQ = JinXxxMenu.HarassMenu["manaQ"].Cast<Slider>().CurrentValue;
             var manaW = JinXxxMenu.HarassMenu["manaW"].Cast<Slider>().CurrentValue;
             var wSlider = JinXxxMenu.HarassMenu["wSlider"].Cast<Slider>().CurrentValue;
@@ -166,26 +173,24 @@
             {
                 var target = TargetSelector.GetTarget(Program.W.Range, DamageType.Physical);
 
-                if (target == null)
+                if (target != null)
                 {
-                    return;
-                }
+                    if (Player.Instance.Distance(target) >= wRange2)
+                    {
+                        var wPrediction = Program.W.GetPrediction(target);
 
-                var wPrediction = Program.W.GetPrediction(target);
-
-                if (!(wPrediction.HitChancePercent >= wSlider) || wPrediction.Collision)
-                {
-                    return;
-                }
-
-                if (wRange && Player.Instance.IsInAutoAttackRange(target))
-                {
-                    Program.W.Cast(wPrediction.CastPosition);
-                }
-
-                else if (!wRange)
-                {
-                    Program.W.Cast(wPrediction.CastPosition);
+                        if (wPrediction.HitChancePercent >= wSlider && !wPrediction.Collision)
+                        {
+                            if (wRange && Player.Instance.IsInAutoAttackRange(target))
+                            {
+                                Program.W.Cast(wPrediction.CastPosition);
+                            }
+                            else if (!wRange)
+                            {
+                                Program.W.Cast(wPrediction.CastPosition);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -210,15 +215,33 @@
 
             if (Essentials.FishBones())
             {
-                foreach (var minion in minions.Where(minion => Player.Instance.Distance(minion) <= Essentials.MinigunRange && Essentials.QModeSelector(minion, JinXxxMenu.LaneClearMenu) == "Minigun"))
+                if (Orbwalker.LastTarget.IsStructure())
+                {
+                    Program.Q.Cast();
+                    Orbwalker.ForcedTarget = Orbwalker.LastTarget;
+                }
+
+                foreach (
+                    var minion in
+                        minions.Where(
+                            minion =>
+                            Player.Instance.Distance(minion) <= Essentials.MinigunRange
+                            && Essentials.QModeSelector(minion, JinXxxMenu.LaneClearMenu) == "Minigun"))
                 {
                     Program.Q.Cast();
                     Orbwalker.ForcedTarget = minion;
                 }
             }
-            else if (!Essentials.FishBones() && Player.Instance.ManaPercent >= manaQ)
+
+            if (!Essentials.FishBones() && Player.Instance.ManaPercent >= manaQ)
             {
-                foreach (var minion in minions.Where(minion => !Player.Instance.IsInAutoAttackRange(minion) && Player.Instance.Distance(minion) <= Essentials.FishBonesRange() && Essentials.QModeSelector(minion, JinXxxMenu.LaneClearMenu) == "FishBones"))
+                foreach (
+                    var minion in
+                        minions.Where(
+                            minion =>
+                            !Player.Instance.IsInAutoAttackRange(minion)
+                            && Player.Instance.Distance(minion) <= Essentials.FishBonesRange()
+                            && Essentials.QModeSelector(minion, JinXxxMenu.LaneClearMenu) == "FishBones"))
                 {
                     Program.Q.Cast();
                     Orbwalker.ForcedTarget = minion;

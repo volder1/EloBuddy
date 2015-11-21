@@ -1,4 +1,4 @@
-﻿namespace LeJinx
+﻿namespace Jinx
 {
     using System;
     using System.Linq;
@@ -16,7 +16,7 @@
         /// Called every time the Game Ticks
         /// </summary>
         /// <param name="args">The Args</param>
-        public static void Game_OnTick(EventArgs args)
+        public static void Game_OnUpdate(EventArgs args)
         {
             if (Player.Instance.IsDead || Player.Instance.HasBuff("Recall") || Player.Instance.IsCharmed
                 || Player.Instance.IsStunned || Player.Instance.IsRooted)
@@ -49,6 +49,35 @@
             var manaR = JinXxxMenu.KillStealMenu["manaR"].Cast<Slider>().CurrentValue;
             var wSlider = JinXxxMenu.KillStealMenu["wSlider"].Cast<Slider>().CurrentValue;
             var rSlider = JinXxxMenu.KillStealMenu["rSlider"].Cast<Slider>().CurrentValue;
+
+            if (useW && useR && Player.Instance.ManaPercent >= manaW && Player.Instance.ManaPercent >= manaR
+                && Program.W.IsReady() && Program.R.IsReady())
+            {
+                var enemy =
+                    EntityManager.Heroes.Enemies.Where(
+                        t =>
+                        t.IsValidTarget() && Program.W.IsInRange(t) && Program.R.IsInRange(t)
+                        && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, true) >= t.Health)
+                        .OrderByDescending(t => t.Health)
+                        .FirstOrDefault();
+
+                if (enemy != null)
+                {
+                    var pred = Program.W.GetPrediction(enemy);
+                    var predR = Program.R.GetPrediction(enemy);
+
+                    if (pred != null && pred.HitChancePercent >= wSlider)
+                    {
+                        Program.W.Cast(pred.CastPosition);
+                    }
+
+                    if (predR != null && predR.HitChancePercent >= rSlider)
+                    {
+                        Program.R.Cast(predR.CastPosition);
+                    }
+                }
+            }
+
 
             if (useW && Player.Instance.ManaPercent >= manaW && Program.W.IsReady())
             {

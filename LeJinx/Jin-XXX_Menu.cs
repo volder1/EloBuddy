@@ -1,6 +1,5 @@
-﻿namespace LeJinx
+﻿namespace Jinx
 {
-    using EloBuddy;
     using EloBuddy.SDK.Menu;
     using EloBuddy.SDK.Menu.Values;
 
@@ -9,7 +8,7 @@
         /// <summary>
         /// Initializes and Contains the Menu.
         /// </summary>
-        public static Menu LeJinx;
+        public static Menu JinXxx;
 
         /// <summary>
         /// Initializes and Contains the Menu.
@@ -61,12 +60,12 @@
         /// </summary>
         public static void Initialize()
         {
-            LeJinx = MainMenu.AddMenu("LeJinx", "LeJinx");
-            LeJinx.AddGroupLabel("This addon is made by KarmaPanda and should not be redistributed in any way.");
-            LeJinx.AddGroupLabel("Any unauthorized redistribution without credits will result in severe consequences.");
-            LeJinx.AddGroupLabel("Thank you for using this addon and have a fun time!");
+            JinXxx = MainMenu.AddMenu("Jin-XXX", "Jin-XXX");
+            JinXxx.AddGroupLabel("This addon is made by KarmaPanda and should not be redistributed in any way.");
+            JinXxx.AddGroupLabel("Any unauthorized redistribution without credits will result in severe consequences.");
+            JinXxx.AddGroupLabel("Thank you for using this addon and have a fun time!");
 
-            ComboMenu = LeJinx.AddSubMenu("Combo", "Combo");
+            ComboMenu = JinXxx.AddSubMenu("Combo", "Combo");
             ComboMenu.AddLabel("Combo Settings");
             ComboMenu.Add("useQ", new CheckBox("Use Q"));
             ComboMenu.Add("useW", new CheckBox("Use W"));
@@ -79,21 +78,24 @@
             ComboMenu.Add("manaR", new Slider("ManaManager for R", 25));
             ComboMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
             ComboMenu.Add("qCountC", new Slider("Use Q if Hit x Champion(s)", 3, 1, 5));
-            ComboMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 0, 0, 7));
+            ComboMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 7, 1, 7));
             ComboMenu.Add("rCountC", new Slider("Use R if Hit x Champion(s)", 4, 1, 5));
             ComboMenu.AddLabel("Prediction Settings");
             ComboMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
             ComboMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));
             ComboMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 75));
+            ComboMenu.AddLabel("Extra Settings");
+            ComboMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 300, 0, 1450));
+            ComboMenu.Add("rRange2", new Slider("Don't Use R if Player Range from Target is x", 750, 0, 10000));
 
-            LastHitMenu = LeJinx.AddSubMenu("LastHit", "LastHit");
+            LastHitMenu = JinXxx.AddSubMenu("LastHit", "LastHit");
             LastHitMenu.AddGroupLabel("LastHit Settings");
             LastHitMenu.Add("useQ", new CheckBox("Use Q"));
             LastHitMenu.Add("qCountM", new Slider("Use Q if Hit x Minions", 4, 1, 7));
             LastHitMenu.AddLabel("ManaManager");
             LastHitMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
 
-            HarassMenu = LeJinx.AddSubMenu("Harass", "Harass");
+            HarassMenu = JinXxx.AddSubMenu("Harass", "Harass");
             HarassMenu.AddLabel("Harass Settings");
             HarassMenu.Add("useQ", new CheckBox("Use Q"));
             HarassMenu.Add("useW", new CheckBox("Use W"));
@@ -102,17 +104,19 @@
             HarassMenu.Add("manaW", new Slider("ManaManager for W", 25));
             HarassMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
             HarassMenu.Add("qCountC", new Slider("Use Q if Hit x Champion(s)", 3, 1, 5));
-            HarassMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 2, 1, 7));
+            HarassMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 7, 1, 7));
             HarassMenu.AddLabel("Prediction Settings");
             HarassMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
+            HarassMenu.AddLabel("Extra Settings");
+            HarassMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 300, 0, 1450));
 
-            LaneClearMenu = LeJinx.AddSubMenu("Lane Clear", "LaneClear");
+            LaneClearMenu = JinXxx.AddSubMenu("Lane Clear", "LaneClear");
             LaneClearMenu.AddLabel("Lane Clear Settings");
             LaneClearMenu.Add("useQ", new CheckBox("Use Q"));
             LaneClearMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
             LaneClearMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 3, 1, 7));
 
-            KillStealMenu = LeJinx.AddSubMenu("Kill Steal", "KillSteal");
+            KillStealMenu = JinXxx.AddSubMenu("Kill Steal", "KillSteal");
             KillStealMenu.Add("toggle", new CheckBox("Use Kill Steal"));
             KillStealMenu.Add("useW", new CheckBox("Use W to KS"));
             KillStealMenu.Add("useR", new CheckBox("Use R to KS"));
@@ -125,7 +129,7 @@
             KillStealMenu.AddLabel("Spell Settings");
             KillStealMenu.Add("rRange", new Slider("Range from hero before using R", 3000, 0, 10000));
 
-            JungleClearMenu = LeJinx.AddSubMenu("Jungle Clear", "JungleClear");
+            JungleClearMenu = JinXxx.AddSubMenu("Jungle Clear", "JungleClear");
             JungleClearMenu.AddLabel("Jungle Clear Settings");
             JungleClearMenu.Add("useQ", new CheckBox("Use Q"));
             JungleClearMenu.Add("useW", new CheckBox("Use W", false));
@@ -171,7 +175,7 @@
                 JungleStealMenu.Add("TT_NWolf6.1", new CheckBox("Wolf", false));
             }*/
 
-            DrawingMenu = LeJinx.AddSubMenu("Drawing", "Drawing");
+            DrawingMenu = JinXxx.AddSubMenu("Drawing", "Drawing");
             DrawingMenu.AddLabel("Drawing Settings");
             DrawingMenu.Add("drawQ", new CheckBox("Draw Q Range"));
             DrawingMenu.Add("drawW", new CheckBox("Draw W Range"));
@@ -186,7 +190,7 @@
             DrawingMenu.Add("draw.E", new CheckBox("Calculate E Damage", false));
             DrawingMenu.Add("draw.R", new CheckBox("Calculate R Damage"));
 
-            MiscMenu = LeJinx.AddSubMenu("Misc Menu", "Misc");
+            MiscMenu = JinXxx.AddSubMenu("Misc Menu", "Misc");
             MiscMenu.AddLabel("Interrupter");
             MiscMenu.Add("interruptE", new CheckBox("Use E to Interrupt"));
             MiscMenu.Add("interruptmanaE", new Slider("Mana % before using E to Interrupt", 25));
@@ -195,9 +199,11 @@
             MiscMenu.Add("gapclosermanaE", new Slider("Mana % before using E to Gapclose", 25));
             MiscMenu.AddLabel("Spell Settings");
             //MiscMenu.Add("autoW", new CheckBox("Automatically use W in certain situations"));
-            //MiscMenu.Add("autoE", new CheckBox("Automatically uses E in certain situations"));
+            MiscMenu.Add("autoE", new CheckBox("Automatically uses E in certain situations"));
             MiscMenu.Add("wRange", new CheckBox("Use W only if target is in AA range"));
             MiscMenu.Add("rRange", new Slider("Range from enemy before using R (Doesn't effect JungleSteal)", 2000, 0, 10000));
+            MiscMenu.AddLabel("Prediction Settings");
+            MiscMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace LeJinx
+﻿namespace Jinx
 {
     namespace DamageIndicator
     {

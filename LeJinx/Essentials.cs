@@ -1,4 +1,4 @@
-﻿namespace LeJinx
+﻿namespace Jinx
 {
     using System.Linq;
 
@@ -8,6 +8,8 @@
     using EloBuddy.SDK.Menu.Values;
 
     using SharpDX;
+
+    using Color = System.Drawing.Color;
 
     /// <summary>
     /// A Class Containing Methods that are needed for the Main Program.
@@ -21,6 +23,41 @@
         public static bool FishBones()
         {
             return Player.Instance.AttackRange > 530f;
+        }
+
+        /// <summary>
+        /// Taken from OKTW. Spells that E can be used on.
+        /// </summary>
+        /// <param name="spellName">The name of the Spell</param>
+        /// <returns>If E should be used or not.</returns>
+        public static bool ShouldUseE(string spellName)
+        {
+            switch (spellName)
+            {
+                case "ThreshQ":
+                    return true;
+                case "KatarinaR":
+                    return true;
+                case "AlZaharNetherGrasp":
+                    return true;
+                case "GalioIdolOfDurand":
+                    return true;
+                case "LuxMaliceCannon":
+                    return true;
+                case "MissFortuneBulletTime":
+                    return true;
+                case "RocketGrabMissile":
+                    return true;
+                case "CaitlynPiltoverPeacemaker":
+                    return true;
+                case "EzrealTrueshotBarrage":
+                    return true;
+                case "InfiniteDuress":
+                    return true;
+                case "VelkozR":
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -73,7 +110,7 @@
         /// <returns>Returns the string "Minigun" or "FishBones"</returns>
         public static string QModeSelector(Obj_AI_Base m, Menu menu)
         {
-            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Where(target => target.IsValidTarget() && target.Distance(m) <= 100);
+            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Where(target => target.IsMinion() && target.IsValidTarget() && target.Distance(m) <= 100);
             var qMode = minionsAroundTarget.Count() >= menu["qCountM"].Cast<Slider>().CurrentValue ? "FishBones" : "Minigun";
 
             return qMode;
@@ -84,26 +121,20 @@
         /// </summary>
         public static void FishbonesQLogic()
         {
-            if (!FishBones())
+            if (FishBones() && !Orbwalker.IsAutoAttacking)
             {
-                return;
+                var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical);
+
+                if (target != null)
+                {
+                    if (Player.Instance.Distance(target) <= MinigunRange
+                        && QModeSelector(target, JinXxxMenu.ComboMenu) == "Minigun")
+                    {
+                        Program.Q.Cast();
+                        Orbwalker.ForcedTarget = target;
+                    }
+                }
             }
-
-            var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical);
-
-            if (target == null)
-            {
-                return;
-            }
-
-            if (!(Player.Instance.Distance(target) <= MinigunRange)
-                || QModeSelector(target, JinXxxMenu.ComboMenu) != "Minigun")
-            {
-                return;
-            }
-
-            Program.Q.Cast();
-            Orbwalker.ForcedTarget = target;
         }
 
         /// <summary>
@@ -111,7 +142,7 @@
         /// </summary>
         public static void MinigunQLogic()
         {
-            if (FishBones())
+            if (FishBones() || Orbwalker.IsAutoAttacking)
             {
                 return;
             }
@@ -145,7 +176,7 @@
         /// <param name="radius">Radius of Line</param>
         /// <param name="width">Width of Line</param>
         /// <param name="color">Color of Line</param>
-        public static void DrawLineRectangle(Vector2 start, Vector2 end, int radius, int width, System.Drawing.Color color)
+        public static void DrawLineRectangle(Vector2 start, Vector2 end, int radius, int width, Color color)
         {
             var dir = (end - start).Normalized();
             var pDir = dir.Perpendicular();
@@ -208,20 +239,20 @@
             }
 
             /// <summary>
-            /// 
+            /// Calculates the Damage done with Q
             /// </summary>
-            /// <param name="target"></param>
-            /// <returns></returns>
+            /// <param name="target">The Target</param>
+            /// <returns>Returns the Damage done with Q</returns>
             private static float QDamage(Obj_AI_Base target)
             {
                 return Player.Instance.GetAutoAttackDamage(target);
             }
 
             /// <summary>
-            /// 
+            /// Calculates the Damage done with W
             /// </summary>
-            /// <param name="target"></param>
-            /// <returns></returns>
+            /// <param name="target">The Target</param>
+            /// <returns>Returns the Damage done with W</returns>
             private static float WDamage(Obj_AI_Base target)
             {
                 return Player.Instance.CalculateDamageOnUnit(
@@ -232,10 +263,10 @@
             }
 
             /// <summary>
-            /// 
+            /// Calculates the Damage done with E
             /// </summary>
-            /// <param name="target"></param>
-            /// <returns></returns>
+            /// <param name="target">The Target</param>
+            /// <returns>Returns the Damage done with E</returns>
             private static float EDamage(Obj_AI_Base target)
             {
                 return Player.Instance.CalculateDamageOnUnit(
@@ -245,17 +276,17 @@
             }
 
             /// <summary>
-            /// 
+            /// Calculates the Damage done with R
             /// </summary>
-            /// <param name="target"></param>
-            /// <returns></returns>
+            /// <param name="target">The Target</param>
+            /// <returns>Returns the Damage done with R</returns>
             private static float RDamage(Obj_AI_Base target)
             {
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
                     DamageType.Physical,
-                    (target.MaxHealth - target.Health * new[] { 0, 0.25f, 0.30f, 0.45f }[Program.R.Level])
-                    - target.FlatPhysicalReduction);
+                    (target.MaxHealth - target.Health * new[] { 0, 0.25f, 0.30f, 0.45f }[Program.R.Level]));
+                //- target.FlatPhysicalReduction);
             }
         }
     }

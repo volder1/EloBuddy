@@ -7,8 +7,8 @@
     <ProjectGuid>{94A4C67D-AFDD-4BB5-BA3D-2D49533F902A}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LeJinx</RootNamespace>
-    <AssemblyName>LeJinx</AssemblyName>
+    <RootNamespace>Jinx</RootNamespace>
+    <AssemblyName>Jinx</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>
