@@ -55,17 +55,11 @@
             var charmW = JinXxxMenu.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
             var tauntW = JinXxxMenu.MiscMenu["tauntW"].Cast<CheckBox>().CurrentValue;
             var fearW = JinXxxMenu.MiscMenu["fearW"].Cast<CheckBox>().CurrentValue;
-            var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<Slider>().CurrentValue;
             var wSlider = JinXxxMenu.MiscMenu["wSlider"].Cast<Slider>().CurrentValue;
             var enemy = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget() && Program.W.IsInRange(t)).OrderByDescending(t => t.Distance(Player.Instance));
 
             foreach (var target in enemy)
             {
-                if (Player.Instance.Distance(target) < wRange)
-                {
-                    return;
-                }
-
                 if (stunW && target.IsStunned)
                 {
                     var prediction = Program.W.GetPrediction(target);
