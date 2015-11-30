@@ -78,12 +78,13 @@
             Essentials.ComboMenu.AddGroupLabel("Combo Settings");
             Essentials.ComboMenu.Add("useQ", new CheckBox("Use Q in Combo"));
             Essentials.ComboMenu.Add("useCard", new CheckBox("Use W in Combo"));
-            Essentials.ComboMenu.Add("useQStun", new CheckBox("Use Q only if Stunned"));
+            Essentials.ComboMenu.Add("useQStun", new CheckBox("Use Q only if Stunned", false));
             Essentials.ComboMenu.Add("qPred", new Slider("Q HitChance %", 75));
+            Essentials.ComboMenu.Add("wSlider", new Slider("Range from enemy before picking card (Not including the additional range)", 300, 0, 10000));
             Essentials.ComboMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
             Essentials.ComboMenu.AddSeparator();
             var comboCardChooserSlider = Essentials.ComboMenu.Add("chooser", new Slider("mode", 0, 0, 3));
-            var comboCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
+            var comboCardArray = new[] { "Yellow", "Blue", "Red", "Smart" };
             comboCardChooserSlider.DisplayName = comboCardArray[comboCardChooserSlider.CurrentValue];
             comboCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
             {
@@ -96,6 +97,7 @@
             Essentials.HarassMenu.Add("useQ", new CheckBox("Use Q in Harass"));
             Essentials.HarassMenu.Add("useCard", new CheckBox("Use W in Harass"));
             Essentials.HarassMenu.Add("qPred", new Slider("Q HitChance %", 75));
+            Essentials.HarassMenu.Add("wSlider", new Slider("Range from enemy before picking card (Not including the additional range)", 300, 0, 10000));
             Essentials.HarassMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
             Essentials.HarassMenu.AddSeparator();
             var harassCardChooserSlider = Essentials.HarassMenu.Add("chooser", new Slider("mode", 0, 0, 3));
@@ -163,7 +165,7 @@
             Essentials.MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
             Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 175, 175, 1000));
 
-            Chat.Print("TwistedBuddy 2.0.0.4 - By KarmaPanda", Color.Green);
+            Chat.Print("TwistedBuddy 2.1.0.0 - By KarmaPanda", Color.Green);
 
             // Events
             Game.OnTick += Game_OnTick;

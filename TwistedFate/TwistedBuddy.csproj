@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CardSelector.cs" />
+    <Compile Include="DamageLibrary.cs" />
     <Compile Include="Essentials.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

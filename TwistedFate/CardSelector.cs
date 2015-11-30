@@ -1,6 +1,7 @@
 ﻿namespace TwistedBuddy
 {
     using System;
+
     using EloBuddy;
     using EloBuddy.SDK.Menu.Values;
 

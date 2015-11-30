@@ -4,7 +4,6 @@
 
     using EloBuddy;
     using EloBuddy.SDK;
-    using EloBuddy.SDK.Enumerations;
     using EloBuddy.SDK.Menu.Values;
 
     internal class StateManager
@@ -105,14 +104,7 @@
             {
                 if (Program.Q.IsReady() && Essentials.ManaPercent() >= manaManagerQ)
                 {
-                    var minionPrediction = Prediction.Position.PredictLinearMissile(
-                        qMinion,
-                        Program.Q.Range,
-                        Program.Q.Width,
-                        Program.Q.CastDelay,
-                        Program.Q.Speed,
-                        int.MaxValue,
-                        Player.Instance.ServerPosition);
+                    var minionPrediction = Program.Q.GetPrediction(qMinion);
 
                     if (minionPrediction != null)
                     {
@@ -124,10 +116,9 @@
                 }
             }
 
-            var minion =
-                EntityManager.MinionsAndMonsters.GetJungleMonsters(
-                    Player.Instance.ServerPosition,
-                    Program.Q.Range).OrderByDescending(t => t.Health).FirstOrDefault();
+            var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(
+                Player.Instance.ServerPosition,
+                Program.Q.Range).FirstOrDefault();
             var useCard = Essentials.JungleClearMenu["useCard"].Cast<CheckBox>().CurrentValue;
 
             if (useCard && minion != null)
@@ -152,14 +143,15 @@
         /// </summary>
         public static void Harass()
         {
+            var wSlider = Essentials.HarassMenu["wSlider"].Cast<Slider>().CurrentValue;
             var t = TargetSelector.GetTarget(
-                Player.Instance.AttackRange + 100,
+                Player.Instance.AttackRange + wSlider,
                 DamageType.Mixed,
                 Player.Instance.ServerPosition);
             var m = EntityManager.MinionsAndMonsters.GetLaneMinions(
                 EntityManager.UnitTeam.Enemy,
                 Player.Instance.ServerPosition,
-                Player.Instance.AttackRange + 100).FirstOrDefault();
+                Player.Instance.AttackRange + wSlider).FirstOrDefault();
             var useCard = Essentials.HarassMenu["useCard"].Cast<CheckBox>().CurrentValue;
             var chooser = Essentials.HarassMenu["chooser"].Cast<Slider>().DisplayName;
 
@@ -194,7 +186,7 @@
                 }
             }
 
-            var qTarget = TargetSelector.GetTarget(Program.Q.Range, DamageType.Mixed, Player.Instance.ServerPosition);
+            var qTarget = TargetSelector.GetTarget(Program.Q.Range, DamageType.Magical, Player.Instance.ServerPosition);
             var useQ = Essentials.HarassMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var qPred = Essentials.HarassMenu["qPred"].Cast<Slider>().CurrentValue;
             var manaManagerQ = Essentials.HarassMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
@@ -227,9 +219,10 @@
         /// </summary>
         public static void Combo()
         {
+            var wSlider = Essentials.ComboMenu["wSlider"].Cast<Slider>().CurrentValue;
             var wTarget = TargetSelector.GetTarget(
-                Player.Instance.AttackRange + 150,
-                DamageType.Mixed,
+                Player.Instance.AttackRange + wSlider,
+                DamageType.Magical,
                 Player.Instance.ServerPosition);
             var useCard = Essentials.ComboMenu["useCard"].Cast<CheckBox>().CurrentValue;
             var chooser = Essentials.ComboMenu["chooser"].Cast<Slider>().DisplayName;
@@ -250,7 +243,7 @@
 
             var qTarget = TargetSelector.GetTarget(
                 Program.Q.Range,
-                DamageType.Mixed,
+                DamageType.Magical,
                 Player.Instance.ServerPosition);
             var useQ = Essentials.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
 
@@ -278,16 +271,14 @@
             }
             else
             {
-                if (!Program.Q.IsInRange(qTarget) || !Program.Q.IsReady()
-                    || !(Essentials.ManaPercent() >= manaManagerQ))
+                if (Program.Q.IsInRange(qTarget) && Program.Q.IsReady() && Essentials.ManaPercent() >= manaManagerQ)
                 {
-                    return;
-                }
-                var pred = Program.Q.GetPrediction(qTarget);
+                    var pred = Program.Q.GetPrediction(qTarget);
 
-                if (pred.HitChancePercent >= qPred)
-                {
-                    Program.Q.Cast(pred.CastPosition);
+                    if (pred.HitChancePercent >= qPred)
+                    {
+                        Program.Q.Cast(pred.CastPosition);
+                    }
                 }
             }
         }
@@ -301,29 +292,23 @@
             var qPred = Essentials.KillStealMenu["qPred"].Cast<Slider>().CurrentValue;
             var manaManagerQ = Essentials.KillStealMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
 
-            if (!useQ)
+            if (useQ)
             {
-                return;
-            }
-            var t = TargetSelector.GetTarget(
-                Program.Q.Range,
-                DamageType.Mixed,
-                Player.Instance.ServerPosition);
+                var t = TargetSelector.GetTarget(Program.Q.Range, DamageType.Magical, Player.Instance.ServerPosition);
 
-            if (t == null || !Program.Q.IsReady())
-            {
-                return;
-            }
-            if (!(t.Health < Player.Instance.GetSpellDamage(t, SpellSlot.Q))
-                || !(Essentials.ManaPercent() >= manaManagerQ))
-            {
-                return;
-            }
-            var pred = Program.Q.GetPrediction(t);
+                if (t != null && Program.Q.IsReady())
+                {
+                    if (t.Health < DamageLibrary.CalculateDamage(t, true, false, false, false)
+                        && Essentials.ManaPercent() >= manaManagerQ)
+                    {
+                        var pred = Program.Q.GetPrediction(t);
 
-            if (pred != null && pred.HitChancePercent >= qPred)
-            {
-                Program.Q.Cast(pred.CastPosition);
+                        if (pred != null && pred.HitChancePercent >= qPred)
+                        {
+                            Program.Q.Cast(pred.CastPosition);
+                        }
+                    }
+                }
             }
         }
 
@@ -332,9 +317,21 @@
         /// </summary>
         public static void AutoQ()
         {
-            var heroes = EntityManager.Heroes.Enemies.Where(t => t.IsStunned);
+            var target = EntityManager.Heroes.Enemies.FirstOrDefault(t => Program.Q.IsInRange(t));
 
-            foreach (var pred in heroes.Select(t => Program.Q.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance >= HitChance.High && Program.Q.IsReady()))
+            if (target == null)
+            {
+                return;
+            }
+
+            if (!target.IsStunned || !target.IsRooted || !target.IsTaunted)
+            {
+                return;
+            }
+
+            var pred = Program.Q.GetPrediction(target);
+
+            if (pred.HitChancePercent >= 75)
             {
                 Program.Q.Cast(pred.CastPosition);
             }

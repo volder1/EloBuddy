@@ -31,7 +31,7 @@
         public static string MinionCardSelection(Obj_AI_Base t)
         {
             string card;
-            var minionsaroundTarget = ObjectManager.Get<Obj_AI_Minion>().Count(target => !target.IsAlly && target.IsMinion && target.Distance(t) <= 200);
+            var minionsaroundTarget = ObjectManager.Get<Obj_AI_Minion>().Count(target => !target.IsAlly && target.IsMinion && target.Distance(t) <= 200) + EntityManager.MinionsAndMonsters.Monsters.Count(mob => mob.Distance(t) <= 200);
             var enemyW = MiscMenu["enemyW"].Cast<Slider>().CurrentValue;
             var manaW = MiscMenu["manaW"].Cast<Slider>().CurrentValue;
 
@@ -41,14 +41,7 @@
                 return card;
             }
 
-            if (ManaPercent() > manaW
-                && t.Team == GameObjectTeam.Neutral
-                && (t.Name == "SRU_Blue"
-                    || t.Name == "SRU_Gromp"
-                    || t.Name == "SRU_Murkwolf"
-                    || t.Name == "SRU_Razorbeak"
-                    || t.Name == "SRU_Red")
-                && minionsaroundTarget < enemyW)
+            if (ManaPercent() > manaW && t.Team == GameObjectTeam.Neutral && minionsaroundTarget < enemyW)
             {
                 card = "Yellow";
                 return card;
