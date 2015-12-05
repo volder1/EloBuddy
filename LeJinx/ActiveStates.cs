@@ -55,11 +55,18 @@
             var charmW = JinXxxMenu.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
             var tauntW = JinXxxMenu.MiscMenu["tauntW"].Cast<CheckBox>().CurrentValue;
             var fearW = JinXxxMenu.MiscMenu["fearW"].Cast<CheckBox>().CurrentValue;
+            var snareW = JinXxxMenu.MiscMenu["snareW"].Cast<CheckBox>().CurrentValue;
+            var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
             var wSlider = JinXxxMenu.MiscMenu["wSlider"].Cast<Slider>().CurrentValue;
             var enemy = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget() && Program.W.IsInRange(t)).OrderByDescending(t => t.Distance(Player.Instance));
 
             foreach (var target in enemy)
             {
+                if (wRange && Player.Instance.Distance(target) <= Player.Instance.GetAutoAttackRange())
+                {
+                    return;
+                }
+
                 if (stunW && target.IsStunned)
                 {
                     var prediction = Program.W.GetPrediction(target);
@@ -70,7 +77,7 @@
                     }
                 }
 
-                if (dashW && target.IsDashing())
+                else if (dashW && target.IsDashing())
                 {
                     var prediction = Program.W.GetPrediction(target);
 
@@ -80,7 +87,7 @@
                     }
                 }
 
-                if (charmW && target.IsCharmed)
+                else if (charmW && target.IsCharmed)
                 {
                     var prediction = Program.W.GetPrediction(target);
 
@@ -90,7 +97,7 @@
                     }
                 }
 
-                if (tauntW && target.IsTaunted)
+                else if (tauntW && target.IsTaunted)
                 {
                     var prediction = Program.W.GetPrediction(target);
 
@@ -100,7 +107,17 @@
                     }
                 }
 
-                if (fearW && target.IsFeared)
+                else if (fearW && target.IsFeared)
+                {
+                    var prediction = Program.W.GetPrediction(target);
+
+                    if (prediction.HitChancePercent >= wSlider)
+                    {
+                        Program.W.Cast(prediction.CastPosition);
+                    }
+                }
+
+                else if (snareW && target.IsRooted)
                 {
                     var prediction = Program.W.GetPrediction(target);
 

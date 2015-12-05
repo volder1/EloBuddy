@@ -126,10 +126,10 @@
             KillStealMenu.Add("manaW", new Slider("ManaManager for W", 25));
             KillStealMenu.Add("manaR", new Slider("ManaManager for R", 25));
             KillStealMenu.AddLabel("Prediction Settings");
-            KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
-            KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 75));
+            KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 65));
+            KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 90));
             KillStealMenu.AddLabel("Spell Settings");
-            KillStealMenu.Add("rRange", new Slider("Range from hero before using R", 3000, 0, 10000));
+            KillStealMenu.Add("rRange", new Slider("Range from hero before using R", 1000, 0, 10000));
 
             JungleClearMenu = JinXxx.AddSubMenu("Jungle Clear", "JungleClear");
             JungleClearMenu.AddLabel("Jungle Clear Settings");
@@ -209,6 +209,7 @@
             MiscMenu.Add("charmW", new CheckBox("Use W on Charmed Enemy"));
             MiscMenu.Add("tauntW", new CheckBox("Use W on Taunted Enemy"));
             MiscMenu.Add("fearW", new CheckBox("Use W on Feared Enemy"));
+            MiscMenu.Add("snareW", new CheckBox("Use W on Snared Enemy"));
             MiscMenu.AddLabel("Prediction Settings");
             MiscMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
             MiscMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));

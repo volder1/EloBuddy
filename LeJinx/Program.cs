@@ -64,7 +64,9 @@
             JinXxxMenu.Initialize();
             Indicator = new DamageIndicator.DamageIndicator();
 
-            Chat.Print("Jin-XXX by KarmaPanda");
+            Chat.Print("Jin-XXX: Loaded", Color.AliceBlue);
+            Chat.Print("Jin-XXX: Check out the Menu and adjust to your preference.", Color.Aqua);
+            Chat.Print("Jin-XXX: Please be sure to upvote if you enjoy!", Color.OrangeRed);
 
             Game.OnUpdate += Game_OnUpdate;
             Game.OnUpdate += ActiveStates.Game_OnUpdate;

@@ -46,7 +46,7 @@
             {
                 var target = TargetSelector.GetTarget(Program.W.Range, DamageType.Physical);
 
-                if (target != null)
+                if (target != null && target.IsValidTarget())
                 {
                     if (Player.Instance.Distance(target) >= wRange2)
                     {
@@ -159,7 +159,6 @@
             var useW = JinXxxMenu.HarassMenu["useW"].Cast<CheckBox>().CurrentValue;
             var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
             var wRange2 = JinXxxMenu.HarassMenu["wRange2"].Cast<Slider>().CurrentValue;
-            var wRange3 = JinXxxMenu.MiscMenu["wRange3"].Cast<Slider>().CurrentValue;
             var manaQ = JinXxxMenu.HarassMenu["manaQ"].Cast<Slider>().CurrentValue;
             var manaW = JinXxxMenu.HarassMenu["manaW"].Cast<Slider>().CurrentValue;
             var wSlider = JinXxxMenu.HarassMenu["wSlider"].Cast<Slider>().CurrentValue;
@@ -178,7 +177,7 @@
             {
                 var target = TargetSelector.GetTarget(Program.W.Range, DamageType.Physical);
 
-                if (target != null)
+                if (target != null && target.IsValidTarget())
                 {
                     if (Player.Instance.Distance(target) >= wRange2)
                     {
@@ -220,7 +219,7 @@
 
             if (Essentials.FishBones())
             {
-                if (Orbwalker.LastTarget.IsStructure())
+                if (Orbwalker.LastTarget is Obj_AI_Turret)
                 {
                     Program.Q.Cast();
                     Orbwalker.ForcedTarget = Orbwalker.LastTarget;
