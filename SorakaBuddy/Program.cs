@@ -90,7 +90,7 @@
 
                 Bootstrap.Init(null);
 
-                Q = new Spell.Skillshot(SpellSlot.Q, 950, SkillShotType.Circular, 283, 1100, 210);
+                Q = new Spell.Skillshot(SpellSlot.Q, 800, SkillShotType.Circular, 283, 1100, 210);
                 W = new Spell.Targeted(SpellSlot.W, 550);
                 E = new Spell.Skillshot(SpellSlot.E, 925, SkillShotType.Circular, 500, 1750, 70);
                 R = new Spell.Active(SpellSlot.R, int.MaxValue);
