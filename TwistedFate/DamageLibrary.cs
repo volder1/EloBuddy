@@ -51,7 +51,7 @@
         /// <returns>Returns the Damage done with Q</returns>
         private static float QDamage(Obj_AI_Base target)
         {
-            return (new[] { 0, 60, 100, 160, 210, 260 }[Program.Q.Level]) + (Player.Instance.FlatMagicDamageMod * 0.65f);
+            return (new[] { 0, 60, 105, 150, 195, 240 }[Program.Q.Level]) + (Player.Instance.TotalMagicalDamage * 0.65f);
         }
 
         /// <summary>
@@ -66,24 +66,24 @@
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
                     DamageType.Mixed,
-                    new[] { 0, 40, 60, 80, 100, 120 }[Program.W.Level]) + (Player.Instance.FlatMagicDamageMod * 0.5f)
-                       + (Player.Instance.FlatPhysicalDamageMod);
+                    new[] { 0, 40, 60, 80, 100, 120 }[Program.W.Level]) + (Player.Instance.TotalMagicalDamage * 0.5f)
+                       + (Player.Instance.TotalAttackDamage);
             }
             if (Player.Instance.HasBuff("redcardpreattack"))
             {
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
                     DamageType.Mixed,
-                    new[] { 0, 30, 45, 60, 75, 90 }[Program.W.Level] + (Player.Instance.FlatMagicDamageMod * 0.5f)
-                    + Player.Instance.FlatPhysicalDamageMod);
+                    new[] { 0, 30, 45, 60, 75, 90 }[Program.W.Level] + (Player.Instance.TotalMagicalDamage * 0.5f)
+                    + Player.Instance.TotalAttackDamage);
             }
             if (Player.Instance.HasBuff("goldcardpreattack"))
             {
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
                     DamageType.Mixed,
-                    new[] { 0, 15, 22.5f, 30, 37.5f, 45 }[Program.W.Level] + (Player.Instance.FlatMagicDamageMod * 0.5f)
-                    + Player.Instance.FlatPhysicalDamageMod);
+                    new[] { 0, 15, 22.5f, 30, 37.5f, 45 }[Program.W.Level] + (Player.Instance.TotalMagicalDamage * 0.5f)
+                    + Player.Instance.TotalAttackDamage);
             }
             return 0;
         }
@@ -100,7 +100,7 @@
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
                     DamageType.Magical,
-                    new[] { 0, 55, 80, 105, 130, 155 }[Program.E.Level]) + (Player.Instance.FlatMagicDamageMod * 0.5f);
+                    new[] { 0, 55, 80, 105, 130, 155 }[Program.E.Level]) + (Player.Instance.TotalMagicalDamage * 0.5f);
             }
             return 0;
         }
