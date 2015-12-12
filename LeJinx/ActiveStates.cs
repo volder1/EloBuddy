@@ -71,7 +71,7 @@
                 {
                     var prediction = Program.W.GetPrediction(target);
 
-                    if (prediction.HitChancePercent >= wSlider)
+                    if (prediction.HitChancePercent >= wSlider && !prediction.Collision)
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
@@ -81,7 +81,7 @@
                 {
                     var prediction = Program.W.GetPrediction(target);
 
-                    if (prediction.HitChancePercent >= wSlider)
+                    if (prediction.HitChancePercent >= wSlider && !prediction.Collision)
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
@@ -91,7 +91,7 @@
                 {
                     var prediction = Program.W.GetPrediction(target);
 
-                    if (prediction.HitChancePercent >= wSlider)
+                    if (prediction.HitChancePercent >= wSlider && !prediction.Collision)
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
@@ -101,7 +101,7 @@
                 {
                     var prediction = Program.W.GetPrediction(target);
 
-                    if (prediction.HitChancePercent >= wSlider)
+                    if (prediction.HitChancePercent >= wSlider && !prediction.Collision)
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
@@ -111,7 +111,7 @@
                 {
                     var prediction = Program.W.GetPrediction(target);
 
-                    if (prediction.HitChancePercent >= wSlider)
+                    if (prediction.HitChancePercent >= wSlider && !prediction.Collision)
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
@@ -121,7 +121,7 @@
                 {
                     var prediction = Program.W.GetPrediction(target);
 
-                    if (prediction.HitChancePercent >= wSlider)
+                    if (prediction.HitChancePercent >= wSlider && !prediction.Collision)
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
@@ -157,12 +157,12 @@
                     var pred = Program.W.GetPrediction(enemy);
                     var predR = Program.R.GetPrediction(enemy);
 
-                    if (pred != null && pred.HitChancePercent >= wSlider)
+                    if (pred != null && pred.HitChancePercent >= wSlider && !pred.Collision)
                     {
                         Program.W.Cast(pred.CastPosition);
                     }
 
-                    if (predR != null && predR.HitChancePercent >= rSlider)
+                    if (predR != null && predR.HitChancePercent >= rSlider && !predR.Collision)
                     {
                         Program.R.Cast(predR.CastPosition);
                     }
@@ -184,7 +184,7 @@
                 {
                     var pred = Program.W.GetPrediction(enemy);
 
-                    if (pred != null && pred.HitChancePercent >= wSlider)
+                    if (pred != null && pred.HitChancePercent >= wSlider && !pred.Collision)
                     {
                         Program.W.Cast(pred.CastPosition);
                     }
@@ -206,7 +206,7 @@
                 {
                     var pred = Program.R.GetPrediction(enemy);
 
-                    if (pred != null && pred.HitChancePercent >= rSlider)
+                    if (pred != null && pred.HitChancePercent >= rSlider && !pred.Collision)
                     {
                         Program.R.Cast(pred.CastPosition);
                     }

@@ -131,7 +131,7 @@
         /// </summary>
         public static void FishbonesQLogic()
         {
-            if (FishBones() && !Orbwalker.IsAutoAttacking)
+            if (FishBones() && Orbwalker.CanAutoAttack)
             {
                 var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical);
 
@@ -141,7 +141,7 @@
                         && QModeSelector(target, JinXxxMenu.ComboMenu) == "Minigun")
                     {
                         Program.Q.Cast();
-                        Orbwalker.ForcedTarget = target;
+                        //Orbwalker.ForcedTarget = target;
                     }
                 }
             }
@@ -152,7 +152,7 @@
         /// </summary>
         public static void MinigunQLogic()
         {
-            if (FishBones() || Orbwalker.IsAutoAttacking)
+            if (FishBones() || !Orbwalker.CanAutoAttack)
             {
                 return;
             }
@@ -269,7 +269,7 @@
                     target,
                     DamageType.Physical,
                     new[] { 0, 10, 60, 110, 160, 210 }[Program.W.Level])
-                       + (Player.Instance.FlatPhysicalDamageMod * 1.4f);
+                       + (Player.Instance.TotalAttackDamage * 1.4f);
             }
 
             /// <summary>
@@ -282,7 +282,7 @@
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
                     DamageType.Magical,
-                    new[] { 0, 80, 135, 190, 245, 300 }[Program.E.Level] + (Player.Instance.FlatMagicDamageMod));
+                    new[] { 0, 80, 135, 190, 245, 300 }[Program.E.Level] + (Player.Instance.TotalMagicalDamage));
             }
 
             /// <summary>
@@ -301,14 +301,14 @@
                         (float)
                             (new double[] { 25, 35, 45 }[level] +
                              new double[] { 25, 30, 35 }[level] / 100 * (target.MaxHealth - target.Health) +
-                             0.1 * Player.Instance.FlatPhysicalDamageMod));
+                             0.1 * Player.Instance.TotalAttackDamage));
                 }
 
                 return Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
                     (float)
                         (new double[] { 250, 350, 450 }[level] +
                          new double[] { 25, 30, 35 }[level] / 100 * (target.MaxHealth - target.Health) +
-                         1 * Player.Instance.FlatPhysicalDamageMod));
+                         1 * Player.Instance.TotalAttackDamage));
             }
         }
     }

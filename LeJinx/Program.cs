@@ -202,7 +202,7 @@
         {
             if (Orbwalker.ForcedTarget != null)
             {
-                if (!Player.Instance.IsInAutoAttackRange(Orbwalker.ForcedTarget) || !Orbwalker.ForcedTarget.IsValid)
+                if (!Player.Instance.IsInAutoAttackRange(Orbwalker.ForcedTarget) || !Orbwalker.ForcedTarget.IsValidTarget() || !Orbwalker.ForcedTarget.IsVisible)
                 {
                     Orbwalker.ForcedTarget = null;
                 }

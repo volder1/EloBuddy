@@ -230,7 +230,7 @@
                         minions.Where(
                             minion =>
                             Player.Instance.Distance(minion) <= Essentials.MinigunRange
-                            && Essentials.QModeSelector(minion, JinXxxMenu.LaneClearMenu) == "Minigun"))
+                            && Essentials.QModeSelector(minion, JinXxxMenu.LaneClearMenu) == "Minigun" && Orbwalker.CanAutoAttack))
                 {
                     Program.Q.Cast();
                     Orbwalker.ForcedTarget = minion;
@@ -245,7 +245,7 @@
                             minion =>
                             !Player.Instance.IsInAutoAttackRange(minion)
                             && Player.Instance.Distance(minion) <= Essentials.FishBonesRange()
-                            && Essentials.QModeSelector(minion, JinXxxMenu.LaneClearMenu) == "FishBones"))
+                            && Essentials.QModeSelector(minion, JinXxxMenu.LaneClearMenu) == "FishBones" && Orbwalker.CanAutoAttack))
                 {
                     Program.Q.Cast();
                     Orbwalker.ForcedTarget = minion;
@@ -275,7 +275,7 @@
 
                     foreach (var mob in mobs)
                     {
-                        if (mob == null || !Player.Instance.IsInAutoAttackRange(mob))
+                        if (mob == null || !Player.Instance.IsInAutoAttackRange(mob) || !Orbwalker.CanAutoAttack)
                         {
                             return;
                         }
@@ -295,7 +295,7 @@
 
                     foreach (var mob in mobs)
                     {
-                        if (mob == null)
+                        if (mob == null || !Orbwalker.CanAutoAttack)
                         {
                             return;
                         }
