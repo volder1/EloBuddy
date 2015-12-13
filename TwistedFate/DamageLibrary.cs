@@ -51,7 +51,7 @@
         /// <returns>Returns the Damage done with Q</returns>
         private static float QDamage(Obj_AI_Base target)
         {
-            return (new[] { 0, 60, 105, 150, 195, 240 }[Program.Q.Level]) + (Player.Instance.TotalMagicalDamage * 0.65f);
+            return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical, new[] { 0, 60, 105, 150, 195, 240 }[Program.Q.Level]) + (Player.Instance.TotalMagicalDamage * 0.65f);
         }
 
         /// <summary>
