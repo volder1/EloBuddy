@@ -147,8 +147,10 @@
                 var enemy =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
-                        t.IsValidTarget() && Program.W.IsInRange(t) && Program.R.IsInRange(t)
-                        && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, true) >= t.Health)
+                            t.IsValidTarget() && Program.W.IsInRange(t) &&
+                            Player.Instance.Distance(t) < JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
+                            Player.Instance.Distance(t) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
+                            && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, true) >= t.Health)
                         .OrderByDescending(t => t.Health)
                         .FirstOrDefault();
 
@@ -162,7 +164,7 @@
                         Program.W.Cast(pred.CastPosition);
                     }
 
-                    if (predR != null && predR.HitChancePercent >= rSlider && !predR.Collision)
+                    if (predR != null && predR.HitChancePercent >= rSlider)
                     {
                         Program.R.Cast(predR.CastPosition);
                     }
@@ -196,9 +198,11 @@
                 var enemy =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
-                        t.IsValidTarget()
-                        && Player.Instance.Distance(t) <= JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue
-                        && Essentials.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health)
+                            t.IsValidTarget()
+                            &&
+                            Player.Instance.Distance(t) < JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
+                            Player.Instance.Distance(t) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
+                            && Essentials.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health)
                         .OrderByDescending(t => t.Health)
                         .FirstOrDefault();
 
@@ -206,7 +210,7 @@
                 {
                     var pred = Program.R.GetPrediction(enemy);
 
-                    if (pred != null && pred.HitChancePercent >= rSlider && !pred.Collision)
+                    if (pred != null && pred.HitChancePercent >= rSlider)
                     {
                         Program.R.Cast(pred.CastPosition);
                     }

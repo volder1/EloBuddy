@@ -19,8 +19,8 @@
         public class DamageIndicator
         {
             private const float BarLength = 104;
-            private const float XOffset = -9;
-            private const float YOffset = +22;
+            private const float XOffset = 0;
+            private const float YOffset = 11;
             public float CheckDistance = 1200;
 
             public DamageIndicator()
@@ -62,16 +62,16 @@
                                             drawR) / aiHeroClient.MaxHealth));
 
                     Line.DrawLine(
-                        Color.FromArgb(100, Color.Red),
+                        Color.FromArgb(100, Color.Black),
                         9f,
                         new Vector2(pos.X, pos.Y),
                         new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y));
 
                     Line.DrawLine(
-                        Color.Red,
+                        Color.Black,
                         3,
-                        new Vector2(pos.X + (damage > fullbar ? fullbar : damage) + 1, pos.Y - 4),
-                        new Vector2(pos.X + (damage > fullbar ? fullbar : damage) + 1, pos.Y + 5));
+                        new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y),
+                        new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y));
                 }
             }
         }

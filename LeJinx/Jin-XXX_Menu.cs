@@ -26,7 +26,7 @@
         /// </summary>
         public static Menu HarassMenu;
 
-        /// <summary>
+        /// <summary>E:\EloBuddy Repo\EloBuddy\LeJinx\Jin-XXX_Menu.cs
         /// Initializes and Contains the Menu.
         /// </summary>
         public static Menu LaneClearMenu;
@@ -129,7 +129,7 @@
             KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 65));
             KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 90));
             KillStealMenu.AddLabel("Spell Settings");
-            KillStealMenu.Add("rRange", new Slider("Range from hero before using R", 1000, 0, 10000));
+            KillStealMenu.Add("rRange", new Slider("Don't use R if Player Range from Target is x", 1000, 0, 10000));
 
             JungleClearMenu = JinXxx.AddSubMenu("Jungle Clear", "JungleClear");
             JungleClearMenu.AddLabel("Jungle Clear Settings");
@@ -213,6 +213,8 @@
             MiscMenu.AddLabel("Prediction Settings");
             MiscMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
             MiscMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));
+            MiscMenu.AddLabel("Allah Akbar");
+            MiscMenu.Add("allahAkbarT", new CheckBox("Play Allah Akbar after casting R"));
         }
     }
 }

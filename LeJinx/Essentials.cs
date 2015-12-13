@@ -93,8 +93,8 @@
         public static string QModeSelector(AIHeroClient t, Menu menu)
         {
             string qMode;
-            var championsAroundTarget = EntityManager.Heroes.Enemies.Count(target => target.IsValidTarget() && target.Distance(t) <= 100);
-            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Count(target => target.IsValidTarget() && target.Distance(t) <= 100);
+            var championsAroundTarget = t.CountEnemiesInRange(200); //EntityManager.Heroes.Enemies.Count(target => target.IsValidTarget() && target.Distance(t) <= 200);
+            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Count(target => target.IsValidTarget() && target.Distance(t) <= 200);
 
             if (championsAroundTarget >= menu["qCountC"].Cast<Slider>().CurrentValue)
             {
@@ -120,7 +120,7 @@
         /// <returns>Returns the string "Minigun" or "FishBones"</returns>
         public static string QModeSelector(Obj_AI_Base m, Menu menu)
         {
-            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Where(target => target.IsMinion() && target.IsValidTarget() && target.Distance(m) <= 100);
+            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Where(target => target.IsMinion() && target.IsValidTarget() && target.Distance(m) <= 200);
             var qMode = minionsAroundTarget.Count() >= menu["qCountM"].Cast<Slider>().CurrentValue ? "FishBones" : "Minigun";
 
             return qMode;
@@ -133,7 +133,7 @@
         {
             if (FishBones() && Orbwalker.CanAutoAttack)
             {
-                var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical);
+                var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical, Player.Instance.ServerPosition);
 
                 if (target != null)
                 {
@@ -141,7 +141,7 @@
                         && QModeSelector(target, JinXxxMenu.ComboMenu) == "Minigun")
                     {
                         Program.Q.Cast();
-                        //Orbwalker.ForcedTarget = target;
+                        Orbwalker.ForcedTarget = target;
                     }
                 }
             }
@@ -157,7 +157,7 @@
                 return;
             }
 
-            var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical);
+            var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical, Player.Instance.ServerPosition);
 
             if (target == null)
             {

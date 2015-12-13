@@ -1,4 +1,6 @@
-﻿namespace Jinx
+﻿using System.Media;
+
+namespace Jinx
 {
     using System;
     using System.Linq;
@@ -38,6 +40,11 @@
         public static DamageIndicator.DamageIndicator Indicator;
 
         /// <summary>
+        /// Stores Allah Akbar File
+        /// </summary>
+        public static SoundPlayer AllahAkbar;
+
+        /// <summary>
         /// Called when the Program is run
         /// </summary>
         private static void Main()
@@ -59,14 +66,21 @@
             Q = new Spell.Active(SpellSlot.Q);
             W = new Spell.Skillshot(SpellSlot.W, 1450, SkillShotType.Linear, 600, 3300, 60);
             E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Circular, 1200, 1750, 150);
-            R = new Spell.Skillshot(SpellSlot.R, 3250, SkillShotType.Linear, 500, 1700, 140);
+            R = new Spell.Skillshot(SpellSlot.R, 10000, SkillShotType.Linear, 500, 1500, 140);
 
             JinXxxMenu.Initialize();
             Indicator = new DamageIndicator.DamageIndicator();
 
-            Chat.Print("Jin-XXX: Loaded", Color.AliceBlue);
-            Chat.Print("Jin-XXX: Check out the Menu and adjust to your preference.", Color.Aqua);
-            Chat.Print("Jin-XXX: Please be sure to upvote if you enjoy!", Color.OrangeRed);
+            // Credits to iRaxe for the Original Idea
+            AllahAkbar = new SoundPlayer
+            {
+                SoundLocation = "AllahuAkbar.wav"
+            };
+            AllahAkbar.Load();
+
+            Chat.Print("Jin-XXX: Loaded", System.Drawing.Color.AliceBlue);
+            Chat.Print("Jin-XXX: Check out the Menu and adjust to your preference.", System.Drawing.Color.Aqua);
+            Chat.Print("Jin-XXX: Please be sure to upvote if you enjoy!", System.Drawing.Color.OrangeRed);
 
             Game.OnUpdate += Game_OnUpdate;
             Game.OnUpdate += ActiveStates.Game_OnUpdate;
@@ -83,8 +97,14 @@
         /// <param name="args">The Spell</param>
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
+            var allahAkbarT = JinXxxMenu.MiscMenu["allahAkbarT"].Cast<CheckBox>().CurrentValue;
             var autoE = JinXxxMenu.MiscMenu["autoE"].Cast<CheckBox>().CurrentValue;
             var eSlider = JinXxxMenu.MiscMenu["eSlider"].Cast<Slider>().CurrentValue;
+
+            if (allahAkbarT && sender.IsMe && args.SData.Name.Equals("JinxR"))
+            {
+                AllahAkbar.Play();
+            }
 
             if (!autoE || !E.IsReady())
             {
@@ -203,6 +223,13 @@
             if (Orbwalker.ForcedTarget != null)
             {
                 if (!Player.Instance.IsInAutoAttackRange(Orbwalker.ForcedTarget) || !Orbwalker.ForcedTarget.IsValidTarget() || !Orbwalker.ForcedTarget.IsVisible)
+                {
+                    Orbwalker.ForcedTarget = null;
+                }
+                else if (Orbwalker.ForcedTarget ==
+                         TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(), DamageType.Physical,
+                             Player.Instance.ServerPosition) &&
+                         Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
                 {
                     Orbwalker.ForcedTarget = null;
                 }
