@@ -74,7 +74,7 @@ namespace Jinx
             // Credits to iRaxe for the Original Idea
             AllahAkbar = new SoundPlayer
             {
-                SoundLocation = "AllahuAkbar.wav"
+                SoundLocation = "Allahu_Akbar_Sound_Effect_Download_Link.wav"
             };
             AllahAkbar.Load();
 
