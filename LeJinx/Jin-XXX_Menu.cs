@@ -88,7 +88,7 @@
             ComboMenu.AddLabel("Extra Settings");
             ComboMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 300, 0, 1450));
             ComboMenu.Add("eRange", new Slider("Only Use E if Player Range from Target is more than x", 300, 0, 900));
-            ComboMenu.Add("rRange2", new Slider("Max R Range", 750, 0, 3000));
+            ComboMenu.Add("rRange2", new Slider("Max R Range", 1500, 0, 3000));
 
             LastHitMenu = JinXxx.AddSubMenu("LastHit", "LastHit");
             LastHitMenu.AddGroupLabel("LastHit Settings");
@@ -102,15 +102,15 @@
             HarassMenu.Add("useQ", new CheckBox("Use Q"));
             HarassMenu.Add("useW", new CheckBox("Use W"));
             HarassMenu.AddLabel("ManaManager");
-            HarassMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
-            HarassMenu.Add("manaW", new Slider("ManaManager for W", 25));
+            HarassMenu.Add("manaQ", new Slider("ManaManager for Q", 15));
+            HarassMenu.Add("manaW", new Slider("ManaManager for W", 35));
             HarassMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
             HarassMenu.Add("qCountC", new Slider("Use Q if Hit x Champion(s)", 3, 1, 5));
             //HarassMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 7, 1, 7));
             HarassMenu.AddLabel("Prediction Settings");
             HarassMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
             HarassMenu.AddLabel("Extra Settings");
-            HarassMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 300, 0, 1450));
+            HarassMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 350, 0, 1450));
 
             LaneClearMenu = JinXxx.AddSubMenu("Lane Clear", "LaneClear");
             LaneClearMenu.AddLabel("Lane Clear Settings");
@@ -126,10 +126,10 @@
             KillStealMenu.Add("manaW", new Slider("ManaManager for W", 25));
             KillStealMenu.Add("manaR", new Slider("ManaManager for R", 25));
             KillStealMenu.AddLabel("Prediction Settings");
-            KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 65));
-            KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 90));
+            KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 85));
+            KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 85));
             KillStealMenu.AddLabel("Spell Settings");
-            KillStealMenu.Add("rRange", new Slider("Max Distance for R", 1000, 0, 3000));
+            KillStealMenu.Add("rRange", new Slider("Max Distance for R", 1500, 0, 3000));
 
             JungleClearMenu = JinXxx.AddSubMenu("Jungle Clear", "JungleClear");
             JungleClearMenu.AddLabel("Jungle Clear Settings");
@@ -139,7 +139,7 @@
             JungleClearMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
             JungleClearMenu.Add("manaW", new Slider("ManaManager for W", 25));
             JungleClearMenu.AddLabel("Misc Settings");
-            JungleClearMenu.Add("qCountM", new Slider("Use Q if Hit x Mob(s)", 2, 1, 3));
+            //JungleClearMenu.Add("qCountM", new Slider("Use Q if Hit x Mob(s)", 2, 1, 3));
             JungleClearMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
 
             JungleStealMenu = JinXxx.AddSubMenu("Jungle Steal", "JungleSteal");
