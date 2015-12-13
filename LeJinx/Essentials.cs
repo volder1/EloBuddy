@@ -1,4 +1,6 @@
-﻿namespace Jinx
+﻿using SharpDX.Win32;
+
+namespace Jinx
 {
     using System.Linq;
 
@@ -32,7 +34,7 @@
         /// <returns>If Jinx is using FishBones.</returns>
         public static bool FishBones()
         {
-            return Player.Instance.AttackRange > 530f;
+            return Player.Instance.HasBuff("JinxQ");
         }
 
         /// <summary>
@@ -84,17 +86,19 @@
             return 670f + Player.Instance.BoundingRadius + 25 * Program.Q.Level;
         }
 
+        #region Old Jinx Logic
+
         /// <summary>
         /// Calculates if Q Should be Minigun or FishBones
         /// </summary>
         /// <param name="t">The Target being attacked (Or will be)</param>
         /// <param name="menu">Combo, LaneClear, Harass, etc</param>
         /// <returns>Returns the string "Minigun" or "FishBones"</returns>
-        public static string QModeSelector(AIHeroClient t, Menu menu)
+        /*public static string QModeSelector(AIHeroClient t, Menu menu)
         {
             string qMode;
-            var championsAroundTarget = t.CountEnemiesInRange(200); //EntityManager.Heroes.Enemies.Count(target => target.IsValidTarget() && target.Distance(t) <= 200);
-            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Count(target => target.IsValidTarget() && target.Distance(t) <= 200);
+            var championsAroundTarget = EntityManager.Heroes.Enemies.Count(target => target.IsValidTarget() && t.Distance(target) <= 100);
+            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Count(minion => minion.IsValidTarget() && t.Distance(minion) <= 100);
 
             if (championsAroundTarget >= menu["qCountC"].Cast<Slider>().CurrentValue)
             {
@@ -110,7 +114,7 @@
             }
 
             return qMode;
-        }
+        }*/
 
         /// <summary>
         /// Calculates if Q Should be Minigun or FishBones
@@ -118,22 +122,22 @@
         /// <param name="m">The Minion being attacked (Or will be)</param>
         /// <param name="menu">Combo, LaneClear, Harass, etc</param>
         /// <returns>Returns the string "Minigun" or "FishBones"</returns>
-        public static string QModeSelector(Obj_AI_Base m, Menu menu)
+        /*public static string QModeSelector(Obj_AI_Base m, Menu menu)
         {
-            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Where(target => target.IsMinion() && target.IsValidTarget() && target.Distance(m) <= 200);
+            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Where(target => target.IsMinion() && target.IsValidTarget() && target.Distance(m) <= 100);
             var qMode = minionsAroundTarget.Count() >= menu["qCountM"].Cast<Slider>().CurrentValue ? "FishBones" : "Minigun";
 
             return qMode;
-        }
+        }*/
 
         /// <summary>
         /// Uses Q after logic. For Fishbones.
         /// </summary>
-        public static void FishbonesQLogic()
+        /*public static void FishbonesQLogic()
         {
             if (FishBones() && Orbwalker.CanAutoAttack)
             {
-                var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical, Player.Instance.ServerPosition);
+                var target = TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(), DamageType.Physical);
 
                 if (target != null)
                 {
@@ -145,38 +149,37 @@
                     }
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Uses Q after logic. For Minigun.
         /// </summary>
-        public static void MinigunQLogic()
+        /*public static void MinigunQLogic()
         {
-            if (FishBones() || !Orbwalker.CanAutoAttack)
+            if (!FishBones() && Orbwalker.CanAutoAttack)
             {
-                return;
-            }
+                var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical);
 
-            var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical, Player.Instance.ServerPosition);
+                if (target != null)
+                {
+                    if (Player.Instance.Distance(target) <= FishBonesRange() &&
+                        Player.Instance.Distance(target) > MinigunRange)
+                    {
+                        Program.Q.Cast();
+                        Orbwalker.ForcedTarget = target;
+                    }
 
-            if (target == null)
-            {
-                return;
+                    else if (Player.Instance.Distance(target) <= FishBonesRange() &&
+                             QModeSelector(target, JinXxxMenu.ComboMenu) == "FishBones")
+                    {
+                        Program.Q.Cast();
+                        Orbwalker.ForcedTarget = target;
+                    }
+                }
             }
+        }*/
 
-            if (Player.Instance.Distance(target) <= FishBonesRange() && Player.Instance.Distance(target) > MinigunRange)
-            {
-                Program.Q.Cast();
-                Orbwalker.ForcedTarget = target;
-            }
-
-            else if (Player.Instance.Distance(target) <= FishBonesRange()
-                     && QModeSelector(target, JinXxxMenu.ComboMenu) == "FishBones")
-            {
-                Program.Q.Cast();
-                Orbwalker.ForcedTarget = target;
-            }
-        }
+        #endregion
 
         /// <summary>
         /// Taken from AdEvade which was taken from OKTW

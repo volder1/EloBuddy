@@ -1,4 +1,6 @@
-﻿namespace Jinx
+﻿using System.Net;
+
+namespace Jinx
 {
     using System;
     using System.Linq;
@@ -148,8 +150,8 @@
                     EntityManager.Heroes.Enemies.Where(
                         t =>
                             t.IsValidTarget() && Program.W.IsInRange(t) &&
-                            Player.Instance.Distance(t) < JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
-                            Player.Instance.Distance(t) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
+                            Player.Instance.Distance(t) >=
+                            JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue
                             && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, true) >= t.Health)
                         .OrderByDescending(t => t.Health)
                         .FirstOrDefault();
@@ -169,10 +171,30 @@
                         Program.R.Cast(predR.CastPosition);
                     }
                 }
+                else
+                {
+                    KillSteal_2();
+                }
             }
+            else
+            {
+                KillSteal_2();
+            }
+        }
 
+        /// <summary>
+        /// Executes the Kill Steal Method
+        /// </summary>
+        private static void KillSteal_2()
+        {
+            var useW = JinXxxMenu.KillStealMenu["useW"].Cast<CheckBox>().CurrentValue;
+            var useR = JinXxxMenu.KillStealMenu["useR"].Cast<CheckBox>().CurrentValue;
+            var manaW = JinXxxMenu.KillStealMenu["manaW"].Cast<Slider>().CurrentValue;
+            var manaR = JinXxxMenu.KillStealMenu["manaR"].Cast<Slider>().CurrentValue;
+            var wSlider = JinXxxMenu.KillStealMenu["wSlider"].Cast<Slider>().CurrentValue;
+            var rSlider = JinXxxMenu.KillStealMenu["rSlider"].Cast<Slider>().CurrentValue;
 
-            else if (useW && Player.Instance.ManaPercent >= manaW && Program.W.IsReady())
+            if (useW && Player.Instance.ManaPercent >= manaW && Program.W.IsReady())
             {
                 var enemy =
                     EntityManager.Heroes.Enemies.Where(
@@ -193,15 +215,15 @@
                 }
             }
 
-            else if (useR && Player.Instance.ManaPercent >= manaR && Program.R.IsReady())
+            if (useR && Player.Instance.ManaPercent >= manaR && Program.R.IsReady())
             {
                 var enemy =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
                             t.IsValidTarget()
                             &&
-                            Player.Instance.Distance(t) < JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
-                            Player.Instance.Distance(t) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
+                            Player.Instance.Distance(t) >=
+                            JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue
                             && Essentials.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health)
                         .OrderByDescending(t => t.Health)
                         .FirstOrDefault();
@@ -217,7 +239,6 @@
                 }
             }
         }
-
         
         /// <summary>
         /// Executes the Jungle Steal Method

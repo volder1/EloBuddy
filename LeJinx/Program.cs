@@ -66,7 +66,7 @@ namespace Jinx
             Q = new Spell.Active(SpellSlot.Q);
             W = new Spell.Skillshot(SpellSlot.W, 1450, SkillShotType.Linear, 600, 3300, 60);
             E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Circular, 1200, 1750, 150);
-            R = new Spell.Skillshot(SpellSlot.R, 10000, SkillShotType.Linear, 500, 1500, 140);
+            R = new Spell.Skillshot(SpellSlot.R, 3000, SkillShotType.Linear, 500, 1500, 140);
 
             JinXxxMenu.Initialize();
             Indicator = new DamageIndicator.DamageIndicator();
@@ -84,10 +84,35 @@ namespace Jinx
 
             Game.OnUpdate += Game_OnUpdate;
             Game.OnUpdate += ActiveStates.Game_OnUpdate;
+            Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
+            Orbwalker.OnPostAttack += Orbwalker_OnPostAttack;
             Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
             Gapcloser.OnGapcloser += Gapcloser_OnGapcloser;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
+        }
+        
+        /// <summary>
+        /// Called Before Attack
+        /// </summary>
+        /// <param name="target">The Target</param>
+        /// <param name="args">The Args</param>
+        private static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
+        {
+            if (Essentials.FishBones() && target.IsStructure())
+            {
+                Q.Cast();
+            }
+        }
+
+        /// <summary>
+        /// Called After Attack
+        /// </summary>
+        /// <param name="target">The Target</param>
+        /// <param name="args">The Args</param>
+        private static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
+        {
+            Orbwalker.ForcedTarget = null;
         }
 
         /// <summary>
@@ -169,7 +194,7 @@ namespace Jinx
 
             if (drawQ)
             {
-                Circle.Draw(Q.IsReady() ? Color.Red : Color.Green, !Essentials.FishBones() ? Essentials.FishBonesRange() : Essentials.MinigunRange, Player.Instance.Position);
+                Circle.Draw(Q.IsReady() ? Color.Green : Color.Red, !Essentials.FishBones() ? Essentials.FishBonesRange() : Essentials.MinigunRange, Player.Instance.Position);
             }
 
             if (drawW)
@@ -202,7 +227,7 @@ namespace Jinx
                     EntityManager.Heroes.Enemies.Where(
                         t =>
                         t.IsValidTarget()
-                        && t.Distance(Player.Instance) <= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue)
+                        && t.Distance(Player.Instance) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue)
                         .OrderBy(t => t.Distance(Player.Instance))
                         .FirstOrDefault();
                 if (enemy == null)
@@ -222,13 +247,12 @@ namespace Jinx
         {
             if (Orbwalker.ForcedTarget != null)
             {
-                if (!Player.Instance.IsInAutoAttackRange(Orbwalker.ForcedTarget) || !Orbwalker.ForcedTarget.IsValidTarget() || !Orbwalker.ForcedTarget.IsVisible)
+                if (!Player.Instance.IsInAutoAttackRange(Orbwalker.ForcedTarget) || !Orbwalker.ForcedTarget.IsValidTarget())
                 {
                     Orbwalker.ForcedTarget = null;
                 }
                 else if (Orbwalker.ForcedTarget ==
-                         TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(), DamageType.Physical,
-                             Player.Instance.ServerPosition) &&
+                         TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(), DamageType.Physical) &&
                          Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
                 {
                     Orbwalker.ForcedTarget = null;

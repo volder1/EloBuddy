@@ -79,7 +79,7 @@
             ComboMenu.Add("manaR", new Slider("ManaManager for R", 25));
             ComboMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
             ComboMenu.Add("qCountC", new Slider("Use Q if Hit x Champion(s)", 3, 1, 5));
-            ComboMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 7, 1, 7));
+            //ComboMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 7, 1, 7));
             ComboMenu.Add("rCountC", new Slider("Use R if Hit x Champion(s)", 4, 1, 5));
             ComboMenu.AddLabel("Prediction Settings");
             ComboMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
@@ -88,14 +88,14 @@
             ComboMenu.AddLabel("Extra Settings");
             ComboMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 300, 0, 1450));
             ComboMenu.Add("eRange", new Slider("Only Use E if Player Range from Target is more than x", 300, 0, 900));
-            ComboMenu.Add("rRange2", new Slider("Don't Use R if Player Range from Target is x", 750, 0, 10000));
+            ComboMenu.Add("rRange2", new Slider("Max R Range", 750, 0, 3000));
 
             LastHitMenu = JinXxx.AddSubMenu("LastHit", "LastHit");
             LastHitMenu.AddGroupLabel("LastHit Settings");
-            LastHitMenu.Add("useQ", new CheckBox("Use Q"));
-            LastHitMenu.Add("qCountM", new Slider("Use Q if Hit x Minions", 4, 1, 7));
-            LastHitMenu.AddLabel("ManaManager");
-            LastHitMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
+            LastHitMenu.Add("useQ", new CheckBox("Force to Minigun when using LastHit"));
+            //LastHitMenu.Add("qCountM", new Slider("Use Q if Hit x Minions", 4, 1, 7));
+            //LastHitMenu.AddLabel("ManaManager");
+            //LastHitMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
 
             HarassMenu = JinXxx.AddSubMenu("Harass", "Harass");
             HarassMenu.AddLabel("Harass Settings");
@@ -106,7 +106,7 @@
             HarassMenu.Add("manaW", new Slider("ManaManager for W", 25));
             HarassMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
             HarassMenu.Add("qCountC", new Slider("Use Q if Hit x Champion(s)", 3, 1, 5));
-            HarassMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 7, 1, 7));
+            //HarassMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 7, 1, 7));
             HarassMenu.AddLabel("Prediction Settings");
             HarassMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
             HarassMenu.AddLabel("Extra Settings");
@@ -129,7 +129,7 @@
             KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 65));
             KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 90));
             KillStealMenu.AddLabel("Spell Settings");
-            KillStealMenu.Add("rRange", new Slider("Don't use R if Player Range from Target is x", 1000, 0, 10000));
+            KillStealMenu.Add("rRange", new Slider("Don't use R if Player Range from Target is less than x", 1000, 0, 3000));
 
             JungleClearMenu = JinXxx.AddSubMenu("Jungle Clear", "JungleClear");
             JungleClearMenu.AddLabel("Jungle Clear Settings");
@@ -146,7 +146,7 @@
             JungleStealMenu.AddLabel("Jungle Steal Settings");
             JungleStealMenu.Add("toggle", new CheckBox("Use Jungle Steal", false));
             JungleStealMenu.Add("manaR", new Slider("ManaManager for R", 25));
-            JungleStealMenu.Add("rRange", new Slider("Range from mob before using R", 1500, 0, 10000));
+            JungleStealMenu.Add("rRange", new Slider("Range from mob before using R", 1500, 0, 3000));
             if (Game.MapId == GameMapId.SummonersRift)
             {
                 JungleStealMenu.AddLabel("Epics");
@@ -202,7 +202,7 @@
             MiscMenu.Add("autoW", new CheckBox("Automatically use W in certain situations"));
             MiscMenu.Add("autoE", new CheckBox("Automatically uses E in certain situations"));
             MiscMenu.Add("wRange", new CheckBox("Use W only if target is in AA range"));
-            MiscMenu.Add("rRange", new Slider("Range from enemy before using R (Doesn't effect JungleSteal)", 2000, 0, 10000));
+            MiscMenu.Add("rRange", new Slider("Distance away from enemy before casting R", 500, 0, 3000));
             MiscMenu.AddLabel("Auto W Settings (You must have Auto W on)");
             MiscMenu.Add("stunW", new CheckBox("Use W on Stunned Enemy"));
             MiscMenu.Add("dashW", new CheckBox("Use W on Dashing Enemy"));
