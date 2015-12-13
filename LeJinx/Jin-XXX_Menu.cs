@@ -129,7 +129,7 @@
             KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 65));
             KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 90));
             KillStealMenu.AddLabel("Spell Settings");
-            KillStealMenu.Add("rRange", new Slider("Don't use R if Player Range from Target is less than x", 1000, 0, 3000));
+            KillStealMenu.Add("rRange", new Slider("Max Distance for R", 1000, 0, 3000));
 
             JungleClearMenu = JinXxx.AddSubMenu("Jungle Clear", "JungleClear");
             JungleClearMenu.AddLabel("Jungle Clear Settings");
@@ -202,7 +202,7 @@
             MiscMenu.Add("autoW", new CheckBox("Automatically use W in certain situations"));
             MiscMenu.Add("autoE", new CheckBox("Automatically uses E in certain situations"));
             MiscMenu.Add("wRange", new CheckBox("Use W only if target is in AA range"));
-            MiscMenu.Add("rRange", new Slider("Distance away from enemy before casting R", 500, 0, 3000));
+            MiscMenu.Add("rRange", new Slider("Don't Use R if Player Range from target is X", 500, 0, 3000));
             MiscMenu.AddLabel("Auto W Settings (You must have Auto W on)");
             MiscMenu.Add("stunW", new CheckBox("Use W on Stunned Enemy"));
             MiscMenu.Add("dashW", new CheckBox("Use W on Dashing Enemy"));

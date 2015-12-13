@@ -71,13 +71,6 @@ namespace Jinx
             JinXxxMenu.Initialize();
             Indicator = new DamageIndicator.DamageIndicator();
 
-            // Credits to iRaxe for the Original Idea
-            AllahAkbar = new SoundPlayer
-            {
-                SoundLocation = "Allahu_Akbar_Sound_Effect_Download_Link.wav"
-            };
-            AllahAkbar.Load();
-
             Chat.Print("Jin-XXX: Loaded", System.Drawing.Color.AliceBlue);
             Chat.Print("Jin-XXX: Check out the Menu and adjust to your preference.", System.Drawing.Color.Aqua);
             Chat.Print("Jin-XXX: Please be sure to upvote if you enjoy!", System.Drawing.Color.OrangeRed);
@@ -90,6 +83,20 @@ namespace Jinx
             Gapcloser.OnGapcloser += Gapcloser_OnGapcloser;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
+
+            try
+            {
+                // Credits to iRaxe for the Original Idea
+                AllahAkbar = new SoundPlayer
+                {
+                    SoundLocation = "Allahu_Akbar_Sound_Effect_Download_Link.wav"
+                };
+                AllahAkbar.Load();
+            }
+            catch (Exception e)
+            {
+                Chat.Print("Failed to load Allah Akbar: " + e.ToString());
+            }
         }
         
         /// <summary>
@@ -126,9 +133,12 @@ namespace Jinx
             var autoE = JinXxxMenu.MiscMenu["autoE"].Cast<CheckBox>().CurrentValue;
             var eSlider = JinXxxMenu.MiscMenu["eSlider"].Cast<Slider>().CurrentValue;
 
-            if (allahAkbarT && sender.IsMe && args.SData.Name.Equals("JinxR"))
+            if (AllahAkbar != null)
             {
-                AllahAkbar.Play();
+                if (allahAkbarT && sender.IsMe && args.SData.Name.Equals("JinxR"))
+                {
+                    AllahAkbar.Play();
+                }
             }
 
             if (!autoE || !E.IsReady())
@@ -251,7 +261,7 @@ namespace Jinx
                 {
                     Orbwalker.ForcedTarget = null;
                 }
-                else if (Orbwalker.ForcedTarget ==
+                else if (Orbwalker.ForcedTarget !=
                          TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(), DamageType.Physical) &&
                          Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
                 {

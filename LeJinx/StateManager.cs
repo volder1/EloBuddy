@@ -1,4 +1,6 @@
-﻿namespace Jinx
+﻿using Microsoft.Win32.SafeHandles;
+
+namespace Jinx
 {
     using System.Linq;
 
@@ -267,72 +269,45 @@
             var useQ = JinXxxMenu.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var manaQ = JinXxxMenu.ComboMenu["manaQ"].Cast<Slider>().CurrentValue;
 
-            if (!useQ || !Program.Q.IsReady() || !Orbwalker.CanAutoAttack)
+            if (useQ && Program.Q.IsReady() && Orbwalker.CanAutoAttack)
             {
-                return;
-            }
+                var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(
+                    EntityManager.UnitTeam.Enemy,
+                    Player.Instance.ServerPosition,
+                    Essentials.FishBonesRange()).OrderByDescending(t => t.Health).FirstOrDefault();
 
-            var minions = EntityManager.MinionsAndMonsters.GetLaneMinions(
-                EntityManager.UnitTeam.Enemy,
-                Player.Instance.ServerPosition,
-                Essentials.FishBonesRange());
-
-            if (Essentials.FishBones())
-            {
-                foreach (var minion in minions)
+                if (minion == null)
                 {
-                    var minionsAOE =
-                        EntityManager.MinionsAndMonsters.EnemyMinions.Count(
-                            m => m.IsValidTarget() && m.Distance(minion) <= 100);
+                    return;
+                }
 
-                    if (minionsAOE >= JinXxxMenu.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue)
+                if (Essentials.FishBones())
+                {
+                    var minionsAoe =
+                        EntityManager.MinionsAndMonsters.EnemyMinions.Count(
+                            t => t.IsValidTarget() && t.Distance(minion) <= 100);
+
+                    if (minion.Distance(Player.Instance) <= Essentials.MinigunRange && minion.IsValidTarget() &&
+                        minionsAoe < JinXxxMenu.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue)
                     {
                         Program.Q.Cast();
                         Orbwalker.ForcedTarget = minion;
                     }
                 }
 
-                /*foreach (
-                    var minion in
-                        minions.Where(
-                            minion =>
-                            Player.Instance.Distance(minion) <= Essentials.MinigunRange))
+                if (!Essentials.FishBones() && Player.Instance.ManaPercent >= manaQ)
                 {
-                    Program.Q.Cast();
-                    Orbwalker.ForcedTarget = minion;
-                }*/
-            }
-
-            if (!Essentials.FishBones() && Player.Instance.ManaPercent >= manaQ)
-            {
-                foreach (var minion in minions)
-                {
-                    if (Player.Instance.Distance(minion) >= Essentials.MinigunRange)
-                    {
-                        return;
-                    }
-
-                    var minionsAOE =
+                    var minionsAoe =
                         EntityManager.MinionsAndMonsters.EnemyMinions.Count(
-                            m => m.IsValidTarget() && m.Distance(minion) <= 100 && m.Health <= Player.Instance.GetAutoAttackDamage(m) * 1.1f);
+                            t => t.IsValidTarget() && t.Distance(minion) <= 100 && t.Health <= Player.Instance.GetAutoAttackDamage(minion) * 1.1f);
 
-                    if (minionsAOE < JinXxxMenu.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue)
+                    if (minion.Distance(Player.Instance) <= Essentials.FishBonesRange() && minion.IsValidTarget() &&
+                        minionsAoe >= JinXxxMenu.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue)
                     {
                         Program.Q.Cast();
                         Orbwalker.ForcedTarget = minion;
                     }
                 }
-
-                /*foreach (
-                    var minion in
-                        minions.Where(
-                            minion =>
-                            !Player.Instance.IsInAutoAttackRange(minion)
-                            && Player.Instance.Distance(minion) <= Essentials.FishBonesRange()))
-                {
-                    Program.Q.Cast();
-                    Orbwalker.ForcedTarget = minion;
-                }*/
             }
         }
 

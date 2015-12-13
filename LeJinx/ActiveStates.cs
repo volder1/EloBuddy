@@ -150,8 +150,9 @@ namespace Jinx
                     EntityManager.Heroes.Enemies.Where(
                         t =>
                             t.IsValidTarget() && Program.W.IsInRange(t) &&
-                            Player.Instance.Distance(t) >=
-                            JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue
+                            Player.Instance.Distance(t) <=
+                            JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
+                            Player.Instance.Distance(t) > JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
                             && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, true) >= t.Health)
                         .OrderByDescending(t => t.Health)
                         .FirstOrDefault();
@@ -222,8 +223,9 @@ namespace Jinx
                         t =>
                             t.IsValidTarget()
                             &&
-                            Player.Instance.Distance(t) >=
-                            JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue
+                            Player.Instance.Distance(t) <=
+                            JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
+                            Player.Instance.Distance(t) > JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
                             && Essentials.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health)
                         .OrderByDescending(t => t.Health)
                         .FirstOrDefault();
