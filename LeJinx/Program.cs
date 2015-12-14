@@ -110,7 +110,7 @@ namespace Jinx
                 {
                     AllahAkbar = new SoundPlayer
                     {
-                        SoundLocation = SandboxConfig.DataDirectory + @"\iPorki\" + "Allahu_Akbar_Sound_Effect_Download_Link.wav"
+                        SoundLocation = SandboxConfig.DataDirectory + @"\JinXXX\" + "Allahu_Akbar_Sound_Effect_Download_Link.wav"
                     };
                     AllahAkbar.Load();
                 }
