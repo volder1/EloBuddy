@@ -1,8 +1,12 @@
-﻿using System.Media;
+﻿using System.ComponentModel;
+using System.Media;
+using System.Net;
+using EloBuddy.Sandbox;
 
 namespace Jinx
 {
     using System;
+    using System.IO;
     using System.Linq;
 
     using EloBuddy;
@@ -86,19 +90,52 @@ namespace Jinx
 
             try
             {
-                // Credits to iRaxe for the Original Idea
-                AllahAkbar = new SoundPlayer
+                var sandBox = SandboxConfig.DataDirectory + @"\JinXXX\";
+
+                if (!Directory.Exists(sandBox))
                 {
-                    SoundLocation = "Allahu_Akbar_Sound_Effect_Download_Link.wav"
-                };
-                AllahAkbar.Load();
+                    Directory.CreateDirectory(sandBox);
+                }
+
+                // Credits to iRaxe for the Original Idea
+                if (!File.Exists(sandBox + "Allahu_Akbar_Sound_Effect_Download_Link.wav"))
+                {
+                    var client = new WebClient();
+                    client.DownloadFile("http://italianbuffet.it/Allahu_Akbar_Sound_Effect_Download_Link.wav",
+                        sandBox + "Allahu_Akbar_Sound_Effect_Download_Link.wav");
+                    client.DownloadFileCompleted += Client_DownloadFileCompleted;
+                }
+
+                if (File.Exists(sandBox + "Allahu_Akbar_Sound_Effect_Download_Link.wav"))
+                {
+                    AllahAkbar = new SoundPlayer
+                    {
+                        SoundLocation = SandboxConfig.DataDirectory + @"\iPorki\" + "Allahu_Akbar_Sound_Effect_Download_Link.wav"
+                    };
+                    AllahAkbar.Load();
+                }
             }
             catch (Exception e)
             {
                 Chat.Print("Failed to load Allah Akbar: " + e.ToString());
             }
         }
-        
+
+        /// <summary>
+        /// Download Finished
+        /// </summary>
+        /// <param name="sender">The Sender</param>
+        /// <param name="e">The Args</param>
+        private static void Client_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            Chat.Print("Failed Downloading: " + e.Error.ToString());
+            AllahAkbar = new SoundPlayer
+            {
+                SoundLocation = SandboxConfig.DataDirectory + @"\JinXXX\" + "Allahu_Akbar_Sound_Effect_Download_Link.wav"
+            };
+            AllahAkbar.Load();
+        }
+
         /// <summary>
         /// Called Before Attack
         /// </summary>
