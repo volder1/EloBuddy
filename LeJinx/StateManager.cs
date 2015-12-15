@@ -149,7 +149,7 @@
 
             if (useQ && Player.Instance.ManaPercent >= manaQ && !Essentials.FishBones())
             {
-                var lastHit = Orbwalker.LasthitableMinions.FirstOrDefault(
+                var lastHit = Orbwalker.LasthittableMinions.FirstOrDefault(
                     m => m.IsValidTarget() && m.Distance(Player.Instance) <= Essentials.MinigunRange);
 
                 if (lastHit != null)
@@ -316,14 +316,14 @@
                             Orbwalker.ForcedTarget = m;
                         }
                         else if (m.Distance(Player.Instance) <= Essentials.MinigunRange &&
-                                 !Orbwalker.LasthitableMinions.Contains(m))
+                                 !Orbwalker.LasthittableMinions.Contains(m))
                         {
                             Program.Q.Cast();
                             Orbwalker.ForcedTarget = m;
                         }
                         else
                         {
-                            foreach (var kM in Orbwalker.LasthitableMinions)
+                            foreach (var kM in Orbwalker.LasthittableMinions)
                             {
                                 if (kM.IsValidTarget() && kM.Health <= (Player.Instance.GetAutoAttackDamage(kM)*0.9) &&
                                     kM.Distance(Player.Instance) <= Essentials.MinigunRange)
@@ -351,7 +351,7 @@
                             Orbwalker.ForcedTarget = m;
                         }
                         else if (m.Distance(Player.Instance) >= Essentials.MinigunRange &&
-                                 Orbwalker.LasthitableMinions.Contains(m))
+                                 Orbwalker.LasthittableMinions.Contains(m))
                         {
                             Program.Q.Cast();
                             Orbwalker.ForcedTarget = m;
