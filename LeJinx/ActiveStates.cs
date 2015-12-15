@@ -5,7 +5,6 @@
 
     using EloBuddy;
     using EloBuddy.SDK;
-    using EloBuddy.SDK.Events;
     using EloBuddy.SDK.Menu.Values;
 
     /// <summary>
@@ -57,11 +56,10 @@
         private static void AutoW()
         {
             var stunW = JinXxxMenu.MiscMenu["stunW"].Cast<CheckBox>().CurrentValue;
-            /*var dashW = JinXxxMenu.MiscMenu["dashW"].Cast<CheckBox>().CurrentValue;
-            var charmW = JinXxxMenu.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
+            //var charmW = JinXxxMenu.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
             var tauntW = JinXxxMenu.MiscMenu["tauntW"].Cast<CheckBox>().CurrentValue;
             var fearW = JinXxxMenu.MiscMenu["fearW"].Cast<CheckBox>().CurrentValue;
-            var snareW = JinXxxMenu.MiscMenu["snareW"].Cast<CheckBox>().CurrentValue;*/
+            var snareW = JinXxxMenu.MiscMenu["snareW"].Cast<CheckBox>().CurrentValue;
             var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
             var wSlider = JinXxxMenu.MiscMenu["wSlider"].Cast<Slider>().CurrentValue;
             var enemy = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget() && Program.W.IsInRange(t)).OrderByDescending(t => t.Distance(Player.Instance));
@@ -101,7 +99,7 @@
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
-                }
+                }*/
 
                 else if (tauntW && target.IsTaunted)
                 {
@@ -131,7 +129,7 @@
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
-                }*/
+                }
             }
         }
 
@@ -167,12 +165,19 @@
                     if (pred != null && pred.HitChancePercent >= wSlider && !pred.Collision)
                     {
                         Program.W.Cast(pred.CastPosition);
-                    }
+                        var target = enemy;
 
-                    if (predR != null && predR.HitChancePercent >= rSlider)
-                    {
-                        Program.R.Cast(predR.CastPosition);
-                    }
+                        Core.DelayAction(() =>
+                        {
+                            var checkDmg = target.Health <=
+                                           Essentials.DamageLibrary.CalculateDamage(target, false, false, false, true);
+
+                            if (predR != null && predR.HitChancePercent >= rSlider && checkDmg)
+                            {
+                                Program.R.Cast(predR.CastPosition);
+                            }
+                        }, Program.W.CastDelay);
+                    }                    
                 }
             }
         }

@@ -80,15 +80,15 @@
             ComboMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
             ComboMenu.Add("qCountC", new Slider("Use Q if Hit x Champion(s)", 3, 1, 5));
             //ComboMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 7, 1, 7));
-            ComboMenu.Add("rCountC", new Slider("Use R if Hit x Champion(s)", 4, 1, 5));
+            ComboMenu.Add("rCountC", new Slider("Use R if Hit x Champion(s)", 5, 1, 5));
             ComboMenu.AddLabel("Prediction Settings");
-            ComboMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
-            ComboMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));
-            ComboMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 75));
+            ComboMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 90));
+            ComboMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 90));
+            ComboMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 90));
             ComboMenu.AddLabel("Extra Settings");
             ComboMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 300, 0, 1450));
             ComboMenu.Add("eRange", new Slider("Only Use E if Player Range from Target is more than x", 300, 0, 900));
-            ComboMenu.Add("rRange2", new Slider("Max R Range", 1500, 0, 3000));
+            ComboMenu.Add("rRange2", new Slider("Max R Range", 3000, 0, 3000));
 
             LastHitMenu = JinXxx.AddSubMenu("LastHit", "LastHit");
             LastHitMenu.AddGroupLabel("LastHit Settings");
@@ -106,9 +106,9 @@
             HarassMenu.Add("manaW", new Slider("ManaManager for W", 35));
             HarassMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
             HarassMenu.Add("qCountC", new Slider("Use Q if Hit x Champion(s)", 3, 1, 5));
-            //HarassMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 7, 1, 7));
+            HarassMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 3, 1, 7));
             HarassMenu.AddLabel("Prediction Settings");
-            HarassMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
+            HarassMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 95));
             HarassMenu.AddLabel("Extra Settings");
             HarassMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 350, 0, 1450));
 
@@ -126,10 +126,10 @@
             KillStealMenu.Add("manaW", new Slider("ManaManager for W", 25));
             KillStealMenu.Add("manaR", new Slider("ManaManager for R", 25));
             KillStealMenu.AddLabel("Prediction Settings");
-            KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 85));
-            KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 85));
+            KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 100));
+            KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 100));
             KillStealMenu.AddLabel("Spell Settings");
-            KillStealMenu.Add("rRange", new Slider("Max Distance for R", 1500, 0, 3000));
+            KillStealMenu.Add("rRange", new Slider("Max Distance for R", 3000, 0, 3000));
 
             JungleClearMenu = JinXxx.AddSubMenu("Jungle Clear", "JungleClear");
             JungleClearMenu.AddLabel("Jungle Clear Settings");
@@ -139,14 +139,13 @@
             JungleClearMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
             JungleClearMenu.Add("manaW", new Slider("ManaManager for W", 25));
             JungleClearMenu.AddLabel("Misc Settings");
-            //JungleClearMenu.Add("qCountM", new Slider("Use Q if Hit x Mob(s)", 2, 1, 3));
-            JungleClearMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
+            JungleClearMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 85));
 
             JungleStealMenu = JinXxx.AddSubMenu("Jungle Steal", "JungleSteal");
             JungleStealMenu.AddLabel("Jungle Steal Settings");
             JungleStealMenu.Add("toggle", new CheckBox("Use Jungle Steal", false));
             JungleStealMenu.Add("manaR", new Slider("ManaManager for R", 25));
-            JungleStealMenu.Add("rRange", new Slider("Range from mob before using R", 1500, 0, 3000));
+            JungleStealMenu.Add("rRange", new Slider("Range from mob before using R", 3000, 0, 3000));
             if (Game.MapId == GameMapId.SummonersRift)
             {
                 JungleStealMenu.AddLabel("Epics");
@@ -186,7 +185,7 @@
             DrawingMenu.Add("predR", new CheckBox("Draw R Prediction (In consideration of Range before R)", false));
             DrawingMenu.AddLabel("DamageIndicator");
             DrawingMenu.Add("draw.Damage", new CheckBox("Draw Damage"));
-            DrawingMenu.Add("draw.Q", new CheckBox("Calculate Q Damage"));
+            DrawingMenu.Add("draw.Q", new CheckBox("Calculate Q Damage", false));
             DrawingMenu.Add("draw.W", new CheckBox("Calculate W Damage"));
             DrawingMenu.Add("draw.E", new CheckBox("Calculate E Damage", false));
             DrawingMenu.Add("draw.R", new CheckBox("Calculate R Damage"));
@@ -205,16 +204,15 @@
             MiscMenu.Add("rRange", new Slider("Don't Use R if Player Range from target is X", 500, 0, 3000));
             MiscMenu.AddLabel("Auto W Settings (You must have Auto W on)");
             MiscMenu.Add("stunW", new CheckBox("Use W on Stunned Enemy"));
-            /*MiscMenu.Add("dashW", new CheckBox("Use W on Dashing Enemy"));
-            MiscMenu.Add("charmW", new CheckBox("Use W on Charmed Enemy"));
+            //MiscMenu.Add("charmW", new CheckBox("Use W on Charmed Enemy"));
             MiscMenu.Add("tauntW", new CheckBox("Use W on Taunted Enemy"));
             MiscMenu.Add("fearW", new CheckBox("Use W on Feared Enemy"));
-            MiscMenu.Add("snareW", new CheckBox("Use W on Snared Enemy"));*/
+            MiscMenu.Add("snareW", new CheckBox("Use W on Snared Enemy"));
             MiscMenu.AddLabel("Prediction Settings");
             MiscMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
             MiscMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));
             MiscMenu.AddLabel("Allah Akbar");
-            MiscMenu.Add("allahAkbarT", new CheckBox("Play Allah Akbar after casting R"));
+            MiscMenu.Add("allahAkbarT", new CheckBox("Play Allah Akbar after casting R", false));
         }
     }
 }

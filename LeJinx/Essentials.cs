@@ -32,10 +32,10 @@
         }
 
         /// <summary>
-        /// Taken from OKTW. Spells that E can be used on.
+        /// Taken from OKTW. Spells that useE can be used on.
         /// </summary>
         /// <param name="spellName">The name of the Spell</param>
-        /// <returns>If E should be used or not.</returns>
+        /// <returns>If useE should be used or not.</returns>
         public static bool ShouldUseE(string spellName)
         {
             switch (spellName)
@@ -80,101 +80,6 @@
             return 670f + Player.Instance.BoundingRadius + 25 * Program.Q.Level;
         }
 
-        #region Old Jinx Logic
-
-        /// <summary>
-        /// Calculates if Q Should be Minigun or FishBones
-        /// </summary>
-        /// <param name="t">The Target being attacked (Or will be)</param>
-        /// <param name="menu">Combo, LaneClear, Harass, etc</param>
-        /// <returns>Returns the string "Minigun" or "FishBones"</returns>
-        /*public static string QModeSelector(AIHeroClient t, Menu menu)
-        {
-            string qMode;
-            var championsAroundTarget = EntityManager.Heroes.Enemies.Count(target => target.IsValidTarget() && t.Distance(target) <= 100);
-            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Count(minion => minion.IsValidTarget() && t.Distance(minion) <= 100);
-
-            if (championsAroundTarget >= menu["qCountC"].Cast<Slider>().CurrentValue)
-            {
-                qMode = "FishBones";
-            }
-            else if (minionsAroundTarget >= menu["qCountM"].Cast<Slider>().CurrentValue)
-            {
-                qMode = "FishBones";
-            }
-            else
-            {
-                qMode = "Minigun";
-            }
-
-            return qMode;
-        }*/
-
-        /// <summary>
-        /// Calculates if Q Should be Minigun or FishBones
-        /// </summary>
-        /// <param name="m">The Minion being attacked (Or will be)</param>
-        /// <param name="menu">Combo, LaneClear, Harass, etc</param>
-        /// <returns>Returns the string "Minigun" or "FishBones"</returns>
-        /*public static string QModeSelector(Obj_AI_Base m, Menu menu)
-        {
-            var minionsAroundTarget = EntityManager.MinionsAndMonsters.EnemyMinions.Where(target => target.IsMinion() && target.IsValidTarget() && target.Distance(m) <= 100);
-            var qMode = minionsAroundTarget.Count() >= menu["qCountM"].Cast<Slider>().CurrentValue ? "FishBones" : "Minigun";
-
-            return qMode;
-        }*/
-
-        /// <summary>
-        /// Uses Q after logic. For Fishbones.
-        /// </summary>
-        /*public static void FishbonesQLogic()
-        {
-            if (FishBones() && Orbwalker.CanAutoAttack)
-            {
-                var target = TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(), DamageType.Physical);
-
-                if (target != null)
-                {
-                    if (Player.Instance.Distance(target) <= MinigunRange
-                        && QModeSelector(target, JinXxxMenu.ComboMenu) == "Minigun")
-                    {
-                        Program.Q.Cast();
-                        Orbwalker.ForcedTarget = target;
-                    }
-                }
-            }
-        }*/
-
-        /// <summary>
-        /// Uses Q after logic. For Minigun.
-        /// </summary>
-        /*public static void MinigunQLogic()
-        {
-            if (!FishBones() && Orbwalker.CanAutoAttack)
-            {
-                var target = TargetSelector.GetTarget(FishBonesRange(), DamageType.Physical);
-
-                if (target != null)
-                {
-                    if (Player.Instance.Distance(target) <= FishBonesRange() &&
-                        Player.Instance.Distance(target) > MinigunRange)
-                    {
-                        Program.Q.Cast();
-                        Orbwalker.ForcedTarget = target;
-                    }
-
-                    else if (Player.Instance.Distance(target) <= FishBonesRange() &&
-                             QModeSelector(target, JinXxxMenu.ComboMenu) == "FishBones")
-                    {
-                        Program.Q.Cast();
-                        Orbwalker.ForcedTarget = target;
-                    }
-                }
-            }
-        }*/
-
-        #endregion
-
         /// <summary>
         /// Taken from AdEvade which was taken from OKTW
         /// </summary>
@@ -213,31 +118,31 @@
             /// Calculates and returns damage totally done to the target
             /// </summary>
             /// <param name="target">The Target</param>
-            /// <param name="Q">Include Q in Calculations?</param>
-            /// <param name="W">Include W in Calculations?</param>
-            /// <param name="E">Include E in Calculations?</param>
-            /// <param name="R">Include R in Calculations?</param>
+            /// <param name="useQ">Include useQ in Calculations?</param>
+            /// <param name="useW">Include useW in Calculations?</param>
+            /// <param name="useE">Include useE in Calculations?</param>
+            /// <param name="useR">Include useR in Calculations?</param>
             /// <returns>The total damage done to target.</returns>
-            public static float CalculateDamage(Obj_AI_Base target, bool Q, bool W, bool E, bool R)
+            public static float CalculateDamage(Obj_AI_Base target, bool useQ, bool useW, bool useE, bool useR)
             {
                 var totaldamage = 0f;
 
-                if (Q && Program.Q.IsReady())
+                if (useQ && Program.Q.IsReady())
                 {
                     totaldamage = totaldamage + QDamage(target);
                 }
 
-                if (W && Program.W.IsReady())
+                if (useW && Program.W.IsReady())
                 {
                     totaldamage = totaldamage + WDamage(target);
                 }
 
-                if (E && Program.E.IsReady())
+                if (useE && Program.E.IsReady())
                 {
                     totaldamage = totaldamage + EDamage(target);
                 }
 
-                if (R && Program.R.IsReady())
+                if (useR && Program.R.IsReady())
                 {
                     totaldamage = totaldamage + RDamage(target);
                 }
@@ -246,20 +151,20 @@
             }
 
             /// <summary>
-            /// Calculates the Damage done with Q
+            /// Calculates the Damage done with useQ
             /// </summary>
             /// <param name="target">The Target</param>
-            /// <returns>Returns the Damage done with Q</returns>
+            /// <returns>Returns the Damage done with useQ</returns>
             private static float QDamage(Obj_AI_Base target)
             {
                 return Player.Instance.GetAutoAttackDamage(target);
             }
 
             /// <summary>
-            /// Calculates the Damage done with W
+            /// Calculates the Damage done with useW
             /// </summary>
             /// <param name="target">The Target</param>
-            /// <returns>Returns the Damage done with W</returns>
+            /// <returns>Returns the Damage done with useW</returns>
             private static float WDamage(Obj_AI_Base target)
             {
                 return Player.Instance.CalculateDamageOnUnit(
@@ -270,10 +175,10 @@
             }
 
             /// <summary>
-            /// Calculates the Damage done with E
+            /// Calculates the Damage done with useE
             /// </summary>
             /// <param name="target">The Target</param>
-            /// <returns>Returns the Damage done with E</returns>
+            /// <returns>Returns the Damage done with useE</returns>
             private static float EDamage(Obj_AI_Base target)
             {
                 return Player.Instance.CalculateDamageOnUnit(
@@ -283,10 +188,10 @@
             }
 
             /// <summary>
-            /// Calculates the Damage done with R (Fluxy's Method)
+            /// Calculates the Damage done with useR (Fluxy's Method)
             /// </summary>
             /// <param name="target">The Target</param>
-            /// <returns>Returns the Damage done with R</returns>
+            /// <returns>Returns the Damage done with useR</returns>
             private static float RDamage(Obj_AI_Base target)
             {
                 if (!Program.R.IsLearned) return 0;

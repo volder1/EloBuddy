@@ -117,7 +117,7 @@ namespace Jinx
             }
             catch (Exception e)
             {
-                Chat.Print("Failed to load Allah Akbar: " + e.ToString());
+                Chat.Print("Failed to load Allah Akbar: " + e);
             }
         }
 
@@ -128,7 +128,7 @@ namespace Jinx
         /// <param name="e">The Args</param>
         private static void Client_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            Chat.Print("Failed Downloading: " + e.Error.ToString());
+            Chat.Print("Failed Downloading: " + e.Error);
             AllahAkbar = new SoundPlayer
             {
                 SoundLocation = SandboxConfig.DataDirectory + @"\JinXXX\" + "Allahu_Akbar_Sound_Effect_Download_Link.wav"
@@ -143,6 +143,46 @@ namespace Jinx
         /// <param name="args">The Args</param>
         private static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
         {
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+            {
+                var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(
+                    EntityManager.UnitTeam.Enemy,
+                    Player.Instance.ServerPosition,
+                    Essentials.FishBonesRange()).OrderByDescending(t => t.Health);
+
+                if (Essentials.FishBones())
+                {
+                    foreach (var m in minion)
+                    {
+                        var minionsAoe =
+                        EntityManager.MinionsAndMonsters.EnemyMinions.Count(
+                            t => t.IsValidTarget() && t.Distance(m) <= 100);
+
+                        if (m.Distance(Player.Instance) <= Essentials.MinigunRange && m.IsValidTarget() &&
+                            (minionsAoe < JinXxxMenu.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue || m.Health > (Player.Instance.GetAutoAttackDamage(m))))
+                        {
+                            Q.Cast();
+                            Orbwalker.ForcedTarget = m;
+                        }
+                        else if (m.Distance(Player.Instance) <= Essentials.MinigunRange &&
+                                 !Orbwalker.LasthittableMinions.Contains(m))
+                        {
+                            Q.Cast();
+                            Orbwalker.ForcedTarget = m;
+                        }
+                        else
+                        {
+                            foreach (var kM in Orbwalker.LasthittableMinions.Where(kM => kM.IsValidTarget() && kM.Health <= (Player.Instance.GetAutoAttackDamage(kM) * 0.9) &&
+                                                                                         kM.Distance(Player.Instance) <= Essentials.MinigunRange))
+                            {
+                                Q.Cast();
+                                Orbwalker.ForcedTarget = kM;
+                            }
+                        }
+                    }
+                }
+            }
+
             if (Essentials.FishBones() && target.IsStructure())
             {
                 Q.Cast();
@@ -265,7 +305,7 @@ namespace Jinx
                     return;
                 }
                 var wPred = W.GetPrediction(enemy).CastPosition;
-                Essentials.DrawLineRectangle(wPred.To2D(), Player.Instance.Position.To2D(), W.Width, 1, W.IsReady() ? System.Drawing.Color.Yellow : System.Drawing.Color.Red);
+                Essentials.DrawLineRectangle(wPred.To2D(), Player.Instance.Position.To2D(), W.Width, 1, W.IsReady() ? System.Drawing.Color.YellowGreen : System.Drawing.Color.Red);
             }
 
             if (predR)
@@ -273,8 +313,9 @@ namespace Jinx
                 var enemy =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
-                        t.IsValidTarget()
-                        && t.Distance(Player.Instance) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue)
+                            t.IsValidTarget()
+                            && t.Distance(Player.Instance) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue &&
+                            t.Distance(Player.Instance) <= R.Range)
                         .OrderBy(t => t.Distance(Player.Instance))
                         .FirstOrDefault();
                 if (enemy == null)
@@ -282,7 +323,7 @@ namespace Jinx
                     return;
                 }
                 var rPred = R.GetPrediction(enemy).CastPosition;
-                Essentials.DrawLineRectangle(rPred.To2D(), Player.Instance.Position.To2D(), R.Width, 1, R.IsReady() ? System.Drawing.Color.Yellow : System.Drawing.Color.Red);
+                Essentials.DrawLineRectangle(rPred.To2D(), Player.Instance.Position.To2D(), R.Width, 1, R.IsReady() ? System.Drawing.Color.YellowGreen : System.Drawing.Color.Red);
             }
         }
 
