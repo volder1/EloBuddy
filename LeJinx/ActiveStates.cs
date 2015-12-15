@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace Jinx
+﻿namespace Jinx
 {
     using System;
     using System.Linq;
@@ -21,7 +19,12 @@ namespace Jinx
         /// <param name="args">The Args</param>
         public static void Game_OnUpdate(EventArgs args)
         {
-            if (Player.Instance.IsDead || Player.Instance.HasBuff("Recall") || Player.Instance.IsCharmed
+            //Chat.Print("Is-Dead: " + Player.Instance.IsDead);
+            //Chat.Print("Is-Recall: " + Player.Instance.HasBuff("Recall"));
+            //Chat.Print("Is-Charmed: " + Player.Instance.IsCharmed);
+            //Chat.Print("Is-Stunned: " + Player.Instance.IsStunned);
+            //Chat.Print("Is-Rooted " + Player.Instance.IsRooted);
+            if (Player.Instance.IsDead || Player.Instance.HasBuff("Recall")
                 || Player.Instance.IsStunned || Player.Instance.IsRooted)
             {
                 return;
@@ -34,6 +37,7 @@ namespace Jinx
             if (toggleK)
             {
                 KillSteal();
+                KillSteal_2();
             }
 
             if (toggleJ)
@@ -53,11 +57,11 @@ namespace Jinx
         private static void AutoW()
         {
             var stunW = JinXxxMenu.MiscMenu["stunW"].Cast<CheckBox>().CurrentValue;
-            var dashW = JinXxxMenu.MiscMenu["dashW"].Cast<CheckBox>().CurrentValue;
+            /*var dashW = JinXxxMenu.MiscMenu["dashW"].Cast<CheckBox>().CurrentValue;
             var charmW = JinXxxMenu.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
             var tauntW = JinXxxMenu.MiscMenu["tauntW"].Cast<CheckBox>().CurrentValue;
             var fearW = JinXxxMenu.MiscMenu["fearW"].Cast<CheckBox>().CurrentValue;
-            var snareW = JinXxxMenu.MiscMenu["snareW"].Cast<CheckBox>().CurrentValue;
+            var snareW = JinXxxMenu.MiscMenu["snareW"].Cast<CheckBox>().CurrentValue;*/
             var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
             var wSlider = JinXxxMenu.MiscMenu["wSlider"].Cast<Slider>().CurrentValue;
             var enemy = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget() && Program.W.IsInRange(t)).OrderByDescending(t => t.Distance(Player.Instance));
@@ -79,7 +83,7 @@ namespace Jinx
                     }
                 }
 
-                else if (dashW && target.IsDashing())
+                /*else if (dashW && target.IsDashing())
                 {
                     var prediction = Program.W.GetPrediction(target);
 
@@ -127,7 +131,7 @@ namespace Jinx
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
-                }
+                }*/
             }
         }
 
@@ -146,18 +150,16 @@ namespace Jinx
             if (useW && useR && Player.Instance.ManaPercent >= manaW && Player.Instance.ManaPercent >= manaR
                 && Program.W.IsReady() && Program.R.IsReady())
             {
-                var enemy =
+                var selection =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
                             t.IsValidTarget() && Program.W.IsInRange(t) &&
                             Player.Instance.Distance(t) <=
                             JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
-                            Player.Instance.Distance(t) > JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
-                            && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, true) >= t.Health)
-                        .OrderByDescending(t => t.Health)
-                        .FirstOrDefault();
+                            Player.Instance.Distance(t) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
+                            && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, true) >= t.Health);
 
-                if (enemy != null)
+                foreach (var enemy in selection)
                 {
                     var pred = Program.W.GetPrediction(enemy);
                     var predR = Program.R.GetPrediction(enemy);
@@ -172,14 +174,6 @@ namespace Jinx
                         Program.R.Cast(predR.CastPosition);
                     }
                 }
-                else
-                {
-                    KillSteal_2();
-                }
-            }
-            else
-            {
-                KillSteal_2();
             }
         }
 
@@ -197,47 +191,33 @@ namespace Jinx
 
             if (useW && Player.Instance.ManaPercent >= manaW && Program.W.IsReady())
             {
-                var enemy =
+                var selection =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
-                        t.IsValidTarget() && Program.W.IsInRange(t)
-                        && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, false) >= t.Health)
-                        .OrderByDescending(t => t.Health)
-                        .FirstOrDefault();
+                            t.IsValidTarget() && Program.W.IsInRange(t)
+                            && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, false) >= t.Health);
 
-                if (enemy != null)
+                foreach (var pred in selection.Select(enemy => Program.W.GetPrediction(enemy)).Where(pred => pred != null && pred.HitChancePercent >= wSlider && !pred.Collision))
                 {
-                    var pred = Program.W.GetPrediction(enemy);
-
-                    if (pred != null && pred.HitChancePercent >= wSlider && !pred.Collision)
-                    {
-                        Program.W.Cast(pred.CastPosition);
-                    }
+                    Program.W.Cast(pred.CastPosition);
                 }
             }
 
             if (useR && Player.Instance.ManaPercent >= manaR && Program.R.IsReady())
             {
-                var enemy =
+                var selection =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
                             t.IsValidTarget()
                             &&
                             Player.Instance.Distance(t) <=
                             JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
-                            Player.Instance.Distance(t) > JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
-                            && Essentials.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health)
-                        .OrderByDescending(t => t.Health)
-                        .FirstOrDefault();
+                            Player.Instance.Distance(t) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
+                            && Essentials.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health);
 
-                if (enemy != null)
+                foreach (var pred in selection.Select(enemy => Program.R.GetPrediction(enemy)).Where(pred => pred != null && pred.HitChancePercent >= rSlider))
                 {
-                    var pred = Program.R.GetPrediction(enemy);
-
-                    if (pred != null && pred.HitChancePercent >= rSlider)
-                    {
-                        Program.R.Cast(pred.CastPosition);
-                    }
+                    Program.R.Cast(pred.CastPosition);
                 }
             }
         }

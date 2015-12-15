@@ -26,7 +26,7 @@
         /// </summary>
         public static Menu HarassMenu;
 
-        /// <summary>E:\EloBuddy Repo\EloBuddy\LeJinx\Jin-XXX_Menu.cs
+        /// <summary>
         /// Initializes and Contains the Menu.
         /// </summary>
         public static Menu LaneClearMenu;
@@ -92,10 +92,10 @@
 
             LastHitMenu = JinXxx.AddSubMenu("LastHit", "LastHit");
             LastHitMenu.AddGroupLabel("LastHit Settings");
-            LastHitMenu.Add("useQ", new CheckBox("Force to Minigun when using LastHit"));
-            //LastHitMenu.Add("qCountM", new Slider("Use Q if Hit x Minions", 4, 1, 7));
-            //LastHitMenu.AddLabel("ManaManager");
-            //LastHitMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
+            LastHitMenu.Add("useQ", new CheckBox("Use Q"));
+            LastHitMenu.Add("qCountM", new Slider("Use Q if Hit x Minions", 3, 1, 7));
+            LastHitMenu.AddLabel("ManaManager");
+            LastHitMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
 
             HarassMenu = JinXxx.AddSubMenu("Harass", "Harass");
             HarassMenu.AddLabel("Harass Settings");
@@ -205,11 +205,11 @@
             MiscMenu.Add("rRange", new Slider("Don't Use R if Player Range from target is X", 500, 0, 3000));
             MiscMenu.AddLabel("Auto W Settings (You must have Auto W on)");
             MiscMenu.Add("stunW", new CheckBox("Use W on Stunned Enemy"));
-            MiscMenu.Add("dashW", new CheckBox("Use W on Dashing Enemy"));
+            /*MiscMenu.Add("dashW", new CheckBox("Use W on Dashing Enemy"));
             MiscMenu.Add("charmW", new CheckBox("Use W on Charmed Enemy"));
             MiscMenu.Add("tauntW", new CheckBox("Use W on Taunted Enemy"));
             MiscMenu.Add("fearW", new CheckBox("Use W on Feared Enemy"));
-            MiscMenu.Add("snareW", new CheckBox("Use W on Snared Enemy"));
+            MiscMenu.Add("snareW", new CheckBox("Use W on Snared Enemy"));*/
             MiscMenu.AddLabel("Prediction Settings");
             MiscMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
             MiscMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));
