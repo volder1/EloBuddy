@@ -56,63 +56,6 @@
         public static Menu LuxMenu, ComboMenu, HarassMenu, LaneClearMenu, KillStealMenu, MiscMenu, DrawingMenu;
 
         /// <summary>
-        /// Gets the player.
-        /// </summary>
-        private static AIHeroClient PlayerInstance
-        {
-            get { return Player.Instance; }
-        }
-
-        /// <summary>
-        /// Returns the HitChance corrosponding to the mode
-        /// </summary>
-        /// <param name="mode">The Mode</param>
-        /// <returns>The HitChance</returns>
-        private static HitChance GetHitChance(string mode)
-        {
-            if (mode == "Combo")
-            {
-                switch (ComboMenu["Slider"].Cast<Slider>().DisplayName)
-                {
-                    case "High":
-                        return HitChance.High;
-                    case "Medium":
-                        return HitChance.Medium;
-                    case "Low":
-                        return HitChance.Low;    
-                }
-            }
-
-            if (mode == "Harass")
-            {
-                switch (HarassMenu["Slider"].Cast<Slider>().DisplayName)
-                {
-                    case "High":
-                        return HitChance.High;
-                    case "Medium":
-                        return HitChance.Medium;
-                    case "Low":
-                        return HitChance.Low;
-                }
-            }
-
-            if (mode == "KillSteal")
-            {
-                switch (KillStealMenu["Slider"].Cast<Slider>().DisplayName)
-                {
-                    case "High":
-                        return HitChance.High;
-                    case "Medium":
-                        return HitChance.Medium;
-                    case "Low":
-                        return HitChance.Low;
-                }
-            }
-
-            return HitChance.High;
-        }
-
-        /// <summary>
         /// Gets Lux Passive Damage
         /// </summary>
         /// <param name="target">The Target</param>
@@ -121,7 +64,7 @@
         {
             if (target.HasBuff("luxilluminatingfraulein"))
             {
-                return target.CalculateDamageOnUnit(target, DamageType.Magical, (float)(10 + (8 * PlayerInstance.Level) * (PlayerInstance.FlatMagicDamageMod * 0.2)));
+                return target.CalculateDamageOnUnit(target, DamageType.Magical, (float)(10 + (8 * Player.Instance.Level) * (Player.Instance.FlatMagicDamageMod * 0.2)));
             }
             return 0;
         }
@@ -139,7 +82,7 @@
                 return true;
             }
 
-            var playerManaPercent = (PlayerInstance.Mana / PlayerInstance.MaxMana) * 100;
+            var playerManaPercent = (Player.Instance.Mana / Player.Instance.MaxMana) * 100;
 
             if (spellSlot == SpellSlot.Q)
             {
@@ -178,7 +121,7 @@
         /// <param name="args">The Args</param>
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
-            if (ChampionName != PlayerInstance.BaseSkinName)
+            if (ChampionName != Player.Instance.BaseSkinName)
             {
                 return;
             }
@@ -201,26 +144,18 @@
             ComboMenu.Add("useR", new CheckBox("Combo using R"));
             ComboMenu.Add("sliderR", new Slider("Amount of Enemies before casting R", 3, 1, 5));
             ComboMenu.AddLabel("Prediction Settings");
-            var combopredictionSlider = ComboMenu.Add("Slider", new Slider("mode", 0, 0, 2));
-            var combopredictionArray = new[] { "High", "Medium", "Low" };
-            combopredictionSlider.DisplayName = combopredictionArray[combopredictionSlider.CurrentValue];
-            combopredictionSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = combopredictionArray[changeArgs.NewValue];
-            };
+            ComboMenu.Add("qSlider", new Slider("Cast Q if % HitChance", 75));
+            ComboMenu.Add("eSlider", new Slider("Cast E if % HitChance", 75));
+            ComboMenu.Add("rSlider", new Slider("Cast R if % HitChance", 75));
 
             HarassMenu = LuxMenu.AddSubMenu("Harass", "Harass");
             HarassMenu.AddGroupLabel("Harass Settings");
             HarassMenu.Add("useQ", new CheckBox("Harass using Q"));
             HarassMenu.Add("useE", new CheckBox("Harass using E"));
             HarassMenu.AddLabel("Prediction Settings");
-            var harasspredictionSlider = HarassMenu.Add("Slider", new Slider("mode", 0, 0, 2));
-            var harasspredictionArray = new[] { "High", "Medium", "Low" };
-            harasspredictionSlider.DisplayName = harasspredictionArray[harasspredictionSlider.CurrentValue];
-            harasspredictionSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = harasspredictionArray[changeArgs.NewValue];
-            };
+            HarassMenu.Add("qSlider", new Slider("Cast Q if % HitChance", 75));
+            HarassMenu.Add("eSlider", new Slider("Cast E if % HitChance", 75));
+            HarassMenu.Add("rSlider", new Slider("Cast R if % HitChance", 75));
 
             LaneClearMenu = LuxMenu.AddSubMenu("LaneClear", "LaneClear");
             LaneClearMenu.AddGroupLabel("Lane Clear Settings");
@@ -237,13 +172,10 @@
             KillStealMenu.Add("useE", new CheckBox("Kill Steal using E"));
             KillStealMenu.Add("useR", new CheckBox("Kill Steal using R"));
             KillStealMenu.AddLabel("Prediction Settings");
-            var killstealpredictionMenu = KillStealMenu.Add("Slider", new Slider("mode", 0, 0, 2));
-            var killstealpredictionarray = new[] { "High", "Medium", "Low" };
-            killstealpredictionMenu.DisplayName = killstealpredictionarray[killstealpredictionMenu.CurrentValue];
-            killstealpredictionMenu.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = killstealpredictionarray[changeArgs.NewValue];
-            };
+            KillStealMenu.Add("qSlider", new Slider("Cast Q if % HitChance", 75));
+            KillStealMenu.Add("eSlider", new Slider("Cast E if % HitChance", 75));
+            KillStealMenu.Add("rSlider", new Slider("Cast R if % HitChance", 75));
+
 
             MiscMenu = LuxMenu.AddSubMenu("Misc", "Misc");
             MiscMenu.AddGroupLabel("Mana Manager Settings");
@@ -263,7 +195,7 @@
             {
                 MiscMenu.Add("autoW_" + a.BaseSkinName, new CheckBox("Auto W " + a.BaseSkinName));
             }
-            MiscMenu.Add("autoW_" + PlayerInstance.BaseSkinName, new CheckBox("Auto W Self"));
+            MiscMenu.Add("autoW_" + Player.Instance.BaseSkinName, new CheckBox("Auto W Self"));
 
             DrawingMenu = LuxMenu.AddSubMenu("Drawing", "Drawing");
             DrawingMenu.AddGroupLabel("Drawing Settings");
@@ -272,14 +204,14 @@
             DrawingMenu.Add("drawE", new CheckBox("Draw E Range"));
             DrawingMenu.Add("drawR", new CheckBox("Draw R Range"));
 
-            Chat.Print("StarBuddy - Lux by KarmaPanda");
+            Chat.Print("StarBuddy - Lux by KarmaPanda", System.Drawing.Color.DeepPink);
 
-            Game.OnTick += Game_OnTick;
+            Game.OnUpdate += Game_OnUpdate;
             GameObject.OnCreate += GameObject_OnCreate;
             GameObject.OnDelete += GameObject_OnDelete;
             Drawing.OnDraw += Drawing_OnDraw;
         }
-
+        
         /// <summary>
         /// Called when a object gets created.
         /// </summary>
@@ -314,19 +246,19 @@
         {
             if (DrawingMenu["drawQ"].Cast<CheckBox>().CurrentValue)
             {
-                Circle.Draw(!Q.IsReady() ? Color.Red : Color.LightGreen, Q.Range, PlayerInstance.Position);
+                Circle.Draw(!Q.IsReady() ? Color.Red : Color.LightGreen, Q.Range, Player.Instance.Position);
             }
             if (DrawingMenu["drawW"].Cast<CheckBox>().CurrentValue)
             {
-                Circle.Draw(!W.IsReady() ? Color.Red : Color.LightGreen, W.Range, PlayerInstance.Position);
+                Circle.Draw(!W.IsReady() ? Color.Red : Color.LightGreen, W.Range, Player.Instance.Position);
             }
             if (DrawingMenu["drawE"].Cast<CheckBox>().CurrentValue)
             {
-                Circle.Draw(!E.IsReady() ? Color.Red : Color.LightGreen, E.Range, PlayerInstance.Position);
+                Circle.Draw(!E.IsReady() ? Color.Red : Color.LightGreen, E.Range, Player.Instance.Position);
             }
             if (DrawingMenu["drawR"].Cast<CheckBox>().CurrentValue)
             {
-                Circle.Draw(!R.IsReady() ? Color.Red : Color.LightGreen, R.Range, PlayerInstance.Position);
+                Circle.Draw(!R.IsReady() ? Color.Red : Color.LightGreen, R.Range, Player.Instance.Position);
             }
         }
 
@@ -334,7 +266,7 @@
         /// Called whenever the Game Ticks
         /// </summary>
         /// <param name="args">The Args</param>
-        private static void Game_OnTick(EventArgs args)
+        private static void Game_OnUpdate(EventArgs args)
         {
             if (!Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && LuxEObject == null)
             {
@@ -396,13 +328,13 @@
 
             if (useQ && Q.IsReady() && ManaManager(SpellSlot.Q))
             {
-                var t = TargetSelector.GetTarget(Q.Range, DamageType.Magical, PlayerInstance.ServerPosition);
+                var t = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
 
                 if (t != null)
                 {
                     var pred = Q.GetPrediction(t);
 
-                    if (pred != null && t.IsValidTarget() && pred.HitChance >= GetHitChance("Combo"))
+                    if (pred != null && t.IsValidTarget() && pred.HitChancePercent >= ComboMenu["qSlider"].Cast<Slider>().CurrentValue)
                     {
                         Q.Cast(pred.CastPosition);
                     }
@@ -411,13 +343,13 @@
 
             if (useE && E.IsReady() && ManaManager(SpellSlot.E) && LuxEObject == null)
             {
-                var t = TargetSelector.GetTarget(E.Range, DamageType.Magical, PlayerInstance.ServerPosition);
+                var t = TargetSelector.GetTarget(E.Range, DamageType.Magical);
 
                 if (t != null)
                 {
                     var pred = E.GetPrediction(t);
 
-                    if (pred != null && t.IsValidTarget() && pred.HitChance >= GetHitChance("Combo"))
+                    if (pred != null && t.IsValidTarget() && pred.HitChancePercent >= ComboMenu["eSlider"].Cast<Slider>().CurrentValue)
                     {
                         E.Cast(pred.CastPosition);
                     }
@@ -430,7 +362,7 @@
                     EntityManager.Heroes.Enemies.Where(
                         t => t.IsValidTarget() && t.Distance(LuxEObject.Position) <= LuxEObject.BoundingRadius);
 
-                if (target.Any())
+                if (target.Any() && LuxEObject != null)
                 {
                     E2.Cast();
                 }
@@ -440,7 +372,7 @@
             {
                 return;
             }
-            var rTarget = TargetSelector.GetTarget(R.Range, DamageType.Magical, PlayerInstance.ServerPosition);
+            var rTarget = TargetSelector.GetTarget(R.Range, DamageType.Magical);
 
             if (rTarget == null)
             {
@@ -449,7 +381,7 @@
 
             var rPrediction = R.GetPrediction(rTarget);
 
-            if (rPrediction != null && rTarget.IsValidTarget() && rPrediction.HitChance >= GetHitChance("Combo")
+            if (rPrediction != null && rTarget.IsValidTarget() && rPrediction.HitChancePercent >= ComboMenu["rSlider"].Cast<Slider>().CurrentValue
                 && rPrediction.GetCollisionObjects<AIHeroClient>().Count() >= sliderR)
             {
                 R.Cast(rPrediction.CastPosition);
@@ -466,13 +398,13 @@
 
             if (useQ && Q.IsReady() && ManaManager(SpellSlot.Q))
             {
-                var t = TargetSelector.GetTarget(Q.Range, DamageType.Magical, PlayerInstance.ServerPosition);
+                var t = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
 
                 if (t != null)
                 {
                     var pred = Q.GetPrediction(t);
 
-                    if (pred != null && t.IsValidTarget() && pred.HitChance >= GetHitChance("Harass"))
+                    if (pred != null && t.IsValidTarget() && pred.HitChancePercent >= HarassMenu["qSlider"].Cast<Slider>().CurrentValue)
                     {
                         Q.Cast(pred.CastPosition);
                     }
@@ -481,30 +413,29 @@
 
             if (useE && E.IsReady() && ManaManager(SpellSlot.E) && LuxEObject == null)
             {
-                var t = TargetSelector.GetTarget(E.Range, DamageType.Magical, PlayerInstance.ServerPosition);
+                var t = TargetSelector.GetTarget(E.Range, DamageType.Magical);
 
                 if (t != null)
                 {
                     var pred = E.GetPrediction(t);
 
-                    if (pred != null && t.IsValidTarget() && pred.HitChance >= GetHitChance("Harass"))
+                    if (pred != null && t.IsValidTarget() && pred.HitChancePercent >= HarassMenu["eSlider"].Cast<Slider>().CurrentValue)
                     {
                         E.Cast(pred.CastPosition);
                     }
                 }
             }
 
-            if (!useE || !E.IsReady() || LuxEObject == null)
+            if (useE && E.IsReady() && LuxEObject != null)
             {
-                return;
-            }
-            var target =
-                EntityManager.Heroes.Enemies.Where(
-                    t => t.IsValidTarget() && t.Distance(LuxEObject.Position) <= LuxEObject.BoundingRadius);
+                var target =
+                    EntityManager.Heroes.Enemies.Where(
+                        t => t.IsValidTarget() && t.Distance(LuxEObject.Position) <= LuxEObject.BoundingRadius);
 
-            if (target.Any())
-            {
-                E2.Cast();
+                if (target.Any() && LuxEObject != null)
+                {
+                    E2.Cast();
+                }
             }
         }
 
@@ -539,7 +470,7 @@
             {
                 var target = EntityManager.MinionsAndMonsters.GetLaneMinions(
                     EntityManager.UnitTeam.Enemy,
-                    PlayerInstance.ServerPosition,
+                    Player.Instance.ServerPosition,
                     E.Radius);
 
                 var pred = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(target, E.Width, (int)E.Range);
@@ -556,7 +487,7 @@
                     EntityManager.MinionsAndMonsters.EnemyMinions.Where(
                         t => t.IsValidTarget() && t.Distance(LuxEObject.Position) <= LuxEObject.BoundingRadius);
 
-                if (target.Any())
+                if (target.Any() && LuxEObject != null)
                 {
                     E2.Cast();
                 }
@@ -568,7 +499,7 @@
             }
             var rTarget = EntityManager.MinionsAndMonsters.GetLaneMinions(
                 EntityManager.UnitTeam.Enemy,
-                PlayerInstance.ServerPosition,
+                Player.Instance.ServerPosition,
                 R.Radius);
 
             if (rTarget == null)
@@ -598,10 +529,10 @@
                 var enemies =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
-                        t.IsValidTarget() && Q.IsInRange(t) && PlayerInstance.GetSpellDamage(t, SpellSlot.Q) >= t.Health);
+                        t.IsValidTarget() && Q.IsInRange(t) && Player.Instance.GetSpellDamage(t, SpellSlot.Q) >= t.Health);
                 
                 // Resharper op
-                foreach (var pred in enemies.Select(t => Q.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance >= GetHitChance("KillSteal")))
+                foreach (var pred in enemies.Select(t => Q.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChancePercent >= KillStealMenu["qSlider"].Cast<Slider>().CurrentValue))
                 {
                     Q.Cast(pred.CastPosition);
                 }
@@ -614,9 +545,9 @@
                         EntityManager.Heroes.Enemies.Where(
                             t =>
                             t.IsValidTarget() && E.IsInRange(t)
-                            && PlayerInstance.GetSpellDamage(t, SpellSlot.E) >= t.Health);
+                            && Player.Instance.GetSpellDamage(t, SpellSlot.E) >= t.Health);
 
-                    foreach (var pred in enemies.Select(t => E.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance >= GetHitChance("KillSteal")))
+                    foreach (var pred in enemies.Select(t => E.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChancePercent >= KillStealMenu["eSlider"].Cast<Slider>().CurrentValue))
                     {
                         E.Cast(pred.CastPosition);
                     }                    
@@ -627,9 +558,9 @@
                         EntityManager.Heroes.Enemies.Where(
                             t =>
                             t.IsValidTarget() && t.Distance(LuxEObject.Position) <= LuxEObject.BoundingRadius
-                            && PlayerInstance.GetSpellDamage(t, SpellSlot.E) >= t.Health);
+                            && Player.Instance.GetSpellDamage(t, SpellSlot.E) >= t.Health);
 
-                    if (enemies.Any())
+                    if (enemies.Any() && LuxEObject != null)
                     {
                         E2.Cast();
                     }
@@ -646,9 +577,9 @@
                     EntityManager.Heroes.Enemies.Where(
                         t =>
                         t.IsValidTarget() && R.IsInRange(t)
-                        && PlayerInstance.GetSpellDamage(t, SpellSlot.R) + LuxPassiveDamage(t) >= t.Health);
+                        && Player.Instance.GetSpellDamage(t, SpellSlot.R) + LuxPassiveDamage(t) >= t.Health);
 
-                foreach (var pred in enemies.Select(t => R.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance >= GetHitChance("KillSteal")))
+                foreach (var pred in enemies.Select(t => R.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChancePercent >= KillStealMenu["rSlider"].Cast<Slider>().CurrentValue))
                 {
                     R.Cast(pred.CastPosition);
                 }
@@ -685,7 +616,7 @@
                     W.CastDelay,
                     W.Speed,
                     2,
-                    PlayerInstance.ServerPosition);
+                    Player.Instance.ServerPosition);
 
             if (pred.HitChance >= HitChance.High)
             {
