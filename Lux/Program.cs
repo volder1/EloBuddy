@@ -1,4 +1,6 @@
-﻿namespace Lux
+﻿using EloBuddy.SDK.Constants;
+
+namespace Lux
 {
     using System;
     using System.Linq;
@@ -19,6 +21,11 @@
         /// Lux's Name
         /// </summary>
         private const string ChampionName = "Lux";
+
+        /// <summary>
+        /// Holds Indicator
+        /// </summary>
+        public static DamageIndicator.DamageIndicator Indicator;
 
         /// <summary>
         /// Spell Q
@@ -82,29 +89,114 @@
                 return true;
             }
 
-            var playerManaPercent = (Player.Instance.Mana / Player.Instance.MaxMana) * 100;
+            var playerManaPercent = Player.Instance.ManaPercent;
 
             if (spellSlot == SpellSlot.Q)
             {
-                return MiscMenu["manaQ"].Cast<Slider>().CurrentValue <= playerManaPercent;
+                return MiscMenu["manaQ"].Cast<Slider>().CurrentValue < playerManaPercent;
             }
 
             if (spellSlot == SpellSlot.W)
             {
-                return MiscMenu["manaW"].Cast<Slider>().CurrentValue <= playerManaPercent;
+                return MiscMenu["manaW"].Cast<Slider>().CurrentValue < playerManaPercent;
             }
 
             if (spellSlot == SpellSlot.E)
             {
-                return MiscMenu["manaE"].Cast<Slider>().CurrentValue <= playerManaPercent;
+                return MiscMenu["manaE"].Cast<Slider>().CurrentValue < playerManaPercent;
             }
 
             if (spellSlot == SpellSlot.R)
             {
-                return MiscMenu["manaR"].Cast<Slider>().CurrentValue <= playerManaPercent;
+                return MiscMenu["manaR"].Cast<Slider>().CurrentValue < playerManaPercent;
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// DamageLibrary Class for Lux Spells.
+        /// </summary>
+        public static class DamageLibrary
+        {
+            /// <summary>
+            /// Calculates and returns damage totally done to the target
+            /// </summary>
+            /// <param name="target">The Target</param>
+            /// <param name="useQ">Include useQ in Calculations?</param>
+            /// <param name="useW">Include useW in Calculations?</param>
+            /// <param name="useE">Include useE in Calculations?</param>
+            /// <param name="useR">Include useR in Calculations?</param>
+            /// <returns>The total damage done to target.</returns>
+            public static float CalculateDamage(Obj_AI_Base target, bool useQ, bool useW, bool useE, bool useR)
+            {
+                var totaldamage = 0f;
+
+                if (useQ && Q.IsReady())
+                {
+                    totaldamage = totaldamage + QDamage(target);
+                }
+
+                if (useW && W.IsReady())
+                {
+                    totaldamage = totaldamage + WDamage(target);
+                }
+
+                if (useE && E.IsReady())
+                {
+                    totaldamage = totaldamage + EDamage(target);
+                }
+
+                if (useR && R.IsReady())
+                {
+                    totaldamage = totaldamage + RDamage(target);
+                }
+
+                return totaldamage;
+            }
+
+            /// <summary>
+            /// Calculates the Damage done with useQ
+            /// </summary>
+            /// <param name="target">The Target</param>
+            /// <returns>Returns the Damage done with useQ</returns>
+            private static float QDamage(Obj_AI_Base target)
+            {
+                return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical,
+                    (new[] {0, 60, 110, 160, 210, 260}[Program.Q.Level]) + (Player.Instance.TotalMagicalDamage*0.7f));
+            }
+
+            /// <summary>
+            /// Calculates the Damage done with useW
+            /// </summary>
+            /// <param name="target">The Target</param>
+            /// <returns>Returns the Damage done with useW</returns>
+            private static float WDamage(Obj_AI_Base target)
+            {
+                return 0;
+            }
+
+            /// <summary>
+            /// Calculates the Damage done with useE
+            /// </summary>
+            /// <param name="target">The Target</param>
+            /// <returns>Returns the Damage done with useE</returns>
+            private static float EDamage(Obj_AI_Base target)
+            {
+                return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical,
+                    (new[] {0, 60, 105, 150, 195, 240}[Program.E.Level] + (Player.Instance.TotalMagicalDamage*0.6f)));
+            }
+
+            /// <summary>
+            /// Calculates the Damage done with useR
+            /// </summary>
+            /// <param name="target">The Target</param>
+            /// <returns>Returns the Damage done with useR</returns>
+            private static float RDamage(Obj_AI_Base target)
+            {
+                return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical,
+                    (new[] {0, 300, 400, 500}[Program.R.Level] + (Player.Instance.TotalMagicalDamage*0.75f)));
+            }
         }
 
         /// <summary>
@@ -126,11 +218,17 @@
                 return;
             }
 
-            Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear, 250, 85, 1150);
-            W = new Spell.Skillshot(SpellSlot.W, 1075, SkillShotType.Linear, 250, 110, 1200);
-            E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular, 250, 280, 950);
+            Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear, 250, 70, 1300)
+            {
+                AllowedCollisionCount = 2
+            };
+            W = new Spell.Skillshot(SpellSlot.W, 1075, SkillShotType.Linear, 250, 150, 1200);
+            E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular, 250, 275, 950);
             E2 = new Spell.Active(SpellSlot.E);
-            R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Linear, 1000, 190, int.MaxValue);
+            R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Circular, 1000, 150, int.MaxValue)
+            {
+                AllowedCollisionCount = int.MaxValue
+            };
 
             LuxMenu = MainMenu.AddMenu("Lux", "Lux");
             LuxMenu.AddGroupLabel("This addon is made by KarmaPanda and should not be redistributed in any way.");
@@ -176,7 +274,6 @@
             KillStealMenu.Add("eSlider", new Slider("Cast E if % HitChance", 75));
             KillStealMenu.Add("rSlider", new Slider("Cast R if % HitChance", 75));
 
-
             MiscMenu = LuxMenu.AddSubMenu("Misc", "Misc");
             MiscMenu.AddGroupLabel("Mana Manager Settings");
             MiscMenu.Add("manaQ", new Slider("Mana Manager Q", 25));
@@ -184,11 +281,10 @@
             MiscMenu.Add("manaE", new Slider("Mana Manager E", 25));
             MiscMenu.Add("manaR", new Slider("Mana Manager R", 25));
             MiscMenu.Add("disableC", new CheckBox("Disable Mana Manager in Combo"));
-            MiscMenu.AddSeparator();
             MiscMenu.AddGroupLabel("Misc Settings");
             MiscMenu.Add("useW", new CheckBox("Automatically Cast W"));
             MiscMenu.Add("useM", new CheckBox("Use W only on Modes"));
-            MiscMenu.Add("hpW", new Slider("HP % before W", 50));
+            MiscMenu.Add("hpW", new Slider("HP % before W", 25));
             MiscMenu.AddLabel("Who to use W on?");
             var allies = EntityManager.Heroes.Allies.Where(a => !a.IsMe).OrderBy(a => a.BaseSkinName);
             foreach (var a in allies)
@@ -203,9 +299,16 @@
             DrawingMenu.Add("drawW", new CheckBox("Draw W Range"));
             DrawingMenu.Add("drawE", new CheckBox("Draw E Range"));
             DrawingMenu.Add("drawR", new CheckBox("Draw R Range"));
+            DrawingMenu.AddGroupLabel("DamageIndicator");
+            DrawingMenu.Add("draw.Damage", new CheckBox("Use Damage Indicator"));
+            DrawingMenu.Add("draw.Q", new CheckBox("Draw Q Damage"));
+            DrawingMenu.Add("draw.W", new CheckBox("Draw W Damage", false));
+            DrawingMenu.Add("draw.E", new CheckBox("Draw E Damage"));
+            DrawingMenu.Add("draw.R", new CheckBox("Draw R Damage"));
 
             Chat.Print("StarBuddy - Lux by KarmaPanda", System.Drawing.Color.DeepPink);
 
+            Indicator = new DamageIndicator.DamageIndicator();
             Game.OnUpdate += Game_OnUpdate;
             GameObject.OnCreate += GameObject_OnCreate;
             GameObject.OnDelete += GameObject_OnDelete;
@@ -219,7 +322,15 @@
         /// <param name="args">The Args</param>
         private static void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
-            if (sender.Name == "Lux_Base_E_mis.troy")
+            if (!(sender is MissileClient))
+                return;
+
+            var missile = sender as MissileClient;
+
+            if (!missile.SpellCaster.IsMe || missile.SData.IsAutoAttack())
+                return;
+
+            if (missile.SData.Name.Contains("LuxLightStrikeKugel") || missile.SData.Name.Contains("Lux_Base_E_mis.troy") || missile.SData.Name.Contains("LuxLightstrike_tar"))
             {
                 LuxEObject = sender;
             }
@@ -232,7 +343,15 @@
         /// <param name="args">The Args</param>
         private static void GameObject_OnDelete(GameObject sender, EventArgs args)
         {
-            if (sender.Name == "Lux_Base_E_tar_nova.troy")
+            if (!(sender is MissileClient))
+                return;
+
+            var missile = sender as MissileClient;
+
+            if (!missile.SpellCaster.IsMe)
+                return;
+
+            if (missile.SData.Name.Contains("LuxLightStrikeKugel") || missile.SData.Name.Contains("Lux_Base_E_tar_nova.troy") || missile.SData.Name.Contains("LuxLightstrike_tar"))
             {
                 LuxEObject = null;
             }
@@ -271,7 +390,7 @@
             if (!Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && LuxEObject == null)
             {
                 Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear);
-                E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular);
+                //E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular);
                 R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Linear);
             }
 
@@ -444,9 +563,12 @@
         /// </summary>
         private static void LaneClear()
         {
-            Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear, 250, 85, 1150);
-            E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular, 250, 280, 950);
-            R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Linear, 1000, 190, int.MaxValue);
+            Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear, 250, 70, 1300)
+            {
+                AllowedCollisionCount = 2
+            };
+            //E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular, 250, 280, 950);
+            //R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Circular, 1000, 190, int.MaxValue);
 
             var useQ = LaneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var useE = LaneClearMenu["useE"].Cast<CheckBox>().CurrentValue;
@@ -523,18 +645,27 @@
             {
                 if (Q.IsReady())
                 {
-                    return;
-                }
+                    var enemies =
+                        EntityManager.Heroes.Enemies.Where(
+                            t =>
+                                t.IsValidTarget() && Q.IsInRange(t) &&
+                                DamageLibrary.CalculateDamage(t, true, false, false, false) >= t.Health + t.AllShield);
 
-                var enemies =
-                    EntityManager.Heroes.Enemies.Where(
-                        t =>
-                        t.IsValidTarget() && Q.IsInRange(t) && Player.Instance.GetSpellDamage(t, SpellSlot.Q) >= t.Health);
-                
-                // Resharper op
-                foreach (var pred in enemies.Select(t => Q.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChancePercent >= KillStealMenu["qSlider"].Cast<Slider>().CurrentValue))
+                    // Resharper op
+                    foreach (
+                        var pred in
+                            enemies.Select(t => Q.GetPrediction(t))
+                                .Where(pred => pred != null)
+                                .Where(
+                                    pred =>
+                                        pred.HitChancePercent >= KillStealMenu["qSlider"].Cast<Slider>().CurrentValue))
+                    {
+                        Q.Cast(pred.CastPosition);
+                    }
+                }
+                else
                 {
-                    Q.Cast(pred.CastPosition);
+                    return;
                 }
             }
             if (KillStealMenu["useE"].Cast<CheckBox>().CurrentValue)
@@ -545,7 +676,7 @@
                         EntityManager.Heroes.Enemies.Where(
                             t =>
                             t.IsValidTarget() && E.IsInRange(t)
-                            && Player.Instance.GetSpellDamage(t, SpellSlot.E) >= t.Health);
+                            && DamageLibrary.CalculateDamage(t, false, false, true, false) >= t.Health + t.AllShield);
 
                     foreach (var pred in enemies.Select(t => E.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChancePercent >= KillStealMenu["eSlider"].Cast<Slider>().CurrentValue))
                     {
@@ -558,7 +689,7 @@
                         EntityManager.Heroes.Enemies.Where(
                             t =>
                             t.IsValidTarget() && t.Distance(LuxEObject.Position) <= LuxEObject.BoundingRadius
-                            && Player.Instance.GetSpellDamage(t, SpellSlot.E) >= t.Health);
+                            && DamageLibrary.CalculateDamage(t, false, false, true, false) >= t.Health + t.AllShield);
 
                     if (enemies.Any() && LuxEObject != null)
                     {
@@ -568,20 +699,24 @@
             }
             if (KillStealMenu["useR"].Cast<CheckBox>().CurrentValue)
             {
-                if (!R.IsReady())
+                if (R.IsReady())
                 {
-                    return;
-                }
+                    var enemies =
+                        EntityManager.Heroes.Enemies.Where(
+                            t =>
+                                t.IsValidTarget() && R.IsInRange(t)
+                                && DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health + t.AllShield);
 
-                var enemies =
-                    EntityManager.Heroes.Enemies.Where(
-                        t =>
-                        t.IsValidTarget() && R.IsInRange(t)
-                        && Player.Instance.GetSpellDamage(t, SpellSlot.R) + LuxPassiveDamage(t) >= t.Health);
-
-                foreach (var pred in enemies.Select(t => R.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChancePercent >= KillStealMenu["rSlider"].Cast<Slider>().CurrentValue))
-                {
-                    R.Cast(pred.CastPosition);
+                    foreach (
+                        var pred in
+                            enemies.Select(t => R.GetPrediction(t))
+                                .Where(pred => pred != null)
+                                .Where(
+                                    pred =>
+                                        pred.HitChancePercent >= KillStealMenu["rSlider"].Cast<Slider>().CurrentValue))
+                    {
+                        R.Cast(pred.CastPosition);
+                    }
                 }
             }
         }
@@ -591,36 +726,22 @@
         /// </summary>
         private static void AutoW()
         {
-            if (!W.IsReady())
+            if (W.IsReady())
             {
-                return;
-            }
+                var allies =
+                    EntityManager.Heroes.Allies.Where(
+                        t =>
+                            MiscMenu["autoW_" + t.BaseSkinName].Cast<CheckBox>().CurrentValue
+                            && MiscMenu["hpW"].Cast<Slider>().CurrentValue >= t.HealthPercent && t.IsValidTarget()
+                            && W.IsInRange(t)).ToArray();
 
-            var allies =
-                EntityManager.Heroes.Allies.Where(
-                    t =>
-                    MiscMenu["autoW_" + t.BaseSkinName].Cast<CheckBox>().CurrentValue
-                    && MiscMenu["hpW"].Cast<Slider>().CurrentValue >= t.HealthPercent && t.IsValidTarget()
-                    && W.IsInRange(t)).ToList();
-
-            if (!allies.Any())
-            {
-                return;
-            }
-
-            var pred =
-                Prediction.Position.PredictLinearMissile(
-                    allies.OrderByDescending(t => t.HealthPercent).FirstOrDefault(),
-                    W.Range,
-                    W.Radius,
-                    W.CastDelay,
-                    W.Speed,
-                    2,
-                    Player.Instance.ServerPosition);
-
-            if (pred.HitChance >= HitChance.High)
-            {
-                W.Cast(pred.CastPosition);
+                if (allies.Any())
+                {
+                    foreach (var a in allies)
+                    {
+                        W.Cast(a.ServerPosition);
+                    }
+                }
             }
         }
     }
