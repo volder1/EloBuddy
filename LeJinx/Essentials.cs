@@ -197,20 +197,40 @@
                 if (!Program.R.IsLearned) return 0;
                 var level = Program.R.Level - 1;
 
+                if ((target.Team == GameObjectTeam.Neutral || target.IsMinion) && target.Distance(Player.Instance) < 1350)
+                {
+                    var damage = Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
+                        (float)
+                            (new double[] {25, 35, 45}[level] +
+                             new double[] {25, 30, 35}[level]/100*(target.MaxHealth - target.Health) +
+                             0.1*Player.Instance.FlatPhysicalDamageMod));
+                    if (damage > 300f)
+                    {
+                        return 300f;
+                    }
+                    return damage;
+                }
+
                 if (target.Distance(Player.Instance) < 1350)
                 {
                     return Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
                         (float)
-                            (new double[] { 25, 35, 45 }[level] +
-                             new double[] { 25, 30, 35 }[level] / 100 * (target.MaxHealth - target.Health) +
-                             0.1 * Player.Instance.TotalAttackDamage));
+                            (new double[] {25, 35, 45}[level] +
+                             new double[] {25, 30, 35}[level]/100*(target.MaxHealth - target.Health) +
+                             0.1*Player.Instance.FlatPhysicalDamageMod));
                 }
 
-                return Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
+                var damage2 = Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
                     (float)
-                        (new double[] { 250, 350, 450 }[level] +
-                         new double[] { 25, 30, 35 }[level] / 100 * (target.MaxHealth - target.Health) +
-                         1 * Player.Instance.TotalAttackDamage));
+                        (new double[] {250, 350, 450}[level] +
+                         new double[] {25, 30, 35}[level]/100*(target.MaxHealth - target.Health) +
+                         1*Player.Instance.FlatPhysicalDamageMod));
+
+                if ((target.Team == GameObjectTeam.Neutral || target.IsMinion) && damage2 > 300f)
+                {
+                    return 300f;
+                }
+                return damage2;
             }
         }
     }

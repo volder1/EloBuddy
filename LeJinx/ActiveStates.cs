@@ -24,7 +24,7 @@
             //Chat.Print("Is-Stunned: " + Player.Instance.IsStunned);
             //Chat.Print("Is-Rooted " + Player.Instance.IsRooted);
             if (Player.Instance.IsDead || Player.Instance.HasBuff("Recall")
-                || Player.Instance.IsStunned || Player.Instance.IsRooted)
+                || Player.Instance.IsStunned || Player.Instance.IsRooted || Player.Instance.IsCharmed)
             {
                 return;
             }
@@ -56,7 +56,7 @@
         private static void AutoW()
         {
             var stunW = JinXxxMenu.MiscMenu["stunW"].Cast<CheckBox>().CurrentValue;
-            //var charmW = JinXxxMenu.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
+            var charmW = JinXxxMenu.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
             var tauntW = JinXxxMenu.MiscMenu["tauntW"].Cast<CheckBox>().CurrentValue;
             var fearW = JinXxxMenu.MiscMenu["fearW"].Cast<CheckBox>().CurrentValue;
             var snareW = JinXxxMenu.MiscMenu["snareW"].Cast<CheckBox>().CurrentValue;
@@ -89,7 +89,7 @@
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
-                }
+                }*/
 
                 else if (charmW && target.IsCharmed)
                 {
@@ -99,7 +99,7 @@
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
-                }*/
+                }
 
                 else if (tauntW && target.IsTaunted)
                 {
@@ -160,7 +160,6 @@
                 foreach (var enemy in selection)
                 {
                     var pred = Program.W.GetPrediction(enemy);
-                    var predR = Program.R.GetPrediction(enemy);
 
                     if (pred != null && pred.HitChancePercent >= wSlider && !pred.Collision)
                     {
@@ -169,6 +168,7 @@
 
                         Core.DelayAction(() =>
                         {
+                            var predR = Program.R.GetPrediction(target);
                             var checkDmg = target.Health <=
                                            Essentials.DamageLibrary.CalculateDamage(target, false, false, false, true);
 

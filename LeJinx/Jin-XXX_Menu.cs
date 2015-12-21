@@ -204,7 +204,7 @@
             MiscMenu.Add("rRange", new Slider("Don't Use R if Player Range from target is X", 500, 0, 3000));
             MiscMenu.AddLabel("Auto W Settings (You must have Auto W on)");
             MiscMenu.Add("stunW", new CheckBox("Use W on Stunned Enemy"));
-            //MiscMenu.Add("charmW", new CheckBox("Use W on Charmed Enemy"));
+            MiscMenu.Add("charmW", new CheckBox("Use W on Charmed Enemy"));
             MiscMenu.Add("tauntW", new CheckBox("Use W on Taunted Enemy"));
             MiscMenu.Add("fearW", new CheckBox("Use W on Feared Enemy"));
             MiscMenu.Add("snareW", new CheckBox("Use W on Snared Enemy"));

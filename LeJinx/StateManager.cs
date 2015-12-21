@@ -16,26 +16,10 @@
         /// </summary>
         public static void Combo()
         {
-            if (Orbwalker.IsAutoAttacking)
-            {
-                return;
-            }
+            #region Q Logic
 
             var useQ = JinXxxMenu.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
-            var useW = JinXxxMenu.ComboMenu["useW"].Cast<CheckBox>().CurrentValue;
-            var useE = JinXxxMenu.ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
-            var useR = JinXxxMenu.ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
-            var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
-            var wRange2 = JinXxxMenu.ComboMenu["wRange2"].Cast<Slider>().CurrentValue;
-            var eRange = JinXxxMenu.ComboMenu["eRange"].Cast<Slider>().CurrentValue;
             var manaQ = JinXxxMenu.ComboMenu["manaQ"].Cast<Slider>().CurrentValue;
-            var manaW = JinXxxMenu.ComboMenu["manaW"].Cast<Slider>().CurrentValue;
-            var manaE = JinXxxMenu.ComboMenu["manaE"].Cast<Slider>().CurrentValue;
-            var manaR = JinXxxMenu.ComboMenu["manaR"].Cast<Slider>().CurrentValue;
-            var wSlider = JinXxxMenu.ComboMenu["wSlider"].Cast<Slider>().CurrentValue;
-            var eSlider = JinXxxMenu.ComboMenu["eSlider"].Cast<Slider>().CurrentValue;
-            var rSlider = JinXxxMenu.ComboMenu["rSlider"].Cast<Slider>().CurrentValue;
-            var rCountC = JinXxxMenu.ComboMenu["rCountC"].Cast<Slider>().CurrentValue;
 
             // If the player has a minigun
             if (useQ && Player.Instance.ManaPercent >= manaQ && Program.Q.IsReady() && !Essentials.FishBones())
@@ -50,7 +34,7 @@
                         Program.Q.Cast();
                         Orbwalker.ForcedTarget = target;
                     }
-                    
+
                     if (Player.Instance.IsInAutoAttackRange(target) && target.CountEnemiesInRange(100) >= JinXxxMenu.ComboMenu["qCountC"].Cast<Slider>().CurrentValue)
                     {
                         Program.Q.Cast();
@@ -59,20 +43,23 @@
                 }
             }
 
-            // If the player has the rocket
-            if (useQ && Program.Q.IsReady() && Essentials.FishBones())
-            {
-                var target = TargetSelector.GetTarget(Essentials.FishBonesRange(), DamageType.Physical);
+            #endregion
 
-                if (target != null && target.IsValidTarget())
-                {
-                    if (Player.Instance.Distance(target) <= Essentials.MinigunRange && target.CountEnemiesInRange(100) < JinXxxMenu.ComboMenu["qCountC"].Cast<Slider>().CurrentValue)
-                    {
-                        Program.Q.Cast();
-                        Orbwalker.ForcedTarget = target;
-                    }
-                }
-            }
+            #region Spell Logic
+
+            var useW = JinXxxMenu.ComboMenu["useW"].Cast<CheckBox>().CurrentValue;
+            var useE = JinXxxMenu.ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
+            var useR = JinXxxMenu.ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
+            var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
+            var wRange2 = JinXxxMenu.ComboMenu["wRange2"].Cast<Slider>().CurrentValue;
+            var eRange = JinXxxMenu.ComboMenu["eRange"].Cast<Slider>().CurrentValue;
+            var manaW = JinXxxMenu.ComboMenu["manaW"].Cast<Slider>().CurrentValue;
+            var manaE = JinXxxMenu.ComboMenu["manaE"].Cast<Slider>().CurrentValue;
+            var manaR = JinXxxMenu.ComboMenu["manaR"].Cast<Slider>().CurrentValue;
+            var wSlider = JinXxxMenu.ComboMenu["wSlider"].Cast<Slider>().CurrentValue;
+            var eSlider = JinXxxMenu.ComboMenu["eSlider"].Cast<Slider>().CurrentValue;
+            var rSlider = JinXxxMenu.ComboMenu["rSlider"].Cast<Slider>().CurrentValue;
+            var rCountC = JinXxxMenu.ComboMenu["rCountC"].Cast<Slider>().CurrentValue;
 
             if (useW && Player.Instance.ManaPercent >= manaW && Program.W.IsReady())
             {
@@ -136,6 +123,8 @@
                     }
                 }
             }
+
+            #endregion
         }
 
         /// <summary>
@@ -143,11 +132,6 @@
         /// </summary>
         public static void LastHit()
         {
-            if (Orbwalker.IsAutoAttacking)
-            {
-                return;
-            }
-
             var useQ = JinXxxMenu.LastHitMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var manaQ = JinXxxMenu.LastHitMenu["manaQ"].Cast<Slider>().CurrentValue;
             var qCountM = JinXxxMenu.LastHitMenu["qCountM"].Cast<Slider>().CurrentValue;
@@ -155,7 +139,7 @@
             // Force Minigun if there is a lasthittable minion in minigun range and there is no targets more than the setting amount.
             var kM = Orbwalker.LasthittableMinions.Where(
                 t => t.IsEnemy &&
-                     t.Health <= (Player.Instance.GetAutoAttackDamage(t)*0.9) && t.IsValidTarget() &&
+                     t.Health <= (Player.Instance.GetAutoAttackDamage(t) * 0.9) && t.IsValidTarget() &&
                      t.Distance(Player.Instance) <= Essentials.MinigunRange);
             if (useQ && Essentials.FishBones() && kM.Count() < qCountM)
             {
@@ -189,34 +173,6 @@
                     }
                 }
             }
-
-            // In Range
-            if (useQ && Player.Instance.ManaPercent >= manaQ && !Essentials.FishBones())
-            {
-                var minionInRange = Orbwalker.LasthittableMinions.FirstOrDefault(
-                    m => m.IsValidTarget() && m.Distance(Player.Instance) <= Essentials.MinigunRange);
-
-                if (minionInRange != null)
-                {
-                    var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
-                        Player.Instance.ServerPosition,
-                        Essentials.FishBonesRange())
-                        .Where(
-                            t =>
-                                t.Distance(minionInRange
-                                    ) <=
-                                100 && t.Health <= (Player.Instance.GetAutoAttackDamage(t) * 1.1f)).ToArray();
-
-                    if (minion.Count() >= qCountM)
-                    {
-                        foreach (var m in minion)
-                        {
-                            Program.Q.Cast();
-                            Orbwalker.ForcedTarget = m;
-                        }
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -224,11 +180,6 @@
         /// </summary>
         public static void Harass()
         {
-            if (Orbwalker.IsAutoAttacking)
-            {
-                return;
-            }
-
             #region Variables
 
             var useQ = JinXxxMenu.HarassMenu["useQ"].Cast<CheckBox>().CurrentValue;
@@ -384,11 +335,6 @@
         /// </summary>
         public static void LaneClear()
         {
-            if (Orbwalker.IsAutoAttacking)
-            {
-                return;
-            }
-
             var useQ = JinXxxMenu.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var manaQ = JinXxxMenu.ComboMenu["manaQ"].Cast<Slider>().CurrentValue;
 
@@ -438,11 +384,6 @@
         /// </summary>
         public static void JungleClear()
         {
-            if (Orbwalker.IsAutoAttacking)
-            {
-                return;
-            }
-
             var useQ = JinXxxMenu.JungleClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var useW = JinXxxMenu.JungleClearMenu["useW"].Cast<CheckBox>().CurrentValue;
             var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
@@ -458,39 +399,22 @@
                         Player.Instance.ServerPosition,
                         Essentials.FishBonesRange());
 
-                    foreach (var mob in mobs)
+                    foreach (var mob in mobs.Where(mob => mob != null && Player.Instance.Distance(mob) <= Essentials.MinigunRange))
                     {
-                        if (mob != null && Player.Instance.IsInAutoAttackRange(mob))
-                        {
-                            if (Player.Instance.Distance(mob) <= Essentials.MinigunRange)
-                            {
-                                Program.Q.Cast();
-                                Orbwalker.ForcedTarget = mob;
-                            }
-                        }
+                        Program.Q.Cast();
+                        Orbwalker.ForcedTarget = mob;
                     }
                 }
-                else
+                else if (!Essentials.FishBones())
                 {
                     var mobs = EntityManager.MinionsAndMonsters.GetJungleMonsters(
                         Player.Instance.ServerPosition,
                         Essentials.FishBonesRange());
 
-                    foreach (var mob in mobs)
+                    foreach (var mob in mobs.Where(mob => mob != null).Where(mob => !Player.Instance.IsInAutoAttackRange(mob) && Player.Instance.Distance(mob) <= Essentials.FishBonesRange()))
                     {
-                        if (mob != null)
-                        {
-                            if (!Player.Instance.IsInAutoAttackRange(mob) &&
-                                Player.Instance.Distance(mob) <= Essentials.FishBonesRange())
-                            {
-                                Program.Q.Cast();
-                                Orbwalker.ForcedTarget = mob;
-                            }
-                        }
-                        else
-                        {
-                            return;
-                        }
+                        Program.Q.Cast();
+                        Orbwalker.ForcedTarget = mob;
                     }
                 }
             }
