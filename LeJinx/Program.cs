@@ -68,9 +68,9 @@ namespace Jinx
             }
 
             Q = new Spell.Active(SpellSlot.Q);
-            W = new Spell.Skillshot(SpellSlot.W, 1450, SkillShotType.Linear, 600, 3300, 60);
-            E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Circular, 1200, 1750, 150);
-            R = new Spell.Skillshot(SpellSlot.R, 3000, SkillShotType.Linear, 500, 1500, 140);
+            W = new Spell.Skillshot(SpellSlot.W, 1450, SkillShotType.Linear, 500, 1500, 60);
+            E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Circular, 1200, 1750, 100);
+            R = new Spell.Skillshot(SpellSlot.R, 3000, SkillShotType.Linear, 700, 1500, 140);
 
             JinXxxMenu.Initialize();
             Indicator = new DamageIndicator.DamageIndicator();
@@ -143,6 +143,73 @@ namespace Jinx
         /// <param name="args">The Args</param>
         private static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
         {
+            #region Combo
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
+            {
+                var useQ = JinXxxMenu.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
+
+                // If the player has the rocket
+                if (useQ && Program.Q.IsReady() && Essentials.FishBones())
+                {
+                    //var target = TargetSelector.GetTarget(Essentials.FishBonesRange(), DamageType.Physical);
+
+                    if (target != null && target.IsValidTarget())
+                    {
+                        if (Player.Instance.Distance(target) <= Essentials.MinigunRange &&
+                            target.CountEnemiesInRange(100) <
+                            JinXxxMenu.ComboMenu["qCountC"].Cast<Slider>().CurrentValue)
+                        {
+                            Program.Q.Cast();
+                            Orbwalker.ForcedTarget = target;
+                        }
+                    }
+                }
+            }
+
+            #endregion
+
+            #region LastHit
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
+            {
+                var useQ = JinXxxMenu.LastHitMenu["useQ"].Cast<CheckBox>().CurrentValue;
+                var manaQ = JinXxxMenu.LastHitMenu["manaQ"].Cast<Slider>().CurrentValue;
+                var qCountM = JinXxxMenu.LastHitMenu["qCountM"].Cast<Slider>().CurrentValue;
+
+                // In Range
+                if (useQ && Player.Instance.ManaPercent >= manaQ && !Essentials.FishBones())
+                {
+                    var minionInRange = target as Obj_AI_Minion;
+                    //Orbwalker.LasthittableMinions.FirstOrDefault(m => m.IsValidTarget() && m.Distance(Player.Instance) <= Essentials.MinigunRange);
+
+                    if (minionInRange != null)
+                    {
+                        var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
+                            Player.Instance.ServerPosition,
+                            Essentials.FishBonesRange())
+                            .Where(
+                                t =>
+                                    t.Distance(minionInRange
+                                        ) <=
+                                    100 && t.Health <= (Player.Instance.GetAutoAttackDamage(t)*1.1f)).ToArray();
+
+                        if (minion.Count() >= qCountM)
+                        {
+                            foreach (var m in minion)
+                            {
+                                Program.Q.Cast();
+                                Orbwalker.ForcedTarget = m;
+                            }
+                        }
+                    }
+                }
+            }
+
+            #endregion
+
+            #region Lane Clear
+
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
                 var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(
@@ -155,11 +222,12 @@ namespace Jinx
                     foreach (var m in minion)
                     {
                         var minionsAoe =
-                        EntityManager.MinionsAndMonsters.EnemyMinions.Count(
-                            t => t.IsValidTarget() && t.Distance(m) <= 100);
+                            EntityManager.MinionsAndMonsters.EnemyMinions.Count(
+                                t => t.IsValidTarget() && t.Distance(m) <= 100);
 
                         if (m.Distance(Player.Instance) <= Essentials.MinigunRange && m.IsValidTarget() &&
-                            (minionsAoe < JinXxxMenu.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue || m.Health > (Player.Instance.GetAutoAttackDamage(m))))
+                            (minionsAoe < JinXxxMenu.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue ||
+                             m.Health > (Player.Instance.GetAutoAttackDamage(m))))
                         {
                             Q.Cast();
                             Orbwalker.ForcedTarget = m;
@@ -172,8 +240,13 @@ namespace Jinx
                         }
                         else
                         {
-                            foreach (var kM in Orbwalker.LasthittableMinions.Where(kM => kM.IsValidTarget() && kM.Health <= (Player.Instance.GetAutoAttackDamage(kM) * 0.9) &&
-                                                                                         kM.Distance(Player.Instance) <= Essentials.MinigunRange))
+                            foreach (
+                                var kM in
+                                    Orbwalker.LasthittableMinions.Where(
+                                        kM =>
+                                            kM.IsValidTarget() &&
+                                            kM.Health <= (Player.Instance.GetAutoAttackDamage(kM)*0.9) &&
+                                            kM.Distance(Player.Instance) <= Essentials.MinigunRange))
                             {
                                 Q.Cast();
                                 Orbwalker.ForcedTarget = kM;
@@ -183,7 +256,9 @@ namespace Jinx
                 }
             }
 
-            if (Essentials.FishBones() && target.IsStructure())
+            #endregion
+
+            if (Essentials.FishBones() && target.IsStructure() && target.Distance(Player.Instance) <= Essentials.MinigunRange)
             {
                 Q.Cast();
             }
