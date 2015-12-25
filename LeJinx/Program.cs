@@ -298,15 +298,21 @@ namespace Jinx
                 return;
             }
 
-            if (!sender.IsEnemy || !sender.IsValidTarget(E.Range) || !Essentials.ShouldUseE(args.SData.Name))
+            if (sender.IsEnemy && sender.IsValidTarget(E.Range) && Essentials.ShouldUseE(args.SData.Name))
             {
-                return;
-            }
-            var prediction = E.GetPrediction(sender);
+                E.Cast(sender.ServerPosition);
 
-            if (prediction.HitChancePercent >= eSlider)
+                /*var prediction = E.GetPrediction(sender);
+
+                if (prediction.HitChancePercent >= eSlider)
+                {
+                    E.Cast(prediction.CastPosition);
+                }*/
+            }
+
+            if (sender.IsAlly && args.SData.Name == "RocketGrab" && E.IsInRange(sender))
             {
-                E.Cast(prediction.CastPosition);
+                Essentials.GrabTime = Game.Time;
             }
         }
 
@@ -445,6 +451,11 @@ namespace Jinx
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
                 StateManager.JungleClear();
+            }
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee))
+            {
+                StateManager.Flee();
             }
         }
     }

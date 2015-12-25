@@ -32,6 +32,7 @@
             var toggleK = JinXxxMenu.KillStealMenu["toggle"].Cast<CheckBox>().CurrentValue;
             var toggleJ = JinXxxMenu.JungleStealMenu["toggle"].Cast<CheckBox>().CurrentValue;
             var toggleaW = JinXxxMenu.MiscMenu["autoW"].Cast<CheckBox>().CurrentValue;
+            var toggleaE = JinXxxMenu.MiscMenu["autoE"].Cast<CheckBox>().CurrentValue;
 
             if (toggleK)
             {
@@ -47,6 +48,11 @@
             if (toggleaW)
             {
                 AutoW();
+            }
+
+            if (toggleaE)
+            {
+                AutoE();
             }
         }
 
@@ -130,6 +136,23 @@
                         Program.W.Cast(prediction.CastPosition);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Executes the Auto E Method
+        /// </summary>
+        private static void AutoE()
+        {
+            foreach (
+                var enemy in
+                    EntityManager.Heroes.Enemies.Where(
+                        enemy =>
+                            Program.E.IsInRange(enemy) && enemy.IsValidTarget() && !enemy.CanMove &&
+                            Game.Time - Essentials.GrabTime > 1))
+            {
+                Program.E.Cast(enemy.ServerPosition);
+                Essentials.GrabTime = 0;
             }
         }
 

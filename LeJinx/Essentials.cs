@@ -71,6 +71,8 @@
         /// </summary>
         public const float MinigunRange = 525f;
 
+        public static double GrabTime = 0;
+
         /// <summary>
         /// Gets the Range of FishBones
         /// </summary>
@@ -125,6 +127,11 @@
             /// <returns>The total damage done to target.</returns>
             public static float CalculateDamage(Obj_AI_Base target, bool useQ, bool useW, bool useE, bool useR)
             {
+                if (target == null)
+                {
+                    return 0;
+                }
+
                 var totaldamage = 0f;
 
                 if (useQ && Program.Q.IsReady())
@@ -170,8 +177,8 @@
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
                     DamageType.Physical,
-                    new[] { 0, 10, 60, 110, 160, 210 }[Program.W.Level])
-                       + (Player.Instance.TotalAttackDamage * 1.4f);
+                    new[] { 0, 10, 60, 110, 160, 210 }[Program.W.Level]
+                       + (Player.Instance.TotalAttackDamage * 1.4f));
             }
 
             /// <summary>
@@ -196,7 +203,7 @@
             {
                 if (!Program.R.IsLearned) return 0;
                 var level = Program.R.Level - 1;
-
+                
                 #region Less than Range
 
                 if (target.Distance(Player.Instance) < 1350 && !target.IsMinion && !target.IsMonster)
@@ -231,7 +238,7 @@
 
                 if ((target.IsMonster || target.IsMinion) && (damage2 * 0.8) > 300f)
                 {
-                    return 300f;
+                    damage2 = 300f;
                 }
 
                 return damage2;

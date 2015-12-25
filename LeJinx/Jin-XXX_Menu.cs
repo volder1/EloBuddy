@@ -49,6 +49,11 @@
         /// <summary>
         /// Initializes and Contains the Menu.
         /// </summary>
+        public static Menu FleeMenu;
+
+        /// <summary>
+        /// Initializes and Contains the Menu.
+        /// </summary>
         public static Menu DrawingMenu;
 
         /// <summary>
@@ -115,6 +120,7 @@
             LaneClearMenu = JinXxx.AddSubMenu("Lane Clear", "LaneClear");
             LaneClearMenu.AddLabel("Lane Clear Settings");
             LaneClearMenu.Add("useQ", new CheckBox("Use Q"));
+            LaneClearMenu.Add("lastHit", new CheckBox("Last Hit Minion Out of Range", false));
             LaneClearMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
             LaneClearMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 3, 1, 7));
 
@@ -175,6 +181,11 @@
                 JungleStealMenu.Add("TT_NWolf6.1", new CheckBox("Wolf", false));
             }
 
+            FleeMenu = JinXxx.AddSubMenu("Flee", "Flee");
+            FleeMenu.AddLabel("Flee Settings");
+            FleeMenu.Add("useW", new CheckBox("Use W while Fleeing"));
+            FleeMenu.Add("useE", new CheckBox("Use E while Fleeing")); 
+
             DrawingMenu = JinXxx.AddSubMenu("Drawing", "Drawing");
             DrawingMenu.AddLabel("Drawing Settings");
             DrawingMenu.Add("drawQ", new CheckBox("Draw Q Range"));
@@ -200,7 +211,7 @@
             MiscMenu.AddLabel("Spell Settings");
             MiscMenu.Add("autoW", new CheckBox("Automatically use W in certain situations"));
             MiscMenu.Add("autoE", new CheckBox("Automatically uses E in certain situations"));
-            MiscMenu.Add("wRange", new CheckBox("Use W only if target is in AA range"));
+            MiscMenu.Add("wRange", new CheckBox("Use W only if target is in AA range", false));
             MiscMenu.Add("rRange", new Slider("Don't Use R if Player Range from target is X", 500, 0, 3000));
             MiscMenu.AddLabel("Auto W Settings (You must have Auto W on)");
             MiscMenu.Add("stunW", new CheckBox("Use W on Stunned Enemy"));

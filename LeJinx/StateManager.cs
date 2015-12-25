@@ -360,16 +360,19 @@
                     {
                         var minionsAoe =
                             EntityManager.MinionsAndMonsters.EnemyMinions.Count(
-                                t => t.IsValidTarget() && t.Distance(m) <= 100 && t.Health < (Player.Instance.GetAutoAttackDamage(m) * 1.1f));
+                                t =>
+                                    t.IsValidTarget() && t.Distance(m) <= 100 &&
+                                    t.Health < (Player.Instance.GetAutoAttackDamage(m)*1.1f));
 
                         if (m.Distance(Player.Instance) <= Essentials.FishBonesRange() && m.IsValidTarget() &&
-                        minionsAoe >= JinXxxMenu.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue)
+                            minionsAoe >= JinXxxMenu.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue)
                         {
                             Program.Q.Cast();
                             Orbwalker.ForcedTarget = m;
                         }
                         else if (m.Distance(Player.Instance) >= Essentials.MinigunRange &&
-                                 Orbwalker.LasthittableMinions.Contains(m))
+                                 Orbwalker.LasthittableMinions.Contains(m) &&
+                                 JinXxxMenu.LaneClearMenu["lastHit"].Cast<CheckBox>().CurrentValue)
                         {
                             Program.Q.Cast();
                             Orbwalker.ForcedTarget = m;
@@ -440,6 +443,48 @@
                     else if (!wRange)
                     {
                         Program.W.Cast(wPrediction.CastPosition);
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Does Flee Method
+        /// </summary>
+        public static void Flee()
+        {
+            var useW = JinXxxMenu.FleeMenu["useW"].Cast<CheckBox>().CurrentValue;
+            var useE = JinXxxMenu.FleeMenu["useE"].Cast<CheckBox>().CurrentValue;
+
+            if (useW && Program.W.IsReady())
+            {
+                var enemy =
+                    EntityManager.Heroes.Enemies.FirstOrDefault(t => Program.W.IsInRange(t) && t.IsValidTarget() && !Player.Instance.IsInAutoAttackRange(t));
+
+                if (enemy != null)
+                {
+                    var prediction = Program.W.GetPrediction(enemy);
+
+                    if (prediction.HitChancePercent >= 75)
+                    {
+                        Program.W.Cast(prediction.CastPosition);
+                    }
+                }
+            }
+
+            if (useE && Program.E.IsReady())
+            {
+                var enemy =
+                    EntityManager.Heroes.Enemies.FirstOrDefault(t => Program.E.IsInRange(t) && t.IsValidTarget() && t.IsMelee && t.IsInAutoAttackRange(Player.Instance));
+
+                if (enemy != null)
+                {
+                    var prediction = Program.E.GetPrediction(enemy);
+
+                    if (prediction.HitChancePercent >= 75)
+                    {
+                        Program.E.Cast(prediction.CastPosition);
                     }
                 }
             }
