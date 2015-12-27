@@ -19,8 +19,8 @@
         public class DamageIndicator
         {
             private const float BarLength = 104;
-            private const float XOffset = 0;
-            private const float YOffset = 11;
+            private const float XOffset = 2;
+            private const float YOffset = 9;
             public float CheckDistance = 1200;
 
             public DamageIndicator()
@@ -30,7 +30,7 @@
 
             private static void Drawing_OnDraw(EventArgs args)
             {
-                if (!JinXxxMenu.DrawingMenu["draw.Damage"].Cast<CheckBox>().CurrentValue) return;
+                if (!Config.DrawingMenu["draw.Damage"].Cast<CheckBox>().CurrentValue) return;
 
                 foreach (var aiHeroClient in EntityManager.Heroes.Enemies)
                 {
@@ -40,35 +40,40 @@
                         aiHeroClient.HPBarPosition.X + XOffset,
                         aiHeroClient.HPBarPosition.Y + YOffset);
 
-                    var fullbar = (BarLength) * (aiHeroClient.HealthPercent / 100);
+                    var fullbar = (BarLength)*(aiHeroClient.HealthPercent/100);
 
-                    var drawQ = JinXxxMenu.DrawingMenu["draw.Q"].Cast<CheckBox>().CurrentValue;
+                    var drawQ = Config.DrawingMenu["draw.Q"].Cast<CheckBox>().CurrentValue;
 
-                    var drawW = JinXxxMenu.DrawingMenu["draw.W"].Cast<CheckBox>().CurrentValue;
+                    var drawW = Config.DrawingMenu["draw.W"].Cast<CheckBox>().CurrentValue;
 
-                    var drawE = JinXxxMenu.DrawingMenu["draw.E"].Cast<CheckBox>().CurrentValue;
+                    var drawE = Config.DrawingMenu["draw.E"].Cast<CheckBox>().CurrentValue;
 
-                    var drawR = JinXxxMenu.DrawingMenu["draw.R"].Cast<CheckBox>().CurrentValue;
+                    var drawR = Config.DrawingMenu["draw.R"].Cast<CheckBox>().CurrentValue;
 
                     var damage = (BarLength)
-                                 * ((Essentials.DamageLibrary.CalculateDamage(aiHeroClient, drawQ, drawW, drawE, drawR)
-                                     / aiHeroClient.MaxHealth) > 1
-                                        ? 1
-                                        : (Essentials.DamageLibrary.CalculateDamage(
-                                            aiHeroClient,
-                                            drawQ,
-                                            drawW,
-                                            drawE,
-                                            drawR) / aiHeroClient.MaxHealth));
+                                 *((Essentials.DamageLibrary.CalculateDamage(aiHeroClient, drawQ, drawW, drawE, drawR)
+                                    /aiHeroClient.MaxHealth) > 1
+                                     ? 1
+                                     : (Essentials.DamageLibrary.CalculateDamage(
+                                         aiHeroClient,
+                                         drawQ,
+                                         drawW,
+                                         drawE,
+                                         drawR)/aiHeroClient.MaxHealth));
+
+                    var A = Config.DrawingMenu["draw_Alpha"].Cast<Slider>().CurrentValue;
+                    var R = Config.DrawingMenu["draw_Red"].Cast<Slider>().CurrentValue;
+                    var G = Config.DrawingMenu["draw_Green"].Cast<Slider>().CurrentValue;
+                    var B = Config.DrawingMenu["draw_Blue"].Cast<Slider>().CurrentValue;
 
                     Line.DrawLine(
-                        Color.FromArgb(100, Color.Black),
+                        Color.FromArgb(A, R, G, B),
                         9f,
                         new Vector2(pos.X, pos.Y),
                         new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y));
 
                     Line.DrawLine(
-                        Color.Black,
+                        Color.FromArgb(A, R, G, B),
                         3,
                         new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y),
                         new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y));

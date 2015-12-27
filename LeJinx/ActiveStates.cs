@@ -18,26 +18,22 @@
         /// <param name="args">The Args</param>
         public static void Game_OnUpdate(EventArgs args)
         {
-            //Chat.Print("Is-Dead: " + Player.Instance.IsDead);
-            //Chat.Print("Is-Recall: " + Player.Instance.HasBuff("Recall"));
-            //Chat.Print("Is-Charmed: " + Player.Instance.IsCharmed);
-            //Chat.Print("Is-Stunned: " + Player.Instance.IsStunned);
-            //Chat.Print("Is-Rooted " + Player.Instance.IsRooted);
             if (Player.Instance.IsDead || Player.Instance.HasBuff("Recall")
-                || Player.Instance.IsStunned || Player.Instance.IsRooted || Player.Instance.IsCharmed)
+                || Player.Instance.IsStunned || Player.Instance.IsRooted || Player.Instance.IsCharmed ||
+                Orbwalker.IsAutoAttacking)
             {
                 return;
             }
 
-            var toggleK = JinXxxMenu.KillStealMenu["toggle"].Cast<CheckBox>().CurrentValue;
-            var toggleJ = JinXxxMenu.JungleStealMenu["toggle"].Cast<CheckBox>().CurrentValue;
-            var toggleaW = JinXxxMenu.MiscMenu["autoW"].Cast<CheckBox>().CurrentValue;
-            var toggleaE = JinXxxMenu.MiscMenu["autoE"].Cast<CheckBox>().CurrentValue;
+            var toggleK = Config.KillStealMenu["toggle"].Cast<CheckBox>().CurrentValue;
+            var toggleJ = Config.JungleStealMenu["toggle"].Cast<CheckBox>().CurrentValue;
+            var toggleaW = Config.MiscMenu["autoW"].Cast<CheckBox>().CurrentValue;
+            var toggleaE = Config.MiscMenu["autoE"].Cast<CheckBox>().CurrentValue;
 
             if (toggleK)
             {
-                KillSteal();
-                KillSteal_2();
+                WR_KillSteal();
+                StandaloneKillSteal();
             }
 
             if (toggleJ)
@@ -61,14 +57,22 @@
         /// </summary>
         private static void AutoW()
         {
-            var stunW = JinXxxMenu.MiscMenu["stunW"].Cast<CheckBox>().CurrentValue;
-            var charmW = JinXxxMenu.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
-            var tauntW = JinXxxMenu.MiscMenu["tauntW"].Cast<CheckBox>().CurrentValue;
-            var fearW = JinXxxMenu.MiscMenu["fearW"].Cast<CheckBox>().CurrentValue;
-            var snareW = JinXxxMenu.MiscMenu["snareW"].Cast<CheckBox>().CurrentValue;
-            var wRange = JinXxxMenu.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
-            var wSlider = JinXxxMenu.MiscMenu["wSlider"].Cast<Slider>().CurrentValue;
-            var enemy = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget() && Program.W.IsInRange(t)).OrderByDescending(t => t.Distance(Player.Instance));
+            if (!Program.W.IsLearned || !Program.W.IsReady() || Orbwalker.IsAutoAttacking ||
+                EntityManager.Turrets.Enemies.Count(t => t.IsValidTarget() && t.IsAttackingPlayer) > 0)
+            {
+                return;
+            }
+
+            var stunW = Config.MiscMenu["stunW"].Cast<CheckBox>().CurrentValue;
+            var charmW = Config.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
+            var tauntW = Config.MiscMenu["tauntW"].Cast<CheckBox>().CurrentValue;
+            var fearW = Config.MiscMenu["fearW"].Cast<CheckBox>().CurrentValue;
+            var snareW = Config.MiscMenu["snareW"].Cast<CheckBox>().CurrentValue;
+            var wRange = Config.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
+            var wSlider = Config.MiscMenu["wSlider"].Cast<Slider>().CurrentValue;
+            var enemy =
+                EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget() && Program.W.IsInRange(t))
+                    .OrderByDescending(t => t.Distance(Player.Instance));
 
             foreach (var target in enemy)
             {
@@ -86,16 +90,6 @@
                         Program.W.Cast(prediction.CastPosition);
                     }
                 }
-
-                /*else if (dashW && target.IsDashing())
-                {
-                    var prediction = Program.W.GetPrediction(target);
-
-                    if (prediction.HitChancePercent >= wSlider && !prediction.Collision)
-                    {
-                        Program.W.Cast(prediction.CastPosition);
-                    }
-                }*/
 
                 else if (charmW && target.IsCharmed)
                 {
@@ -144,29 +138,31 @@
         /// </summary>
         private static void AutoE()
         {
-            foreach (
-                var enemy in
-                    EntityManager.Heroes.Enemies.Where(
-                        enemy =>
-                            Program.E.IsInRange(enemy) && enemy.IsValidTarget() && !enemy.CanMove &&
-                            Game.Time - Essentials.GrabTime > 1))
+            if (!Program.E.IsLearned || !Program.E.IsReady())
             {
-                Program.E.Cast(enemy.ServerPosition);
-                Essentials.GrabTime = 0;
+                return;
+            }
+
+            foreach (var pred in EntityManager.Heroes.Enemies.Where(
+                enemy => enemy != null &&
+                         Program.E.IsInRange(enemy) && enemy.IsValidTarget() && !enemy.CanMove &&
+                         Game.Time - Essentials.GrabTime > 1).Select(enemy => Program.E.GetPrediction(enemy)).Where(pred => pred != null && pred.HitChancePercent >= 75))
+            {
+                Program.E.Cast(pred.CastPosition);
             }
         }
 
         /// <summary>
         /// Executes the Kill Steal Method
         /// </summary>
-        private static void KillSteal()
+        private static void WR_KillSteal()
         {
-            var useW = JinXxxMenu.KillStealMenu["useW"].Cast<CheckBox>().CurrentValue;
-            var useR = JinXxxMenu.KillStealMenu["useR"].Cast<CheckBox>().CurrentValue;
-            var manaW = JinXxxMenu.KillStealMenu["manaW"].Cast<Slider>().CurrentValue;
-            var manaR = JinXxxMenu.KillStealMenu["manaR"].Cast<Slider>().CurrentValue;
-            var wSlider = JinXxxMenu.KillStealMenu["wSlider"].Cast<Slider>().CurrentValue;
-            var rSlider = JinXxxMenu.KillStealMenu["rSlider"].Cast<Slider>().CurrentValue;
+            var useW = Config.KillStealMenu["useW"].Cast<CheckBox>().CurrentValue;
+            var useR = Config.KillStealMenu["useR"].Cast<CheckBox>().CurrentValue;
+            var manaW = Config.KillStealMenu["manaW"].Cast<Slider>().CurrentValue;
+            var manaR = Config.KillStealMenu["manaR"].Cast<Slider>().CurrentValue;
+            var wSlider = Config.KillStealMenu["wSlider"].Cast<Slider>().CurrentValue;
+            var rSlider = Config.KillStealMenu["rSlider"].Cast<Slider>().CurrentValue;
 
             if (useW && useR && Player.Instance.ManaPercent >= manaW && Player.Instance.ManaPercent >= manaR
                 && Program.W.IsReady() && Program.R.IsReady())
@@ -176,8 +172,8 @@
                         t =>
                             t.IsValidTarget() && Program.W.IsInRange(t) &&
                             Player.Instance.Distance(t) <=
-                            JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
-                            Player.Instance.Distance(t) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
+                            Config.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
+                            Player.Instance.Distance(t) >= Config.MiscMenu["rRange"].Cast<Slider>().CurrentValue
                             && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, true) >= t.Health);
 
                 foreach (var enemy in selection)
@@ -200,7 +196,7 @@
                                 Program.R.Cast(predR.CastPosition);
                             }
                         }, Program.W.CastDelay);
-                    }                    
+                    }
                 }
             }
         }
@@ -208,14 +204,14 @@
         /// <summary>
         /// Executes the Kill Steal Method
         /// </summary>
-        private static void KillSteal_2()
+        private static void StandaloneKillSteal()
         {
-            var useW = JinXxxMenu.KillStealMenu["useW"].Cast<CheckBox>().CurrentValue;
-            var useR = JinXxxMenu.KillStealMenu["useR"].Cast<CheckBox>().CurrentValue;
-            var manaW = JinXxxMenu.KillStealMenu["manaW"].Cast<Slider>().CurrentValue;
-            var manaR = JinXxxMenu.KillStealMenu["manaR"].Cast<Slider>().CurrentValue;
-            var wSlider = JinXxxMenu.KillStealMenu["wSlider"].Cast<Slider>().CurrentValue;
-            var rSlider = JinXxxMenu.KillStealMenu["rSlider"].Cast<Slider>().CurrentValue;
+            var useW = Config.KillStealMenu["useW"].Cast<CheckBox>().CurrentValue;
+            var useR = Config.KillStealMenu["useR"].Cast<CheckBox>().CurrentValue;
+            var manaW = Config.KillStealMenu["manaW"].Cast<Slider>().CurrentValue;
+            var manaR = Config.KillStealMenu["manaR"].Cast<Slider>().CurrentValue;
+            var wSlider = Config.KillStealMenu["wSlider"].Cast<Slider>().CurrentValue;
+            var rSlider = Config.KillStealMenu["rSlider"].Cast<Slider>().CurrentValue;
 
             if (useW && Player.Instance.ManaPercent >= manaW && Program.W.IsReady())
             {
@@ -225,7 +221,10 @@
                             t.IsValidTarget() && Program.W.IsInRange(t)
                             && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, false) >= t.Health);
 
-                foreach (var pred in selection.Select(enemy => Program.W.GetPrediction(enemy)).Where(pred => pred != null && pred.HitChancePercent >= wSlider && !pred.Collision))
+                foreach (
+                    var pred in
+                        selection.Select(enemy => Program.W.GetPrediction(enemy))
+                            .Where(pred => pred != null && pred.HitChancePercent >= wSlider && !pred.Collision))
                 {
                     Program.W.Cast(pred.CastPosition);
                 }
@@ -239,24 +238,27 @@
                             t.IsValidTarget()
                             &&
                             Player.Instance.Distance(t) <=
-                            JinXxxMenu.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
-                            Player.Instance.Distance(t) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue
+                            Config.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
+                            Player.Instance.Distance(t) >= Config.MiscMenu["rRange"].Cast<Slider>().CurrentValue
                             && Essentials.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health);
 
-                foreach (var pred in selection.Select(enemy => Program.R.GetPrediction(enemy)).Where(pred => pred != null && pred.HitChancePercent >= rSlider))
+                foreach (
+                    var pred in
+                        selection.Select(enemy => Program.R.GetPrediction(enemy))
+                            .Where(pred => pred != null && pred.HitChancePercent >= rSlider))
                 {
                     Program.R.Cast(pred.CastPosition);
                 }
             }
         }
-        
+
         /// <summary>
         /// Executes the Jungle Steal Method
         /// </summary>
         private static void JungleSteal()
         {
-            var manaR = JinXxxMenu.JungleStealMenu["manaR"].Cast<Slider>().CurrentValue;
-            var rRange = JinXxxMenu.JungleStealMenu["rRange"].Cast<Slider>().CurrentValue;
+            var manaR = Config.JungleStealMenu["manaR"].Cast<Slider>().CurrentValue;
+            var rRange = Config.JungleStealMenu["rRange"].Cast<Slider>().CurrentValue;
 
             if (Player.Instance.ManaPercent >= manaR)
             {
@@ -265,20 +267,22 @@
                     var jungleMob =
                         EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(
                             u =>
-                            u.IsVisible && Essentials.JungleMobsList.Contains(u.BaseSkinName)
-                            && Essentials.DamageLibrary.CalculateDamage(u, false, false, false, true) >= u.Health);
+                                u.IsVisible && Essentials.JungleMobsList.Contains(u.BaseSkinName)
+                                && Essentials.DamageLibrary.CalculateDamage(u, false, false, false, true) >= u.Health);
 
                     if (jungleMob == null)
                     {
                         return;
                     }
 
-                    if (!JinXxxMenu.JungleStealMenu[jungleMob.BaseSkinName].Cast<CheckBox>().CurrentValue)
+                    if (!Config.JungleStealMenu[jungleMob.BaseSkinName].Cast<CheckBox>().CurrentValue)
                     {
                         return;
                     }
 
-                    var enemy = EntityManager.Heroes.Enemies.Where(t => t.Distance(jungleMob) <= 100).OrderByDescending(t => t.Distance(jungleMob));
+                    var enemy =
+                        EntityManager.Heroes.Enemies.Where(t => t.Distance(jungleMob) <= 100)
+                            .OrderByDescending(t => t.Distance(jungleMob));
 
                     if (enemy.Any())
                     {
@@ -296,20 +300,22 @@
                     var jungleMob =
                         EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(
                             u =>
-                            u.IsVisible && Essentials.JungleMobsListTwistedTreeline.Contains(u.BaseSkinName)
-                            && Essentials.DamageLibrary.CalculateDamage(u, false, false, false, true) >= u.Health);
+                                u.IsVisible && Essentials.JungleMobsListTwistedTreeline.Contains(u.BaseSkinName)
+                                && Essentials.DamageLibrary.CalculateDamage(u, false, false, false, true) >= u.Health);
 
                     if (jungleMob == null)
                     {
                         return;
                     }
 
-                    if (!JinXxxMenu.JungleStealMenu[jungleMob.BaseSkinName].Cast<CheckBox>().CurrentValue)
+                    if (!Config.JungleStealMenu[jungleMob.BaseSkinName].Cast<CheckBox>().CurrentValue)
                     {
                         return;
                     }
 
-                    var enemy = EntityManager.Heroes.Enemies.Where(t => t.Distance(jungleMob) <= 100).OrderByDescending(t => t.Distance(jungleMob));
+                    var enemy =
+                        EntityManager.Heroes.Enemies.Where(t => t.Distance(jungleMob) <= 100)
+                            .OrderByDescending(t => t.Distance(jungleMob));
 
                     if (enemy.Any())
                     {

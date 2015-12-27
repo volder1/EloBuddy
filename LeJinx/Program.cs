@@ -68,11 +68,14 @@ namespace Jinx
             }
 
             Q = new Spell.Active(SpellSlot.Q);
-            W = new Spell.Skillshot(SpellSlot.W, 1450, SkillShotType.Linear, 500, 1500, 60);
+            W = new Spell.Skillshot(SpellSlot.W, 1450, SkillShotType.Linear, 500, 1500, 60)
+            {
+                AllowedCollisionCount = 0
+            };
             E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Circular, 1200, 1750, 100);
             R = new Spell.Skillshot(SpellSlot.R, 3000, SkillShotType.Linear, 700, 1500, 140);
 
-            JinXxxMenu.Initialize();
+            Config.Initialize();
             Indicator = new DamageIndicator.DamageIndicator();
 
             Chat.Print("Jin-XXX: Loaded", System.Drawing.Color.AliceBlue);
@@ -110,7 +113,8 @@ namespace Jinx
                 {
                     AllahAkbar = new SoundPlayer
                     {
-                        SoundLocation = SandboxConfig.DataDirectory + @"\JinXXX\" + "Allahu_Akbar_Sound_Effect_Download_Link.wav"
+                        SoundLocation =
+                            SandboxConfig.DataDirectory + @"\JinXXX\" + "Allahu_Akbar_Sound_Effect_Download_Link.wav"
                     };
                     AllahAkbar.Load();
                 }
@@ -131,7 +135,8 @@ namespace Jinx
             Chat.Print("Failed Downloading: " + e.Error);
             AllahAkbar = new SoundPlayer
             {
-                SoundLocation = SandboxConfig.DataDirectory + @"\JinXXX\" + "Allahu_Akbar_Sound_Effect_Download_Link.wav"
+                SoundLocation =
+                    SandboxConfig.DataDirectory + @"\JinXXX\" + "Allahu_Akbar_Sound_Effect_Download_Link.wav"
             };
             AllahAkbar.Load();
         }
@@ -147,7 +152,7 @@ namespace Jinx
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
-                var useQ = JinXxxMenu.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
+                var useQ = Config.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
 
                 // If the player has the rocket
                 if (useQ && Program.Q.IsReady() && Essentials.FishBones())
@@ -158,7 +163,7 @@ namespace Jinx
                     {
                         if (Player.Instance.Distance(target) <= Essentials.MinigunRange &&
                             target.CountEnemiesInRange(100) <
-                            JinXxxMenu.ComboMenu["qCountC"].Cast<Slider>().CurrentValue)
+                            Config.ComboMenu["qCountC"].Cast<Slider>().CurrentValue)
                         {
                             Program.Q.Cast();
                             Orbwalker.ForcedTarget = target;
@@ -173,9 +178,9 @@ namespace Jinx
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
             {
-                var useQ = JinXxxMenu.LastHitMenu["useQ"].Cast<CheckBox>().CurrentValue;
-                var manaQ = JinXxxMenu.LastHitMenu["manaQ"].Cast<Slider>().CurrentValue;
-                var qCountM = JinXxxMenu.LastHitMenu["qCountM"].Cast<Slider>().CurrentValue;
+                var useQ = Config.LastHitMenu["useQ"].Cast<CheckBox>().CurrentValue;
+                var manaQ = Config.LastHitMenu["manaQ"].Cast<Slider>().CurrentValue;
+                var qCountM = Config.LastHitMenu["qCountM"].Cast<Slider>().CurrentValue;
 
                 // In Range
                 if (useQ && Player.Instance.ManaPercent >= manaQ && !Essentials.FishBones())
@@ -226,7 +231,7 @@ namespace Jinx
                                 t => t.IsValidTarget() && t.Distance(m) <= 100);
 
                         if (m.Distance(Player.Instance) <= Essentials.MinigunRange && m.IsValidTarget() &&
-                            (minionsAoe < JinXxxMenu.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue ||
+                            (minionsAoe < Config.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue ||
                              m.Health > (Player.Instance.GetAutoAttackDamage(m))))
                         {
                             Q.Cast();
@@ -258,7 +263,8 @@ namespace Jinx
 
             #endregion
 
-            if (Essentials.FishBones() && target.IsStructure() && target.Distance(Player.Instance) <= Essentials.MinigunRange)
+            if (Essentials.FishBones() && target.IsStructure() &&
+                target.Distance(Player.Instance) <= Essentials.MinigunRange)
             {
                 Q.Cast();
             }
@@ -281,9 +287,9 @@ namespace Jinx
         /// <param name="args">The Spell</param>
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            var allahAkbarT = JinXxxMenu.MiscMenu["allahAkbarT"].Cast<CheckBox>().CurrentValue;
-            var autoE = JinXxxMenu.MiscMenu["autoE"].Cast<CheckBox>().CurrentValue;
-            var eSlider = JinXxxMenu.MiscMenu["eSlider"].Cast<Slider>().CurrentValue;
+            var allahAkbarT = Config.MiscMenu["allahAkbarT"].Cast<CheckBox>().CurrentValue;
+            var autoE = Config.MiscMenu["autoE"].Cast<CheckBox>().CurrentValue;
+            var eSlider = Config.MiscMenu["eSlider"].Cast<Slider>().CurrentValue;
 
             if (AllahAkbar != null)
             {
@@ -300,14 +306,12 @@ namespace Jinx
 
             if (sender.IsEnemy && sender.IsValidTarget(E.Range) && Essentials.ShouldUseE(args.SData.Name))
             {
-                E.Cast(sender.ServerPosition);
-
-                /*var prediction = E.GetPrediction(sender);
+                var prediction = E.GetPrediction(sender);
 
                 if (prediction.HitChancePercent >= eSlider)
                 {
                     E.Cast(prediction.CastPosition);
-                }*/
+                }
             }
 
             if (sender.IsAlly && args.SData.Name == "RocketGrab" && E.IsInRange(sender))
@@ -325,11 +329,16 @@ namespace Jinx
             Obj_AI_Base sender,
             Interrupter.InterruptableSpellEventArgs e)
         {
-            if (sender != null && !sender.IsAlly && JinXxxMenu.MiscMenu["interruptE"].Cast<CheckBox>().CurrentValue
-                && Player.Instance.ManaPercent >= JinXxxMenu.MiscMenu["interruptmanaE"].Cast<Slider>().CurrentValue
+            if (sender != null && !sender.IsAlly && Config.MiscMenu["interruptE"].Cast<CheckBox>().CurrentValue
+                && Player.Instance.ManaPercent >= Config.MiscMenu["interruptmanaE"].Cast<Slider>().CurrentValue
                 && (E.IsInRange(sender) && E.IsReady() && sender.IsValidTarget() && e.DangerLevel == DangerLevel.High))
             {
-                E.Cast(sender);
+                var pred = E.GetPrediction(sender);
+
+                if (pred != null && pred.HitChancePercent >= 75)
+                {
+                    E.Cast(pred.CastPosition);
+                }
             }
         }
 
@@ -340,11 +349,16 @@ namespace Jinx
         /// <param name="e">The Information</param>
         private static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
         {
-            if (sender != null && !sender.IsAlly && JinXxxMenu.MiscMenu["gapcloserE"].Cast<CheckBox>().CurrentValue
-                && Player.Instance.ManaPercent >= JinXxxMenu.MiscMenu["gapclosermanaE"].Cast<Slider>().CurrentValue
+            if (sender != null && sender.IsEnemy && Config.MiscMenu["gapcloserE"].Cast<CheckBox>().CurrentValue
+                && Player.Instance.ManaPercent >= Config.MiscMenu["gapclosermanaE"].Cast<Slider>().CurrentValue
                 && (E.IsInRange(sender) && E.IsReady() && sender.IsValidTarget()))
             {
-                E.Cast(sender);
+                var pred = E.GetPrediction(sender);
+
+                if (pred != null && pred.HitChancePercent >= 75)
+                {
+                    E.Cast(pred.CastPosition);
+                }
             }
         }
 
@@ -354,15 +368,22 @@ namespace Jinx
         /// <param name="args">The Args</param>
         private static void Drawing_OnDraw(EventArgs args)
         {
-            var drawQ = JinXxxMenu.DrawingMenu["drawQ"].Cast<CheckBox>().CurrentValue;
-            var drawW = JinXxxMenu.DrawingMenu["drawW"].Cast<CheckBox>().CurrentValue;
-            var drawE = JinXxxMenu.DrawingMenu["drawE"].Cast<CheckBox>().CurrentValue;
-            var predW = JinXxxMenu.DrawingMenu["predW"].Cast<CheckBox>().CurrentValue;
-            var predR = JinXxxMenu.DrawingMenu["predR"].Cast<CheckBox>().CurrentValue;
+            if (Player.Instance.IsDead)
+            {
+                return;
+            }
+            
+            var drawQ = Config.DrawingMenu["drawQ"].Cast<CheckBox>().CurrentValue;
+            var drawW = Config.DrawingMenu["drawW"].Cast<CheckBox>().CurrentValue;
+            var drawE = Config.DrawingMenu["drawE"].Cast<CheckBox>().CurrentValue;
+            var predW = Config.DrawingMenu["predW"].Cast<CheckBox>().CurrentValue;
+            var predR = Config.DrawingMenu["predR"].Cast<CheckBox>().CurrentValue;
 
             if (drawQ)
             {
-                Circle.Draw(Q.IsReady() ? Color.Green : Color.Red, !Essentials.FishBones() ? Essentials.FishBonesRange() : Essentials.MinigunRange, Player.Instance.Position);
+                Circle.Draw(Q.IsReady() ? Color.Green : Color.Red,
+                    !Essentials.FishBones() ? Essentials.FishBonesRange() : Essentials.MinigunRange,
+                    Player.Instance.Position);
             }
 
             if (drawW)
@@ -386,7 +407,8 @@ namespace Jinx
                     return;
                 }
                 var wPred = W.GetPrediction(enemy).CastPosition;
-                Essentials.DrawLineRectangle(wPred.To2D(), Player.Instance.Position.To2D(), W.Width, 1, W.IsReady() ? System.Drawing.Color.YellowGreen : System.Drawing.Color.Red);
+                Essentials.DrawLineRectangle(wPred.To2D(), Player.Instance.Position.To2D(), W.Width, 1,
+                    W.IsReady() ? System.Drawing.Color.YellowGreen : System.Drawing.Color.Red);
             }
 
             if (predR)
@@ -395,7 +417,7 @@ namespace Jinx
                     EntityManager.Heroes.Enemies.Where(
                         t =>
                             t.IsValidTarget()
-                            && t.Distance(Player.Instance) >= JinXxxMenu.MiscMenu["rRange"].Cast<Slider>().CurrentValue &&
+                            && t.Distance(Player.Instance) >= Config.MiscMenu["rRange"].Cast<Slider>().CurrentValue &&
                             t.Distance(Player.Instance) <= R.Range)
                         .OrderBy(t => t.Distance(Player.Instance))
                         .FirstOrDefault();
@@ -404,7 +426,8 @@ namespace Jinx
                     return;
                 }
                 var rPred = R.GetPrediction(enemy).CastPosition;
-                Essentials.DrawLineRectangle(rPred.To2D(), Player.Instance.Position.To2D(), R.Width, 1, R.IsReady() ? System.Drawing.Color.YellowGreen : System.Drawing.Color.Red);
+                Essentials.DrawLineRectangle(rPred.To2D(), Player.Instance.Position.To2D(), R.Width, 1,
+                    R.IsReady() ? System.Drawing.Color.YellowGreen : System.Drawing.Color.Red);
             }
         }
 
@@ -416,16 +439,27 @@ namespace Jinx
         {
             if (Orbwalker.ForcedTarget != null)
             {
-                if (!Player.Instance.IsInAutoAttackRange(Orbwalker.ForcedTarget) || !Orbwalker.ForcedTarget.IsValidTarget())
+                if (!Player.Instance.IsInAutoAttackRange(Orbwalker.ForcedTarget) ||
+                    !Orbwalker.ForcedTarget.IsValidTarget() || Orbwalker.ForcedTarget.IsInvulnerable)
                 {
                     Orbwalker.ForcedTarget = null;
                 }
-                else if (Orbwalker.ForcedTarget !=
-                         TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(), DamageType.Physical) &&
-                         Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
+
+                var target = TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(),
+                    DamageType.Physical);
+
+                if (Orbwalker.ForcedTarget != null && target != null &&
+                    ((Orbwalker.ForcedTarget.NetworkId != target.NetworkId) &&
+                     Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)))
                 {
-                    Orbwalker.ForcedTarget = null;
+                    Orbwalker.ForcedTarget = TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(),
+                        DamageType.Physical);
                 }
+            }
+
+            if (Player.Instance.IsDead)
+            {
+                return;
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))

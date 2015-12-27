@@ -75,7 +75,7 @@
     <Compile Include="ActiveStates.cs" />
     <Compile Include="DamageIndicator.cs" />
     <Compile Include="Essentials.cs" />
-    <Compile Include="Jin-XXX_Menu.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Program.cs">
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>

@@ -15,12 +15,20 @@
         /// <summary>
         /// Jungle Mob List 
         /// </summary>
-        public static readonly string[] JungleMobsList = { "SRU_Red", "SRU_Blue", "SRU_Dragon", "SRU_Baron", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Krug", "Sru_Crab" };
+        public static readonly string[] JungleMobsList =
+        {
+            "SRU_Red", "SRU_Blue", "SRU_Dragon", "SRU_Baron", "SRU_Gromp",
+            "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Krug", "Sru_Crab"
+        };
 
         /// <summary>
         /// Jungle Mob List for Twisted Treeline
         /// </summary>
-        public static readonly string[] JungleMobsListTwistedTreeline = { "TT_NWraith1.1", "TT_NWraith4.1", "TT_NGolem2.1", "TT_NGolem5.1", "TT_NWolf3.1", "TT_NWolf6.1", "TT_Spiderboss8.1" };
+        public static readonly string[] JungleMobsListTwistedTreeline =
+        {
+            "TT_NWraith1.1", "TT_NWraith4.1",
+            "TT_NGolem2.1", "TT_NGolem5.1", "TT_NWolf3.1", "TT_NWolf6.1", "TT_Spiderboss8.1"
+        };
 
         /// <summary>
         /// Thank you ScienceARK for this method
@@ -79,7 +87,7 @@
         /// <returns>Returns the range of FishBones</returns>
         public static float FishBonesRange()
         {
-            return 670f + Player.Instance.BoundingRadius + 25 * Program.Q.Level;
+            return 670f + Player.Instance.BoundingRadius + 25*Program.Q.Level;
         }
 
         /// <summary>
@@ -95,13 +103,15 @@
             var dir = (end - start).Normalized();
             var pDir = dir.Perpendicular();
 
-            var rightStartPos = start + pDir * radius;
-            var leftStartPos = start - pDir * radius;
-            var rightEndPos = end + pDir * radius;
-            var leftEndPos = end - pDir * radius;
+            var rightStartPos = start + pDir*radius;
+            var leftStartPos = start - pDir*radius;
+            var rightEndPos = end + pDir*radius;
+            var leftEndPos = end - pDir*radius;
 
-            var rStartPos = Drawing.WorldToScreen(new Vector3(rightStartPos.X, rightStartPos.Y, Player.Instance.Position.Z));
-            var lStartPos = Drawing.WorldToScreen(new Vector3(leftStartPos.X, leftStartPos.Y, Player.Instance.Position.Z));
+            var rStartPos =
+                Drawing.WorldToScreen(new Vector3(rightStartPos.X, rightStartPos.Y, Player.Instance.Position.Z));
+            var lStartPos =
+                Drawing.WorldToScreen(new Vector3(leftStartPos.X, leftStartPos.Y, Player.Instance.Position.Z));
             var rEndPos = Drawing.WorldToScreen(new Vector3(rightEndPos.X, rightEndPos.Y, Player.Instance.Position.Z));
             var lEndPos = Drawing.WorldToScreen(new Vector3(leftEndPos.X, leftEndPos.Y, Player.Instance.Position.Z));
 
@@ -177,8 +187,8 @@
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
                     DamageType.Physical,
-                    new[] { 0, 10, 60, 110, 160, 210 }[Program.W.Level]
-                       + (Player.Instance.TotalAttackDamage * 1.4f));
+                    new[] {0, 10, 60, 110, 160, 210}[Program.W.Level]
+                    + (Player.Instance.TotalAttackDamage*1.4f));
             }
 
             /// <summary>
@@ -191,7 +201,7 @@
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
                     DamageType.Magical,
-                    new[] { 0, 80, 135, 190, 245, 300 }[Program.E.Level] + (Player.Instance.TotalMagicalDamage));
+                    new[] {0, 80, 135, 190, 245, 300}[Program.E.Level] + (Player.Instance.TotalMagicalDamage));
             }
 
             /// <summary>
@@ -203,7 +213,7 @@
             {
                 if (!Program.R.IsLearned) return 0;
                 var level = Program.R.Level - 1;
-                
+
                 #region Less than Range
 
                 if (target.Distance(Player.Instance) < 1350 && !target.IsMinion && !target.IsMonster)
@@ -223,7 +233,7 @@
                              new double[] {25, 30, 35}[level]/100*(target.MaxHealth - target.Health) +
                              0.1*Player.Instance.FlatPhysicalDamageMod));
 
-                    return (damage * 0.8) > 300f ? 300f : damage;
+                    return (damage*0.8) > 300f ? 300f : damage;
                 }
 
                 #endregion
@@ -232,11 +242,11 @@
 
                 var damage2 = Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
                     (float)
-                        (new double[] { 250, 350, 450 }[level] +
-                         new double[] { 25, 30, 35 }[level] / 100 * (target.MaxHealth - target.Health) +
+                        (new double[] {250, 350, 450}[level] +
+                         new double[] {25, 30, 35}[level]/100*(target.MaxHealth - target.Health) +
                          Player.Instance.FlatPhysicalDamageMod));
 
-                if ((target.IsMonster || target.IsMinion) && (damage2 * 0.8) > 300f)
+                if ((target.IsMonster || target.IsMinion) && (damage2*0.8) > 300f)
                 {
                     damage2 = 300f;
                 }
