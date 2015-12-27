@@ -161,24 +161,14 @@
         }
 
         /// <summary>
-        /// Smite Purple ID's (Taken from ActivatorBuddy)
+        /// (Taken from ActivatorBuddy)
         /// </summary>
-        private static readonly int[] SmitePurple = { 3713, 3726, 3725, 3724, 3723, 3933 };
+        private static readonly int[] SmiteRed = { 3715, 1415, 1414, 1413, 1412 };
 
         /// <summary>
-        /// Smite Grey ID's (Taken from ActivatorBuddy)
+        /// (Taken from ActivatorBuddy)
         /// </summary>
-        private static readonly int[] SmiteGrey = { 3711, 3722, 3721, 3720, 3719, 3932 };
-
-        /// <summary>
-        /// Smite Red ID's (Taken from ActivatorBuddy)
-        /// </summary>
-        private static readonly int[] SmiteRed = { 3715, 3718, 3717, 3716, 3714, 3931 };
-
-        /// <summary>
-        /// Smite Blue ID's (Taken from ActivatorBuddy)
-        /// </summary>
-        private static readonly int[] SmiteBlue = { 3706, 3710, 3709, 3708, 3707, 3930 };
+        private static readonly int[] SmiteBlue = { 3706, 1403, 1402, 1401, 1400 };
 
         /// <summary>
         /// (Taken from ActivatorBuddy)
@@ -190,10 +180,6 @@
                 smiteSlot = ObjectManager.Player.GetSpellSlotFromName("s5_summonersmiteplayerganker");
             else if (SmiteRed.Any(x => ObjectManager.Player.InventoryItems.FirstOrDefault(a => a.Id == (ItemId)x) != null))
                 smiteSlot = ObjectManager.Player.GetSpellSlotFromName("s5_summonersmiteduel");
-            else if (SmiteGrey.Any(x => ObjectManager.Player.InventoryItems.FirstOrDefault(a => a.Id == (ItemId)x) != null))
-                smiteSlot = ObjectManager.Player.GetSpellSlotFromName("s5_summonersmitequick");
-            else if (SmitePurple.Any(x => ObjectManager.Player.InventoryItems.FirstOrDefault(a => a.Id == (ItemId)x) != null))
-                smiteSlot = ObjectManager.Player.GetSpellSlotFromName("itemsmiteaoe");
             else
                 smiteSlot = ObjectManager.Player.GetSpellSlotFromName("summonersmite");
             Smite = new Spell.Targeted(smiteSlot, 500);
@@ -280,10 +266,10 @@
                 }
 
                 // Smite
-                /*if (HasSpell("smite"))
+                if (HasSpell("smite"))
                 {
                     Smite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonersmite"), 500);
-                }*/
+                }
             }
             catch (Exception e)
             {
@@ -300,6 +286,7 @@
             ComboMenu.AddGroupLabel("Combo Settings");
             ComboMenu.Add("useQHuman", new CheckBox("Use Q in Human Form"));
             ComboMenu.Add("useWHuman", new CheckBox("Use W in Human Form"));
+            ComboMenu.Add("qSlider", new Slider("Q HitChance % before casting", 90));
             ComboMenu.AddLabel("Cougar Form Settings");
             ComboMenu.Add("useQCat", new CheckBox("Use Q in Cougar Form"));
             ComboMenu.Add("useWCat", new CheckBox("Use W in Cougar Form"));
@@ -328,12 +315,14 @@
             HarassMenu = NidaleeBuddy.AddSubMenu("Harass", "Harass");
             HarassMenu.AddGroupLabel("Harass Settings");
             HarassMenu.Add("useQHuman", new CheckBox("Use Q in Human Form"));
+            HarassMenu.Add("qSlider", new Slider("Q HitChance % before casting", 90));
             HarassMenu.Add("useR", new CheckBox("Auto Switch R Form"));
 
             // Kill Steal Menu
             KillStealMenu = NidaleeBuddy.AddSubMenu("Kill Steal", "KillSteal");
             KillStealMenu.AddGroupLabel("KillSteal Settings");
             KillStealMenu.Add("useQHuman", new CheckBox("Kill Steal using Q in Human Form"));
+            KillStealMenu.Add("qSlider", new Slider("Q Hit Chance % before casting", 90));
             KillStealMenu.Add("useIgnite", new CheckBox("Use Ignite", false));
             KillStealMenu.Add("useAll", new CheckBox("Use KillSteal all the time or not in any modes", false));
 
@@ -394,8 +383,6 @@
             {
                 MiscMenu.Add("autoHeal" + a.BaseSkinName, new CheckBox("Auto Heal " + a.BaseSkinName));
             }
-            //MiscMenu.AddGroupLabel("Misc Settings");
-            //MiscMenu.Add("useR", new CheckBox("Auto Switch R Form"));
 
             Chat.Print("NidaleeBuddy | Loaded By KarmaPanda", Color.LightGreen);
 
@@ -518,7 +505,7 @@
                 }
 
                 var autoHeal = MiscMenu["autoHeal"].Cast<CheckBox>().CurrentValue;
-                var aaTarget = TargetSelector.GetTarget(HumanRange, DamageType.Physical, PlayerInstance.ServerPosition);//HeroManager.Enemies.FirstOrDefault(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
+                var aaTarget = TargetSelector.GetTarget(HumanRange, DamageType.Physical, PlayerInstance.ServerPosition);
 
                 if (useR && IsReady(SpellTimer["Javelin"]) && !QCat.IsReady() && !WCat.IsReady() && !ECat.IsReady())
                 {
@@ -552,7 +539,7 @@
 
                     if (pred != null)
                     {
-                        if (IsReady(SpellTimer["Javelin"]) && pred.HitChance >= HitChance.High)
+                        if (IsReady(SpellTimer["Javelin"]) && pred.HitChancePercent >= ComboMenu["qSlider"].Cast<Slider>().CurrentValue)
                         {
                             QHuman.Cast(pred.CastPosition);
                         }
@@ -608,7 +595,7 @@
                 }
                 var pred = QHuman.GetPrediction(target);
 
-                if (QHuman.IsReady() && pred.HitChance >= HitChance.High)
+                if (QHuman.IsReady() && pred.HitChancePercent >= HarassMenu["qSlider"].Cast<Slider>().CurrentValue)
                 {
                     QHuman.Cast(pred.CastPosition);
                 }
@@ -633,7 +620,7 @@
             {
                 var W = WCat;
                 var E = ECat;
-                var wTarget = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(u => W.IsInRange(u) && u.IsValidTarget());//EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition, W.Radius).FirstOrDefault();
+                var wTarget = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(u => W.IsInRange(u) && u.IsValidTarget());
                 var eTarget = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, PlayerInstance.ServerPosition, E.Radius).ToArray();
                 var useWCat = LaneClearMenu["useWCat"].Cast<CheckBox>().CurrentValue;
                 var useECat = LaneClearMenu["useECat"].Cast<CheckBox>().CurrentValue;
@@ -665,7 +652,7 @@
                     W.Cast(wTarget.ServerPosition);
                 }
 
-                var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange); //ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
+                var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
 
                 if (minion == null)
                 {
@@ -682,7 +669,7 @@
             }
             else
             {
-                var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange); //ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(t => t.IsMinion && t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
+                var minion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(t => t.IsValidTarget() && PlayerInstance.Distance(t) <= HumanRange);
 
                 if (minion == null)
                 {
@@ -710,7 +697,7 @@
                 var useECat = JungleClearMenu["useECat"].Cast<CheckBox>().CurrentValue;
                 var useR = JungleClearMenu["useR"].Cast<CheckBox>().CurrentValue;
                 var wTarget = EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, WCat.Radius).FirstOrDefault();
-                var wBTarget = EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(u => WBOTH.IsInRange(u) && JungleMobsList.Contains(u.BaseSkinName));//ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => WBOTH.IsInRange(u) && JungleMobsList.Contains(u.BaseSkinName));//EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, WBOTH.Radius).FirstOrDefault(u => WBOTH.IsInRange(u) && JungleMobsList.Contains(u.BaseSkinName));
+                var wBTarget = EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(u => WBOTH.IsInRange(u) && JungleMobsList.Contains(u.BaseSkinName));
                 var eTarget = EntityManager.MinionsAndMonsters.GetJungleMonsters(PlayerInstance.ServerPosition, ECat.Radius);
 
                 if (wBTarget != null)
@@ -848,7 +835,7 @@
         {
             if (Game.MapId == GameMapId.SummonersRift)
             {
-                var t = EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(u => QHuman.IsInRange(u) && u.IsVisible && JungleMobsList.Contains(u.BaseSkinName));//ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(u => QHuman.IsInRange(u) && u.IsVisible && JungleMobsList.Contains(u.BaseSkinName));
+                var t = EntityManager.MinionsAndMonsters.Monsters.FirstOrDefault(u => QHuman.IsInRange(u) && u.IsVisible && JungleMobsList.Contains(u.BaseSkinName));
 
                 if (t != null)
                 {
