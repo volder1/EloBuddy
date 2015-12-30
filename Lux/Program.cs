@@ -565,7 +565,7 @@ namespace Lux
         {
             Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear, 250, 70, 1300)
             {
-                AllowedCollisionCount = 2
+                AllowedCollisionCount = 1
             };
             //E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular, 250, 280, 950);
             //R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Circular, 1000, 190, int.MaxValue);
