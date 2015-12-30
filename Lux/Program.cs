@@ -220,7 +220,7 @@ namespace Lux
 
             Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear, 250, 70, 1300)
             {
-                AllowedCollisionCount = 2
+                AllowedCollisionCount = 1
             };
             W = new Spell.Skillshot(SpellSlot.W, 1075, SkillShotType.Linear, 250, 150, 1200);
             E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular, 250, 275, 950);
@@ -389,9 +389,15 @@ namespace Lux
         {
             if (!Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && LuxEObject == null)
             {
-                Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear);
+                Q = new Spell.Skillshot(SpellSlot.Q, 1175, SkillShotType.Linear)
+                {
+                    AllowedCollisionCount = 1
+                };
                 //E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Circular);
-                R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Linear);
+                R = new Spell.Skillshot(SpellSlot.R, 3300, SkillShotType.Linear)
+                {
+                    AllowedCollisionCount = int.MaxValue
+                };
             }
 
             if (KillStealMenu["useQ"].Cast<CheckBox>().CurrentValue
