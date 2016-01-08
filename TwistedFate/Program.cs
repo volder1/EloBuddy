@@ -22,12 +22,12 @@
         /// <summary>
         /// W
         /// </summary>
-        public static Spell.Targeted W;
+        public static Spell.Active W;
 
         /// <summary>
         /// E
         /// </summary>
-        public static Spell.Targeted E;
+        public static Spell.Active E;
 
         /// <summary>
         /// R
@@ -61,6 +61,8 @@
             Bootstrap.Init(null);
 
             Q = new Spell.Skillshot(SpellSlot.Q, 1450, SkillShotType.Linear, 250, 1000, 40);
+            W = new Spell.Active(SpellSlot.W);
+            E = new Spell.Active(SpellSlot.E);
             R = new Spell.Active(SpellSlot.R, 5500);
 
             // Menu
@@ -165,7 +167,7 @@
             Essentials.MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
             Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 175, 175, 1000));
 
-            Chat.Print("TwistedBuddy 2.1.0.0 - By KarmaPanda", Color.Green);
+            Chat.Print("TwistedBuddy 2.1.0.1 - By KarmaPanda", Color.Green);
 
             // Events
             Game.OnTick += Game_OnTick;
