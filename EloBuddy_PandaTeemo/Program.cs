@@ -769,7 +769,7 @@
         /// <param name="args"></param>
         private static void Game_OnTick(EventArgs args)
         {
-            R = new Spell.Skillshot(SpellSlot.R, (uint) (300*R.Level), SkillShotType.Circular, 500, 1000, 120);
+            R = new Spell.Skillshot(SpellSlot.R, (uint) (new[] {0, 400, 650, 900}[R.Level]), SkillShotType.Circular, 500, 1000, 120);
 
             var autoQ = MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue;
             var autoW = MiscMenu["autoW"].Cast<CheckBox>().CurrentValue;

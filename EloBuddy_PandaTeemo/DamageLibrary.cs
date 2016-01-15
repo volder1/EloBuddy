@@ -4,7 +4,7 @@ using EloBuddy.SDK;
 namespace EloBuddy_PandaTeemo
 {
     /// <summary>
-    /// DamageLibrary Class for Jinx Spells.
+    /// DamageLibrary Class for Teemo Spells.
     /// </summary>
     internal class DamageLibrary
     {
@@ -12,10 +12,10 @@ namespace EloBuddy_PandaTeemo
         /// Calculates and returns damage totally done to the target
         /// </summary>
         /// <param name="target">The Target</param>
-        /// <param name="useQ">Include useQ in Calculations?</param>
-        /// <param name="useW">Include useW in Calculations?</param>
-        /// <param name="useE">Include useE in Calculations?</param>
-        /// <param name="useR">Include useR in Calculations?</param>
+        /// <param name="useQ">Include Q in Calculations?</param>
+        /// <param name="useW">Include W in Calculations?</param>
+        /// <param name="useE">Include E in Calculations?</param>
+        /// <param name="useR">Include R in Calculations?</param>
         /// <returns>The total damage done to target.</returns>
         public static float CalculateDamage(Obj_AI_Base target, bool useQ, bool useW, bool useE, bool useR)
         {
