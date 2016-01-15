@@ -4,7 +4,7 @@ using EloBuddy.SDK;
 namespace EloBuddy_PandaTeemo
 {
     /// <summary>
-    /// DamageLibrary Class for Jinx Spells.
+    /// DamageLibrary Class for Teemo Spells.
     /// </summary>
     internal class DamageLibrary
     {
