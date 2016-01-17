@@ -90,7 +90,7 @@
             ComboMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 80));
             ComboMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 80));
             ComboMenu.AddLabel("Extra Settings");
-            ComboMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 150, 0, 1450));
+            ComboMenu.Add("wRange2", new Slider("Only Use W if Player Range from Target is more than x", 150, 0, 1450));
             ComboMenu.Add("eRange", new Slider("Only Use E if Player Range from Target is more than x", 150, 0, 900));
             ComboMenu.Add("eRange2", new Slider("Max E Range", 900, 0, 900));
             ComboMenu.Add("rRange2", new Slider("Max R Range", 3000, 0, 3000));
@@ -135,6 +135,7 @@
             KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 80));
             KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 80));
             KillStealMenu.AddLabel("Spell Settings");
+            KillStealMenu.Add("wRange", new Slider("Minimum Distance for W", 450, 0, 3000));
             KillStealMenu.Add("rRange", new Slider("Max Distance for R", 3000, 0, 3000));
 
             JungleClearMenu = ConfigMenu.AddSubMenu("Jungle Clear", "JungleClear");
@@ -226,6 +227,7 @@
             MiscMenu.Add("tauntW", new CheckBox("Use W on Taunted Enemy"));
             MiscMenu.Add("fearW", new CheckBox("Use W on Feared Enemy"));
             MiscMenu.Add("snareW", new CheckBox("Use W on Snared Enemy"));
+            MiscMenu.Add("wRange2", new Slider("Only Use W if Player Range from Target is more than x", 450, 0, 1450));
             MiscMenu.AddLabel("Prediction Settings");
             MiscMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
             MiscMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));

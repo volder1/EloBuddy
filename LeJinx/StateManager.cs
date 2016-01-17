@@ -141,34 +141,25 @@
             var manaQ = Config.LastHitMenu["manaQ"].Cast<Slider>().CurrentValue;
             var qCountM = Config.LastHitMenu["qCountM"].Cast<Slider>().CurrentValue;
 
-            // Force Minigun if there is a lasthittable minion in minigun range and there is no targets more than the setting amount.
-            var kM = Orbwalker.LasthittableMinions.Where(
-                t => t.IsEnemy &&
-                     t.Health <= (Player.Instance.GetAutoAttackDamage(t)*0.9) && t.IsValidTarget() &&
-                     t.Distance(Player.Instance) <= Essentials.MinigunRange);
-            if (useQ && Essentials.FishBones() && kM.Count() < qCountM)
-            {
-                Program.Q.Cast();
-            }
-
-            // Out of Range
+            // In Range
             if (useQ && Player.Instance.ManaPercent >= manaQ && !Essentials.FishBones())
             {
-                var minionOutOfRange = Orbwalker.LasthittableMinions.FirstOrDefault(
-                    m =>
-                        m.IsValidTarget() && m.Distance(Player.Instance) > Essentials.MinigunRange &&
-                        m.Distance(Player.Instance) <= Essentials.FishBonesRange());
+                var minionInRange =
+                    EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(
+                        m =>
+                            m.Health <= (Player.Instance.GetAutoAttackDamage(m)*1.1f) &&
+                            m.Distance(Player.Instance) <= Essentials.MinigunRange);
 
-                if (minionOutOfRange != null)
+                if (minionInRange != null)
                 {
                     var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
                         Player.Instance.ServerPosition,
                         Essentials.FishBonesRange())
                         .Where(
                             t =>
-                                t.Distance(minionOutOfRange
+                                t.Distance(minionInRange
                                     ) <=
-                                100 && t.Health <= (Player.Instance.GetAutoAttackDamage(t)*1.1f)).ToArray();
+                                100 && t.Health <= (Player.Instance.GetAutoAttackDamage(t) * 1.1f)).ToArray();
 
                     if (minion.Count() >= qCountM)
                     {
@@ -178,6 +169,33 @@
                             Orbwalker.ForcedTarget = m;
                         }
                     }
+                }
+            }
+
+            // Out of Range
+            if (useQ && Player.Instance.ManaPercent >= manaQ && !Essentials.FishBones())
+            {
+                var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(
+                    EntityManager.UnitTeam.Enemy,
+                    Player.Instance.ServerPosition,
+                    Essentials.FishBonesRange())
+                    .Where(
+                        t =>
+                            t.Health <= Player.Instance.GetAutoAttackDamage(t)*1.1f &&
+                            t.Distance(Player.Instance) > Essentials.MinigunRange)
+                    .OrderByDescending(t => t.Health);
+
+                foreach (var m in from minionOutOfRange in minion where minionOutOfRange != null select EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
+                    Player.Instance.ServerPosition,
+                    Essentials.FishBonesRange())
+                    .Where(
+                        t =>
+                            t.Distance(minionOutOfRange
+                                ) <=
+                            100 && t.Health <= (Player.Instance.GetAutoAttackDamage(t) * 1.1f)).ToArray() into minion2 where minion2.Count() >= qCountM from m in minion2 select m)
+                {
+                    Program.Q.Cast();
+                    Orbwalker.ForcedTarget = m;
                 }
             }
         }
@@ -205,40 +223,43 @@
             // Force Minigun if there is a lasthittable minion in minigun range and there is no targets more than the setting amount.
             var kM = Orbwalker.LasthittableMinions.Where(
                 t => t.IsEnemy &&
-                     t.Health <= (Player.Instance.GetAutoAttackDamage(t)*0.9) && t.IsValidTarget() &&
+                     t.Health <= (Player.Instance.GetAutoAttackDamage(t)*0.9090909F) && t.IsValidTarget() &&
                      t.Distance(Player.Instance) <= Essentials.MinigunRange);
             if (useQ && Essentials.FishBones() && kM.Count() < qCountM)
             {
                 Program.Q.Cast();
             }
-
+            
             // Out of Range
             if (useQ && Player.Instance.ManaPercent >= manaQ && !Essentials.FishBones())
             {
-                var minionOutOfRange = Orbwalker.LasthittableMinions.FirstOrDefault(
-                    m =>
-                        m.IsValidTarget() && m.Distance(Player.Instance) > Essentials.MinigunRange &&
-                        m.Distance(Player.Instance) <= Essentials.FishBonesRange());
+                var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(
+                    EntityManager.UnitTeam.Enemy,
+                    Player.Instance.ServerPosition,
+                    Essentials.FishBonesRange())
+                    .Where(
+                        t =>
+                            t.Health <= Player.Instance.GetAutoAttackDamage(t)*1.1f &&
+                            t.Distance(Player.Instance) > Essentials.MinigunRange)
+                    .OrderByDescending(t => t.Health);
 
-                if (minionOutOfRange != null)
-                {
-                    var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
+                foreach (var m in from minionOutOfRange in minion
+                    where minionOutOfRange != null
+                    select EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
                         Player.Instance.ServerPosition,
                         Essentials.FishBonesRange())
                         .Where(
                             t =>
                                 t.Distance(minionOutOfRange
                                     ) <=
-                                100 && t.Health <= (Player.Instance.GetAutoAttackDamage(t)*1.1f)).ToArray();
-
-                    if (minion.Count() >= qCountM)
-                    {
-                        foreach (var m in minion)
-                        {
-                            Program.Q.Cast();
-                            Orbwalker.ForcedTarget = m;
-                        }
-                    }
+                                100 && t.Health <= (Player.Instance.GetAutoAttackDamage(t)*1.1f)).ToArray()
+                    into minion2
+                    where minion2.Count() >= qCountM
+                    from m in minion2
+                    select m)
+                {
+                    Program.Q.Cast();
+                    Orbwalker.ForcedTarget = m;
                 }
             }
 
@@ -352,10 +373,16 @@
 
             if (useQ && Program.Q.IsReady())
             {
-                var minion = Orbwalker.LasthittableMinions.Where(t => t.IsValidTarget() && t.Distance(Player.Instance) <= Essentials.FishBonesRange());/*EntityManager.MinionsAndMonsters.GetLaneMinions(
+                var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(
                     EntityManager.UnitTeam.Enemy,
                     Player.Instance.ServerPosition,
-                    Essentials.FishBonesRange()).OrderByDescending(t => t.Health);*/
+                    Essentials.FishBonesRange())
+                    .Where(
+                        t =>
+                            t.Health <= Player.Instance.GetAutoAttackDamage(t)*1.1f &&
+                            t.Distance(Player.Instance) > Essentials.MinigunRange)
+                    .OrderByDescending(t => t.Health);
+                //Orbwalker.LasthittableMinions.Where(t => t.IsValidTarget() && t.Distance(Player.Instance) <= Essentials.FishBonesRange());
 
                 if (Essentials.FishBones())
                 {
@@ -368,7 +395,7 @@
 
                 if (!Essentials.FishBones() && Player.Instance.ManaPercent >= manaQ)
                 {
-                    var m = Orbwalker.LaneclearMinion;
+                    var m = minion.FirstOrDefault();
 
                     if (m == null)
                     {

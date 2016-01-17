@@ -1,4 +1,6 @@
-﻿namespace Jinx
+﻿using System.Linq;
+
+namespace Jinx
 {
     using EloBuddy;
     using EloBuddy.SDK;
@@ -40,6 +42,47 @@
         }
 
         /// <summary>
+        /// Check if Player has Undying Buff
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static bool HasUndyingBuff(Obj_AI_Base target)
+        {
+            var tChampion = target as AIHeroClient;
+
+            if (tChampion != null)
+            {
+                // Poppy R
+                if (tChampion.ChampionName == "Poppy")
+                {
+                    if (
+                        EntityManager.Heroes.Allies.Any(
+                            o =>
+                                !o.IsMe &&
+                                o.Buffs.Any(
+                                    b =>
+                                        b.Caster.NetworkId == target.NetworkId && b.IsValid() &&
+                                        b.DisplayName == "PoppyDITarget")))
+                    {
+                        return true;
+                    }
+                }
+                return tChampion.IsInvulnerable;
+            }
+
+            // Various buffs
+            if (target.Buffs.Any(
+                b => b.IsValid() &&
+                     (b.DisplayName == "Chrono Shift" /* Zilean R */||
+                      b.DisplayName == "JudicatorIntervention" /* Kayle R */||
+                      b.DisplayName == "Undying Rage" /* Tryndamere R */)))
+            {
+                return true;
+            }
+            return target.IsInvulnerable;
+        }
+
+        /// <summary>
         /// Taken from OKTW. Spells that useE can be used on.
         /// </summary>
         /// <param name="spellName">The name of the Spell</param>
@@ -75,10 +118,24 @@
         }
 
         /// <summary>
+        /// Checks if Player Has Rapid Fire Cannon Buff
+        /// </summary>
+        public static bool RapidFireCannon
+        {
+            get { return Player.HasBuff("itemstatikshankcharge"); }
+        }
+
+        /// <summary>
         /// Contains the range of Minigun.
         /// </summary>
-        public const float MinigunRange = 525f;
+        public static float MinigunRange
+        {
+            get { return RapidFireCannon ? 525f + 150f : 525f; }
+        }
 
+        /// <summary>
+        /// Contains the Last Blitzcrank hook time.
+        /// </summary>
         public static double GrabTime = 0;
 
         /// <summary>
@@ -127,13 +184,13 @@
         public static class DamageLibrary
         {
             /// <summary>
-            /// Calculates and returns damage totally done to the target
+            /// Calculates and returns damage totally done to the Target
             /// </summary>
             /// <param name="target">The Target</param>
-            /// <param name="useQ">Include useQ in Calculations?</param>
-            /// <param name="useW">Include useW in Calculations?</param>
-            /// <param name="useE">Include useE in Calculations?</param>
-            /// <param name="useR">Include useR in Calculations?</param>
+            /// <param name="useQ">Include Q in Calculations?</param>
+            /// <param name="useW">Include W in Calculations?</param>
+            /// <param name="useE">Include E in Calculations?</param>
+            /// <param name="useR">Include R in Calculations?</param>
             /// <returns>The total damage done to target.</returns>
             public static float CalculateDamage(Obj_AI_Base target, bool useQ, bool useW, bool useE, bool useR)
             {
@@ -168,7 +225,7 @@
             }
 
             /// <summary>
-            /// Calculates the Damage done with useQ
+            /// Calculates the Damage done with Q
             /// </summary>
             /// <param name="target">The Target</param>
             /// <returns>Returns the Damage done with useQ</returns>
@@ -178,7 +235,7 @@
             }
 
             /// <summary>
-            /// Calculates the Damage done with useW
+            /// Calculates the Damage done with W
             /// </summary>
             /// <param name="target">The Target</param>
             /// <returns>Returns the Damage done with useW</returns>
@@ -192,7 +249,7 @@
             }
 
             /// <summary>
-            /// Calculates the Damage done with useE
+            /// Calculates the Damage done with E
             /// </summary>
             /// <param name="target">The Target</param>
             /// <returns>Returns the Damage done with useE</returns>
@@ -205,55 +262,37 @@
             }
 
             /// <summary>
-            /// Calculates the Damage done with useR (Fluxy's Method)
+            /// Calculates the Damage done with R
             /// </summary>
             /// <param name="target">The Target</param>
             /// <returns>Returns the Damage done with useR</returns>
             private static float RDamage(Obj_AI_Base target)
             {
-                if (!Program.R.IsLearned) return 0;
-                var level = Program.R.Level - 1;
+                var distance = target.Distance(Player.Instance);
+                var increment = (int)distance/100;
+                var extraPercent = ((10 + (increment*6))/100);
+                var damage = new[] {0f, 25f, 35f, 45f}[Program.R.Level]*(1f + extraPercent) +
+                             new[] {0, 0.25f, 0.3f, 0.35f}[Program.R.Level]*((target.MaxHealth - target.Health)/100) +
+                             (0.1f + Player.Instance.FlatPhysicalDamageMod);
 
-                #region Less than Range
-
-                if (target.Distance(Player.Instance) < 1350 && !target.IsMinion && !target.IsMonster)
+                if (target.IsMinion || target.IsMonster)
                 {
-                    return Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
-                        (float)
-                            (new double[] {25, 35, 45}[level] +
-                             new double[] {25, 30, 35}[level]/100*(target.MaxHealth - target.Health) +
-                             0.1*Player.Instance.FlatPhysicalDamageMod));
+                    var damagetoMob = new[] {0f, 20f, 28f, 36f}[Program.R.Level]*(1f + extraPercent) +
+                                      new[] {0, 0.20f, 0.24f, 0.28f}[Program.R.Level]*
+                                      ((target.MaxHealth - target.Health)/100) +
+                                      (0.1f + Player.Instance.FlatPhysicalDamageMod);
+
+                    if (damagetoMob > 300f)
+                    {
+                        return 300f;
+                    }
+                    if (damagetoMob <= 300f)
+                    {
+                        return damagetoMob;
+                    }
                 }
 
-                if ((target.IsMonster || target.IsMinion) && target.Distance(Player.Instance) < 1350)
-                {
-                    var damage = Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
-                        (float)
-                            (new double[] {25, 35, 45}[level] +
-                             new double[] {25, 30, 35}[level]/100*(target.MaxHealth - target.Health) +
-                             0.1*Player.Instance.FlatPhysicalDamageMod));
-
-                    return (damage*0.8) > 300f ? 300f : damage;
-                }
-
-                #endregion
-
-                #region More Than Range
-
-                var damage2 = Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
-                    (float)
-                        (new double[] {250, 350, 450}[level] +
-                         new double[] {25, 30, 35}[level]/100*(target.MaxHealth - target.Health) +
-                         Player.Instance.FlatPhysicalDamageMod));
-
-                if ((target.IsMonster || target.IsMinion) && (damage2*0.8) > 300f)
-                {
-                    damage2 = 300f;
-                }
-
-                return damage2;
-
-                #endregion
+                return damage;
             }
         }
     }

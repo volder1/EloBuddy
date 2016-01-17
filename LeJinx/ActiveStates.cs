@@ -70,8 +70,10 @@
             var snareW = Config.MiscMenu["snareW"].Cast<CheckBox>().CurrentValue;
             var wRange = Config.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
             var wSlider = Config.MiscMenu["wSlider"].Cast<Slider>().CurrentValue;
+            var wRange2 = Config.MiscMenu["wRange2"].Cast<Slider>().CurrentValue;
             var enemy =
-                EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget() && Program.W.IsInRange(t))
+                EntityManager.Heroes.Enemies.Where(
+                    t => t.IsValidTarget() && Program.W.IsInRange(t) && t.Distance(Player.Instance) >= wRange2)
                     .OrderByDescending(t => t.Distance(Player.Instance));
 
             foreach (var target in enemy)
@@ -146,7 +148,9 @@
             foreach (var pred in EntityManager.Heroes.Enemies.Where(
                 enemy => enemy != null &&
                          Program.E.IsInRange(enemy) && enemy.IsValidTarget() && !enemy.CanMove &&
-                         Game.Time - Essentials.GrabTime > 1).Select(enemy => Program.E.GetPrediction(enemy)).Where(pred => pred != null && pred.HitChancePercent >= 75))
+                         Game.Time - Essentials.GrabTime > 1)
+                .Select(enemy => Program.E.GetPrediction(enemy))
+                .Where(pred => pred != null && pred.HitChancePercent >= 75))
             {
                 Program.E.Cast(pred.CastPosition);
             }
@@ -163,6 +167,7 @@
             var manaR = Config.KillStealMenu["manaR"].Cast<Slider>().CurrentValue;
             var wSlider = Config.KillStealMenu["wSlider"].Cast<Slider>().CurrentValue;
             var rSlider = Config.KillStealMenu["rSlider"].Cast<Slider>().CurrentValue;
+            var wRange = Config.KillStealMenu["wRange"].Cast<Slider>().CurrentValue;
 
             if (useW && useR && Player.Instance.ManaPercent >= manaW && Player.Instance.ManaPercent >= manaR
                 && Program.W.IsReady() && Program.R.IsReady())
@@ -170,7 +175,8 @@
                 var selection =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
-                            t.IsValidTarget() && Program.W.IsInRange(t) &&
+                            t.IsValidTarget() && !Essentials.HasUndyingBuff(t) && Program.W.IsInRange(t) &&
+                            Player.Instance.Distance(t) >= wRange &&
                             Player.Instance.Distance(t) <=
                             Config.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&
                             Player.Instance.Distance(t) >= Config.MiscMenu["rRange"].Cast<Slider>().CurrentValue
@@ -212,13 +218,15 @@
             var manaR = Config.KillStealMenu["manaR"].Cast<Slider>().CurrentValue;
             var wSlider = Config.KillStealMenu["wSlider"].Cast<Slider>().CurrentValue;
             var rSlider = Config.KillStealMenu["rSlider"].Cast<Slider>().CurrentValue;
+            var wRange = Config.KillStealMenu["wRange"].Cast<Slider>().CurrentValue;
 
             if (useW && Player.Instance.ManaPercent >= manaW && Program.W.IsReady())
             {
                 var selection =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
-                            t.IsValidTarget() && Program.W.IsInRange(t)
+                            t.IsValidTarget() && !Essentials.HasUndyingBuff(t) && Program.W.IsInRange(t) &&
+                            t.Distance(Player.Instance) >= wRange
                             && Essentials.DamageLibrary.CalculateDamage(t, false, true, false, false) >= t.Health);
 
                 foreach (
@@ -235,7 +243,7 @@
                 var selection =
                     EntityManager.Heroes.Enemies.Where(
                         t =>
-                            t.IsValidTarget()
+                            t.IsValidTarget() && !Essentials.HasUndyingBuff(t)
                             &&
                             Player.Instance.Distance(t) <=
                             Config.KillStealMenu["rRange"].Cast<Slider>().CurrentValue &&

@@ -73,7 +73,10 @@ namespace Jinx
                 AllowedCollisionCount = 0
             };
             E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Circular, 1200, 1750, 100);
-            R = new Spell.Skillshot(SpellSlot.R, 3000, SkillShotType.Linear, 700, 1500, 140);
+            R = new Spell.Skillshot(SpellSlot.R, 3000, SkillShotType.Linear, 700, 1500, 140)
+            {
+                AllowedCollisionCount = 0
+            };
 
             Config.Initialize();
             Indicator = new DamageIndicator.DamageIndicator();
@@ -182,32 +185,14 @@ namespace Jinx
                 var manaQ = Config.LastHitMenu["manaQ"].Cast<Slider>().CurrentValue;
                 var qCountM = Config.LastHitMenu["qCountM"].Cast<Slider>().CurrentValue;
 
-                // In Range
-                if (useQ && Player.Instance.ManaPercent >= manaQ && !Essentials.FishBones())
+                // Force Minigun if there is a lasthittable minion in minigun range and there is no targets more than the setting amount.
+                var kM = Orbwalker.LasthittableMinions.Where(
+                    t => t.IsEnemy &&
+                         t.Health <= (Player.Instance.GetAutoAttackDamage(t) * 0.9) && t.IsValidTarget() &&
+                         t.Distance(Player.Instance) <= Essentials.MinigunRange);
+                if (useQ && Essentials.FishBones() && kM.Count() < qCountM)
                 {
-                    var minionInRange = target as Obj_AI_Minion;
-                    //Orbwalker.LasthittableMinions.FirstOrDefault(m => m.IsValidTarget() && m.Distance(Player.Instance) <= Essentials.MinigunRange);
-
-                    if (minionInRange != null)
-                    {
-                        var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
-                            Player.Instance.ServerPosition,
-                            Essentials.FishBonesRange())
-                            .Where(
-                                t =>
-                                    t.Distance(minionInRange
-                                        ) <=
-                                    100 && t.Health <= (Player.Instance.GetAutoAttackDamage(t)*1.1f)).ToArray();
-
-                        if (minion.Count() >= qCountM)
-                        {
-                            foreach (var m in minion)
-                            {
-                                Program.Q.Cast();
-                                Orbwalker.ForcedTarget = m;
-                            }
-                        }
-                    }
+                    Program.Q.Cast();
                 }
             }
 
@@ -372,7 +357,7 @@ namespace Jinx
             {
                 return;
             }
-            
+
             var drawQ = Config.DrawingMenu["drawQ"].Cast<CheckBox>().CurrentValue;
             var drawW = Config.DrawingMenu["drawW"].Cast<CheckBox>().CurrentValue;
             var drawE = Config.DrawingMenu["drawE"].Cast<CheckBox>().CurrentValue;
@@ -440,7 +425,8 @@ namespace Jinx
             if (Orbwalker.ForcedTarget != null)
             {
                 if (!Player.Instance.IsInAutoAttackRange(Orbwalker.ForcedTarget) ||
-                    !Orbwalker.ForcedTarget.IsValidTarget() || Orbwalker.ForcedTarget.IsInvulnerable)
+                    !Orbwalker.ForcedTarget.IsValidTarget() ||
+                    Essentials.HasUndyingBuff(Orbwalker.ForcedTarget as Obj_AI_Base))
                 {
                     Orbwalker.ForcedTarget = null;
                 }
@@ -448,8 +434,8 @@ namespace Jinx
                 var target = TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(),
                     DamageType.Physical);
 
-                if (Orbwalker.ForcedTarget != null && target != null &&
-                    ((Orbwalker.ForcedTarget.NetworkId != target.NetworkId) &&
+                if (Orbwalker.ForcedTarget is AIHeroClient && target != null &&
+                    ((Orbwalker.ForcedTarget.NetworkId != target.NetworkId) && !Essentials.HasUndyingBuff(target) &&
                      Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)))
                 {
                     Orbwalker.ForcedTarget = TargetSelector.GetTarget(Player.Instance.GetAutoAttackRange(),
