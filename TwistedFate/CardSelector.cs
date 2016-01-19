@@ -1,7 +1,7 @@
-﻿namespace TwistedBuddy
-{
-    using System;
+﻿using System;
 
+namespace TwistedBuddy
+{
     using EloBuddy;
     using EloBuddy.SDK.Menu.Values;
 
@@ -23,25 +23,35 @@
 
     internal class CardSelector
     {
-        public static Cards LastCard;
+        public static Cards SelectedCard;
         public static int LastW;
         public static SelectStatus Status { get; set; }
 
         public static int Delay
         {
-            get
-            {
-                return Essentials.MiscMenu["delay"].Cast<Slider>().CurrentValue;
-            }
+            get { return Essentials.MiscMenu["delay"].Cast<Slider>().CurrentValue; }
         }
 
         static CardSelector()
         {
-            Game.OnTick += Game_OnTick;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Game.OnUpdate += Game_OnGameUpdate;
         }
 
-        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        public static void StartSelecting(Cards card)
+        {
+            if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name == "PickACard" && Status == SelectStatus.Ready)
+            {
+                SelectedCard = card;
+                if (Environment.TickCount - LastW > 170 + Game.Ping/2)
+                {
+                    Program.W.Cast();
+                    LastW = Environment.TickCount;
+                }
+            }
+        }
+
+        public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (!sender.IsMe)
             {
@@ -53,67 +63,49 @@
                 Status = SelectStatus.Selecting;
             }
 
-            if (args.SData.Name == "goldcardlock" || args.SData.Name == "bluecardlock" || args.SData.Name == "redcardlock")
+            if (args.SData.Name == "goldcardlock" || args.SData.Name == "bluecardlock" ||
+                args.SData.Name == "redcardlock")
             {
                 Status = SelectStatus.Selected;
+                SelectedCard = Cards.None;
             }
         }
 
-        public static void StartSelecting(Cards card)
+        private static void Game_OnGameUpdate(EventArgs args)
         {
-            if (Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name == "PickACard" && Status == SelectStatus.Ready
-                && Environment.TickCount - LastW > 170 + Game.Ping / 2)
-            {
-                LastW = Environment.TickCount;
-                Player.CastSpell(SpellSlot.W, Player.Instance.ServerPosition);
-                LastCard = card;
-            }
-        }
+            var wName = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name;
+            var wState = ObjectManager.Player.Spellbook.CanUseSpell(SpellSlot.W);
 
-        private static void Game_OnTick(EventArgs args)
-        {
-            var wName = Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name;
-            var wState = Player.Instance.Spellbook.CanUseSpell(SpellSlot.W);
-
-            if (wState == SpellState.Ready && wName == "PickACard" && Status != SelectStatus.Selecting && !Player.Instance.IsDead)
+            if ((wState == SpellState.Ready &&
+                 wName == "PickACard" &&
+                 (Status != SelectStatus.Selecting || Environment.TickCount - LastW > 500)) ||
+                ObjectManager.Player.IsDead)
             {
                 Status = SelectStatus.Ready;
             }
-            else
+            else if (wState == SpellState.Cooldown &&
+                     wName == "PickACard")
             {
-                if (wState == SpellState.Cooldown && wName == "PickACard")
-                {
-                    LastCard = Cards.None;
-                    Status = SelectStatus.Cooldown;
-                }
-                
-                if (wState == SpellState.Surpressed && !Player.Instance.IsDead)
-                {
-                    Status = SelectStatus.Selected;
-                }
+                SelectedCard = Cards.None;
+                Status = SelectStatus.Cooldown;
+            }
+            else if (wState == SpellState.Surpressed &&
+                     !ObjectManager.Player.IsDead)
+            {
+                Status = SelectStatus.Selected;
+            }
 
-                if (Status != SelectStatus.Selecting)
-                {
-                    return;
-                }
-
-                if (LastCard == Cards.Blue && wName == "bluecardlock"
-                    && Environment.TickCount - Delay > LastW)
-                {
-                    Player.CastSpell(SpellSlot.W, false);
-                }
-
-                if (LastCard == Cards.Yellow && wName == "goldcardlock"
-                    && Environment.TickCount - Delay > LastW)
-                {
-                    Player.CastSpell(SpellSlot.W, false);
-                }
-
-                if (LastCard == Cards.Red && wName == "redcardlock"
-                    && Environment.TickCount - Delay > LastW)
-                {
-                    Player.CastSpell(SpellSlot.W, false);
-                }
+            if (SelectedCard == Cards.Blue && wName == "bluecardlock" && Environment.TickCount - Delay > LastW)
+            {
+                ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, false);
+            }
+            else if (SelectedCard == Cards.Yellow && wName == "goldcardlock" && Environment.TickCount - Delay > LastW)
+            {
+                ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, false);
+            }
+            else if (SelectedCard == Cards.Red && wName == "redcardlock" && Environment.TickCount - Delay > LastW)
+            {
+                ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, false);
             }
         }
     }

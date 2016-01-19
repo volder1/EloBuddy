@@ -27,7 +27,7 @@
 
                 if (W && Program.W.IsReady())
                 {
-                    totaldamage = totaldamage + WDamage(target);
+                    totaldamage = totaldamage + WDamage(target, Cards.None);
                 }
 
                 if (E && Program.E.IsReady())
@@ -37,11 +37,26 @@
 
                 if (R && Program.R.IsReady())
                 {
-                    totaldamage = totaldamage + RDamage(target);
+                    totaldamage = totaldamage + RDamage();
                 }
             }
 
             return totaldamage;
+        }
+
+        /// <summary>
+        /// Calculates and return damage done with predicted card
+        /// </summary>
+        /// <param name="target">The Target</param>
+        /// <param name="card">Card</param>
+        /// <returns></returns>
+        public static float PredictWDamage(Obj_AI_Base target, Cards card)
+        {
+            if (target != null)
+            {
+                return WDamage(target, card);
+            }
+            return 0f;
         }
 
         /// <summary>
@@ -58,18 +73,19 @@
         /// Calculates the Damage done with W
         /// </summary>
         /// <param name="target">The Target</param>
+        /// <param name="card">Card</param>
         /// <returns>Returns the Damage done with W</returns>
-        private static float WDamage(Obj_AI_Base target)
+        private static float WDamage(Obj_AI_Base target, Cards card)
         {
-            if (Player.Instance.HasBuff("bluecardpreattack"))
+            if (Player.Instance.HasBuff("bluecardpreattack") || Cards.Blue.Equals(card))
             {
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
                     DamageType.Mixed,
-                    new[] { 0, 40, 60, 80, 100, 120 }[Program.W.Level]) + (Player.Instance.TotalMagicalDamage * 0.5f)
+                    new[] {0, 40, 60, 80, 100, 120}[Program.W.Level]) + (Player.Instance.TotalMagicalDamage*0.5f)
                        + (Player.Instance.TotalAttackDamage);
             }
-            if (Player.Instance.HasBuff("redcardpreattack"))
+            if (Player.Instance.HasBuff("redcardpreattack") || Cards.Red.Equals(card))
             {
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
@@ -77,7 +93,7 @@
                     new[] { 0, 30, 45, 60, 75, 90 }[Program.W.Level] + (Player.Instance.TotalMagicalDamage * 0.5f)
                     + Player.Instance.TotalAttackDamage);
             }
-            if (Player.Instance.HasBuff("goldcardpreattack"))
+            if (Player.Instance.HasBuff("goldcardpreattack") || Cards.Yellow.Equals(card))
             {
                 return Player.Instance.CalculateDamageOnUnit(
                     target,
@@ -108,9 +124,8 @@
         /// <summary>
         /// Calculates the Damage done with R (Fluxy's Method)
         /// </summary>
-        /// <param name="target">The Target</param>
         /// <returns>Returns the Damage done with R</returns>
-        private static float RDamage(Obj_AI_Base target)
+        private static float RDamage()
         {
             return 0;
         }

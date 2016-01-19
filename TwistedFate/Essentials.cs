@@ -15,12 +15,45 @@
         public static Menu MainMenu, CardSelectorMenu, ComboMenu, LaneClearMenu, JungleClearMenu, HarassMenu, KillStealMenu, DrawingMenu, MiscMenu;
 
         /// <summary>
-        /// Returns the Player ManaPercent
+        /// Returns the card that should be picked in that scenario
         /// </summary>
-        /// <returns>Player's ManaPercent</returns>
-        public static float ManaPercent()
+        /// <param name="t">The Target</param>
+        /// <returns>The Card that should be used.</returns>
+        public static Cards MinionCardSelection(Obj_AI_Base t)
         {
-            return (Player.Instance.Mana / Player.Instance.MaxMana) * 100;
+            var card = Cards.None;
+            var minionsaroundTarget =
+                EntityManager.MinionsAndMonsters.EnemyMinions
+                    .Count(
+                        target => target.Distance(t) <= 200 &&
+                                  target.Health <=
+                                  DamageLibrary.PredictWDamage(target, Cards.Red));
+            var monstersAroundTarget =
+                EntityManager.MinionsAndMonsters.Monsters.Count(
+                    mob => mob.Distance(t) <= 200 &&
+                           mob.Health <= DamageLibrary.PredictWDamage(mob, Cards.Red));
+            var enemyW = MiscMenu["enemyW"].Cast<Slider>().CurrentValue;
+            var manaW = MiscMenu["manaW"].Cast<Slider>().CurrentValue;
+
+            if (Player.Instance.ManaPercent < manaW)
+            {
+                card = Cards.Blue;
+                return card;
+            }
+
+            if (Player.Instance.ManaPercent >= manaW && t.IsMonster && monstersAroundTarget < enemyW)
+            {
+                card = Cards.Yellow;
+                return card;
+            }
+
+            if (Player.Instance.ManaPercent >= manaW && (minionsaroundTarget >= enemyW || monstersAroundTarget >= enemyW))
+            {
+                card = Cards.Red;
+                return card;
+            }
+
+            return card;
         }
 
         /// <summary>
@@ -28,63 +61,32 @@
         /// </summary>
         /// <param name="t">The Target</param>
         /// <returns>The Card that should be used.</returns>
-        public static string MinionCardSelection(Obj_AI_Base t)
+        public static Cards HeroCardSelection(AIHeroClient t)
         {
-            string card;
-            var minionsaroundTarget = ObjectManager.Get<Obj_AI_Minion>().Count(target => !target.IsAlly && target.IsMinion && target.Distance(t) <= 200) + EntityManager.MinionsAndMonsters.Monsters.Count(mob => mob.Distance(t) <= 200);
+            var card = Cards.None; 
+            var alliesaroundTarget = t.CountEnemiesInRange(200);
             var enemyW = MiscMenu["enemyW"].Cast<Slider>().CurrentValue;
             var manaW = MiscMenu["manaW"].Cast<Slider>().CurrentValue;
 
-            if (ManaPercent() <= manaW)
+            if (Player.Instance.ManaPercent <= manaW)
             {
-                card = "Blue";
+                card = Cards.Blue;
                 return card;
             }
 
-            if (ManaPercent() > manaW && t.Team == GameObjectTeam.Neutral && minionsaroundTarget < enemyW)
+            if (Player.Instance.ManaPercent > manaW && alliesaroundTarget >= enemyW)
             {
-                card = "Yellow";
+                card = Cards.Red;
                 return card;
             }
 
-            if (ManaPercent() > manaW && minionsaroundTarget >= enemyW)
+            if (Player.Instance.ManaPercent > manaW && alliesaroundTarget < enemyW)
             {
-                card = "Red";
-                return card;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Returns the card that should be picked in that scenario
-        /// </summary>
-        /// <param name="t">The Target</param>
-        /// <returns>The Card that should be used.</returns>
-        public static string HeroCardSelection(AIHeroClient t)
-        {
-            string card;
-            var alliesaroundTarget = EntityManager.Heroes.Enemies.Count(target => target.Distance(t) <= 200);
-            var enemyW = MiscMenu["enemyW"].Cast<Slider>().CurrentValue;
-            var manaW = MiscMenu["manaW"].Cast<Slider>().CurrentValue;
-
-            if (ManaPercent() <= manaW)
-            {
-                card = "Blue";
+                card = Cards.Yellow;
                 return card;
             }
 
-            if (ManaPercent() > manaW && alliesaroundTarget >= enemyW)
-            {
-                card = "Red";
-                return card;
-            }
-
-            if (ManaPercent() > manaW && alliesaroundTarget < enemyW)
-            {
-                card = "Yellow";
-                return card;
-            }
-            return null;
+            return card;
         }
     }
 }
