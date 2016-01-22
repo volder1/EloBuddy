@@ -221,7 +221,7 @@
             #region Last Hitting Section
 
             // Force Minigun if there is a lasthittable minion in minigun range and there is no targets more than the setting amount.
-            var kM = Orbwalker.LasthittableMinions.Where(
+            var kM = Orbwalker.LastHitMinionsList.Where(
                 t => t.IsEnemy &&
                      t.Health <= (Player.Instance.GetAutoAttackDamage(t)*0.9090909F) && t.IsValidTarget() &&
                      t.Distance(Player.Instance) <= Essentials.MinigunRange);
@@ -266,7 +266,7 @@
             // In Range
             if (useQ && Player.Instance.ManaPercent >= manaQ && !Essentials.FishBones())
             {
-                var minionInRange = Orbwalker.LasthittableMinions.FirstOrDefault(
+                var minionInRange = Orbwalker.LastHitMinionsList.FirstOrDefault(
                     m => m.IsValidTarget() && m.Distance(Player.Instance) <= Essentials.MinigunRange);
 
                 if (minionInRange != null)
@@ -415,7 +415,7 @@
                         Orbwalker.ForcedTarget = m;
                     }
                     else if (m.Distance(Player.Instance) >= Player.Instance.GetAutoAttackRange() &&
-                             Orbwalker.LasthittableMinions.Contains(m) && lastHit)
+                             Orbwalker.LastHitMinionsList.Contains(m) && lastHit)
                     {
                         Program.Q.Cast();
                         Orbwalker.ForcedTarget = m;

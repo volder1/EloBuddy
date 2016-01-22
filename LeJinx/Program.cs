@@ -186,7 +186,7 @@ namespace Jinx
                 var qCountM = Config.LastHitMenu["qCountM"].Cast<Slider>().CurrentValue;
 
                 // Force Minigun if there is a lasthittable minion in minigun range and there is no targets more than the setting amount.
-                var kM = Orbwalker.LasthittableMinions.Where(
+                var kM = Orbwalker.LastHitMinionsList.Where(
                     t => t.IsEnemy &&
                          t.Health <= (Player.Instance.GetAutoAttackDamage(t) * 0.9) && t.IsValidTarget() &&
                          t.Distance(Player.Instance) <= Essentials.MinigunRange);
@@ -223,7 +223,7 @@ namespace Jinx
                             Orbwalker.ForcedTarget = m;
                         }
                         else if (m.Distance(Player.Instance) <= Essentials.MinigunRange &&
-                                 !Orbwalker.LasthittableMinions.Contains(m))
+                                 !Orbwalker.LastHitMinionsList.Contains(m))
                         {
                             Q.Cast();
                             Orbwalker.ForcedTarget = m;
@@ -232,7 +232,7 @@ namespace Jinx
                         {
                             foreach (
                                 var kM in
-                                    Orbwalker.LasthittableMinions.Where(
+                                    Orbwalker.LastHitMinionsList.Where(
                                         kM =>
                                             kM.IsValidTarget() &&
                                             kM.Health <= (Player.Instance.GetAutoAttackDamage(kM)*0.9) &&
