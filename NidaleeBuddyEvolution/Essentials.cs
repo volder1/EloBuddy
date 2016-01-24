@@ -1,4 +1,5 @@
-﻿using EloBuddy.SDK.Menu;
+﻿using EloBuddy.SDK.Enumerations;
+using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using SharpDX;
 using Color = System.Drawing.Color;
@@ -387,38 +388,41 @@ namespace NidaleeBuddyEvolution
                     var dist = target.Distance(Player.Instance);
                     var extraDmg2 = 0;
 
-                    for (var i = 0; i > (dist); i++)
+                    for (double i = 0; i < (dist); i++)
                     {
-                        dist -= 3.875f;
+                        i = i + 3.875;
                         extraDmg2 += 1;
-                        i -= 1;
                     }
                     
-                    var finalExtra2 = extraDmg2 <= 200f ? extraDmg2 : 200f;
+                    var finalExtra2 = extraDmg2 <= 200f ? extraDmg2/100f : 2f;
 
                     return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical,
                         (new[] {0f, 60f, 77.5f, 95f, 112.5f, 130f}[Program.QHuman.Level] +
-                         (Player.Instance.TotalMagicalDamage*0.4f)*finalExtra2));
-
+                         (Player.Instance.TotalMagicalDamage*(0.4f*finalExtra2))));
                 }
 
-                var missingHealth = (target.MaxHealth - target.Health) / 100;
-                var extraDmg = 0f;
-                for (var i = 0; i < missingHealth; i++)
+                if (CatForm())
                 {
-                    extraDmg += 1.5f;
-                }
-                var finalExtra = extraDmg <= 150f ? (extraDmg / 100f) : 1.5f;
+                    var missingHealth = (target.MaxHealth - target.Health) / 100f;
+                    var extraDmg = 0f;
+                    for (var i = 0; i < missingHealth; i++)
+                    {
+                        extraDmg += 1.5f;
+                    }
+                    var finalExtra = extraDmg <= 150f ? (extraDmg / 100f) : 1.5f;
 
-                if (IsHunted(target))
-                {
+                    if (IsHunted(target))
+                    {
+                        return Player.Instance.CalculateDamageOnUnit(target, DamageType.Mixed,
+                            (new[] { 0f, 5.3f, 26.7f, 66.7f, 120f }[Program.R.Level] +
+                             (Player.Instance.TotalAttackDamage * finalExtra) + (Player.Instance.TotalMagicalDamage * (0.48f * finalExtra))));
+                    }
                     return Player.Instance.CalculateDamageOnUnit(target, DamageType.Mixed,
-                        (new[] {0f, 5.3f, 26.7f, 66.7f, 120f}[Program.R.Level] +
-                         (Player.Instance.TotalAttackDamage * finalExtra) + (Player.Instance.TotalMagicalDamage*(0.48f *finalExtra))));
+                        (new[] { 0f, 4f, 20f, 50f, 90f }[Program.R.Level] +
+                         (Player.Instance.TotalAttackDamage * (0.75f * finalExtra)) + (Player.Instance.TotalMagicalDamage * (0.36f * finalExtra))));
                 }
-                return Player.Instance.CalculateDamageOnUnit(target, DamageType.Mixed,
-                    (new[] {0f, 4f, 20f, 50f, 90f}[Program.R.Level] +
-                     (Player.Instance.TotalAttackDamage*(0.75f * finalExtra)) + (Player.Instance.TotalMagicalDamage*(0.36f * finalExtra))));
+
+                return 0f;
             }
 
             /// <summary>

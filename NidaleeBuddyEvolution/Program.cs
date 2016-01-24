@@ -70,6 +70,8 @@ namespace NidaleeBuddyEvolution
         /// </summary>
         public static DamageIndicator.DamageIndicator Indicator;
 
+        public static MissileClient missile = null;
+
         /// <summary>
         /// Called when Program Starts
         /// </summary>
@@ -90,7 +92,7 @@ namespace NidaleeBuddyEvolution
             }
 
             // Human Form
-            QHuman = new Spell.Skillshot(SpellSlot.Q, 1500, SkillShotType.Linear, 500, 1300, 40)
+            QHuman = new Spell.Skillshot(SpellSlot.Q, 1500, SkillShotType.Linear, 250, 1300, 40)
             {
                 AllowedCollisionCount = 0
             };
@@ -210,6 +212,7 @@ namespace NidaleeBuddyEvolution
                     if (!WExtended.IsInRange(target))
                     {
                         Essentials.LastHuntedTarget = target;
+                        return;
                     }
 
                     if (Essentials.IsReady(Essentials.SpellTimer["ExPounce"]))

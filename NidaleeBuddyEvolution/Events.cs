@@ -185,7 +185,7 @@ namespace NidaleeBuddyEvolution
                 return;
             }
 
-            if (!Program.EHuman.IsReady())
+            if (!Program.EHuman.IsReady() || Player.Instance.IsRecalling())
             {
                 return;
             }
