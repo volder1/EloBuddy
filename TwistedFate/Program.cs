@@ -60,7 +60,7 @@
 
             Bootstrap.Init(null);
 
-            Q = new Spell.Skillshot(SpellSlot.Q, 1450, SkillShotType.Linear, 250, 1000, 40);
+            Q = new Spell.Skillshot(SpellSlot.Q, 1450, SkillShotType.Linear, 0, 1000, 40);
             W = new Spell.Active(SpellSlot.W);
             E = new Spell.Active(SpellSlot.E);
             R = new Spell.Active(SpellSlot.R, 5500);
@@ -161,13 +161,14 @@
             Essentials.MiscMenu = Essentials.MainMenu.AddSubMenu("Misc Menu", "miscMenu");
             Essentials.MiscMenu.AddGroupLabel("Misc Settings");
             Essentials.MiscMenu.Add("autoQ", new CheckBox("Automatically Q's a Stunned Target"));
+            Essentials.MiscMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.MiscMenu.Add("autoY", new CheckBox("Automatically select Yellow Card when R"));
             Essentials.MiscMenu.AddGroupLabel("Card Selector Configuration");
-            Essentials.MiscMenu.Add("enemyW", new Slider("How many enemies before selecting Red Card (SMART)", 3, 0, 5));
+            Essentials.MiscMenu.Add("enemyW", new Slider("How many enemies before selecting Red Card (SMART)", 2, 1, 5));
             Essentials.MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
             Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 175, 175, 345));
 
-            Chat.Print("TwistedBuddy 2.2.0.0 - By KarmaPanda", System.Drawing.Color.Green);
+            Chat.Print("TwistedBuddy 2.2.0.1 - By KarmaPanda", System.Drawing.Color.Green);
 
             // Events
             Game.OnUpdate += Game_OnUpdate;
@@ -189,11 +190,24 @@
 
             var target = args.Target as AIHeroClient;
 
-            if (target != null && args.SData.Name == "goldcardpreattack" && Essentials.MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue)
+            if (target != null && args.SData.Name == "goldcardpreattack" &&
+                Essentials.MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue)
             {
                 var pred = Q.GetPrediction(target);
 
-                if (pred != null && pred.HitChancePercent >= 75)
+                if (pred != null && pred.HitChancePercent >= Essentials.MiscMenu["qPred"].Cast<Slider>().CurrentValue)
+                {
+                    Q.Cast(pred.CastPosition);
+                }
+            }
+
+            if (target != null && args.SData.Name == "goldcardpreattack" &&
+                Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) &&
+                Essentials.ComboMenu["useQStun"].Cast<CheckBox>().CurrentValue)
+            {
+                var pred = Q.GetPrediction(target);
+
+                if (pred != null && pred.HitChancePercent >= Essentials.ComboMenu["qPred"].Cast<Slider>().CurrentValue)
                 {
                     Q.Cast(pred.CastPosition);
                 }
@@ -236,23 +250,26 @@
         /// <param name="args">The Args.</param>
         private static void Game_OnUpdate(EventArgs args)
         {
-            var useY = Essentials.CardSelectorMenu["useY"].Cast<KeyBind>().CurrentValue;
-            var useB = Essentials.CardSelectorMenu["useB"].Cast<KeyBind>().CurrentValue;
-            var useR = Essentials.CardSelectorMenu["useR"].Cast<KeyBind>().CurrentValue;
-
-            if (useY)
+            if (!Player.Instance.IsRecalling() && !Player.Instance.IsInShopRange())
             {
-                CardSelector.StartSelecting(Cards.Yellow);
-            }
+                var useY = Essentials.CardSelectorMenu["useY"].Cast<KeyBind>().CurrentValue;
+                var useB = Essentials.CardSelectorMenu["useB"].Cast<KeyBind>().CurrentValue;
+                var useR = Essentials.CardSelectorMenu["useR"].Cast<KeyBind>().CurrentValue;
 
-            if (useB)
-            {
-                CardSelector.StartSelecting(Cards.Blue);
-            }
+                if (useY)
+                {
+                    CardSelector.StartSelecting(Cards.Yellow);
+                }
 
-            if (useR)
-            {
-                CardSelector.StartSelecting(Cards.Red);
+                if (useB)
+                {
+                    CardSelector.StartSelecting(Cards.Blue);
+                }
+
+                if (useR)
+                {
+                    CardSelector.StartSelecting(Cards.Red);
+                }
             }
 
             if (Essentials.MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue)

@@ -53,7 +53,7 @@
                 var minionPrediction = EntityManager.MinionsAndMonsters.GetLineFarmLocation(
                     qMinion,
                     Program.Q.Width,
-                    (int)Program.Q.Range);
+                    (int) Program.Q.Range);
 
                 if (minionPrediction.HitNumber >= qPred)
                 {
@@ -360,16 +360,13 @@
         /// </summary>
         public static void AutoQ()
         {
-            var target = EntityManager.Heroes.Enemies.FirstOrDefault(t => t.IsValidTarget() && Program.Q.IsInRange(t) && t.IsStunned);
+            var enemies = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget(Program.Q.Range) && t.IsStunned);
 
-            if (target == null)
-            {
-                return;
-            }
-
-            var pred = Program.Q.GetPrediction(target);
-
-            if (pred.HitChancePercent >= 75)
+            foreach (
+                var pred in
+                    enemies.Select(target => Program.Q.GetPrediction(target))
+                        .Where(pred => pred.HitChancePercent >= Essentials.MiscMenu["qPred"].Cast<Slider>().CurrentValue
+                        ))
             {
                 Program.Q.Cast(pred.CastPosition);
             }
