@@ -122,7 +122,7 @@
         }
 
         /// <summary>
-        /// Calculates the Damage done with R (Fluxy's Method)
+        /// Calculates the Damage done with R
         /// </summary>
         /// <returns>Returns the Damage done with R</returns>
         private static float RDamage()
