@@ -55,12 +55,12 @@ namespace LelBlanc
             JungleClearMenu.Add("useQ", new CheckBox("Use Q"));
             JungleClearMenu.Add("useW", new CheckBox("Use W"));
             JungleClearMenu.Add("useE", new CheckBox("Use E"));
-            JungleClearMenu.Add("sliderW", new Slider("Use W if Kill x Minions", 3, 1, 5));
+            JungleClearMenu.Add("sliderW", new Slider("Use W if Hit x Minions", 3, 1, 5));
             JungleClearMenu.AddLabel("R Settings");
             JungleClearMenu.Add("useQR", new CheckBox("Use QR"));
             JungleClearMenu.Add("useWR", new CheckBox("Use WR"));
             JungleClearMenu.Add("useER", new CheckBox("Use ER"));
-            JungleClearMenu.Add("sliderWR", new Slider("Use WR if Kill x Minions", 5, 1, 5));
+            JungleClearMenu.Add("sliderWR", new Slider("Use WR if Hit x Minions", 5, 1, 5));
 
             KillStealMenu = ConfigMenu.AddSubMenu("Killsteal Menu", "ksMenu");
             KillStealMenu.AddLabel("Spell Settings");

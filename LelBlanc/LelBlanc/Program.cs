@@ -153,7 +153,6 @@ namespace LelBlanc
             }
             ComboGapCloser = true;
             GapCloserTarget = e.Target as AIHeroClient;
-            Modes.Gapcloser.Execute(e.Target as AIHeroClient);
         }
 
         /// <summary>

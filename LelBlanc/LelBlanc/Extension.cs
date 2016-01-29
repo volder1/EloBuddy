@@ -37,7 +37,7 @@ namespace LelBlanc
                 {
                     totaldamage = WDamage(target);
 
-                    if (q && Program.Q.IsReady())//IsMarked(target))
+                    if (q && Program.Q.IsReady() || IsMarked(target))
                     {
                         totaldamage += QDamage(target);
                     }
@@ -47,7 +47,7 @@ namespace LelBlanc
                 {
                     totaldamage += EDamage(target);
 
-                    if (q && Program.Q.IsReady())//IsMarked(target))
+                    if (q && Program.Q.IsReady() || IsMarked(target))
                     {
                         totaldamage += QDamage(target);
                     }
@@ -64,7 +64,7 @@ namespace LelBlanc
                 {
                     totaldamage += WrDamage(target);
 
-                    if (q && Program.Q.IsReady())//IsMarked(target))
+                    if (q && Program.Q.IsReady() || IsMarked(target))
                     {
                         totaldamage += QDamage(target);
                     }
@@ -75,7 +75,7 @@ namespace LelBlanc
                 {
                     totaldamage += ErDamage(target);
 
-                    if (q && Program.Q.IsReady())//IsMarked(target))
+                    if (q && Program.Q.IsReady() || IsMarked(target))
                     {
                         totaldamage += QDamage(target);
                     }
