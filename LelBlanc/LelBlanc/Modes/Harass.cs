@@ -8,6 +8,7 @@ namespace LelBlanc.Modes
     {
         public static bool UseQ = Config.HarassMenu["useQ"].Cast<CheckBox>().CurrentValue;
         public static bool UseW = Config.HarassMenu["useW"].Cast<CheckBox>().CurrentValue;
+        public static bool UseReturn = Config.HarassMenu["useReturn"].Cast<CheckBox>().CurrentValue;
         public static bool UseE = Config.HarassMenu["useE"].Cast<CheckBox>().CurrentValue;
         public static bool UseQR = Config.HarassMenu["useQR"].Cast<CheckBox>().CurrentValue;
         public static bool UseWR = Config.HarassMenu["useWR"].Cast<CheckBox>().CurrentValue;
@@ -41,6 +42,12 @@ namespace LelBlanc.Modes
             if (UseQ && Program.Q.IsReady() && Program.Q.IsInRange(target))
             {
                 Program.Q.Cast(target);
+            }
+
+            if (UseW && !Program.Q.IsLearned && !Program.E.IsLearned && Program.W.IsReady() &&
+                Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslide")
+            {
+                Program.W.Cast(target);
             }
 
             if (UseW && !Program.Q.IsReady() && Program.W.IsReady() &&
@@ -94,6 +101,12 @@ namespace LelBlanc.Modes
                 Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancchaosorbm")
             {
                 Program.QUltimate.Cast(target);
+            }
+
+            if (UseW && !Program.Q.IsLearned && !Program.E.IsLearned && Program.W.IsReady() &&
+                Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslide")
+            {
+                Program.W.Cast(target);
             }
 
             if (UseW && !Program.Q.IsReady() && !Program.QUltimate.IsReady() && Program.W.IsReady() &&

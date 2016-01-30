@@ -1,78 +1,63 @@
 ﻿using System;
-
+using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu.Values;
-using EloBuddy.SDK.Rendering;
 
 using SharpDX;
 
-using Color = System.Drawing.Color;
-
 namespace LelBlanc
 {
+    /// <summary>
+    /// Credits to MarioGK. From KickAss AIO
+    /// </summary>
     class DamageIndicator
     {
-        private const float BarLength = 104;
-        private const float XOffset = 2;
-        private const float YOffset = 9;
-        public float CheckDistance = 1200;
+        private const int BarWidth = 106;
+        private const float LineThickness = 9.8f;
 
         public DamageIndicator()
         {
-            Drawing.OnEndScene += Drawing_OnDraw;
+            Drawing.OnEndScene += OnEndScene;
         }
 
-        private static void Drawing_OnDraw(EventArgs args)
+        private static void OnEndScene(EventArgs args)
         {
-            if (!Config.DrawingMenu["draw.Damage"].Cast<CheckBox>().CurrentValue) return;
-
-            foreach (var aiHeroClient in EntityManager.Heroes.Enemies)
+            if (Config.DrawingMenu["draw.Damage"].Cast<CheckBox>().CurrentValue)
             {
-                if (!aiHeroClient.IsHPBarRendered) continue;
+                foreach (var unit in EntityManager.Heroes.Enemies.Where(u => u.IsValidTarget() && u.IsHPBarRendered))
+                {
+                    var drawQ = Config.DrawingMenu["draw.Q"].Cast<CheckBox>().CurrentValue;
 
-                var pos = new Vector2(
-                    aiHeroClient.HPBarPosition.X + XOffset,
-                    aiHeroClient.HPBarPosition.Y + YOffset);
+                    var drawW = Config.DrawingMenu["draw.W"].Cast<CheckBox>().CurrentValue;
 
-                var fullbar = (BarLength)*(aiHeroClient.HealthPercent/100);
+                    var drawE = Config.DrawingMenu["draw.E"].Cast<CheckBox>().CurrentValue;
 
-                var drawQ = Config.DrawingMenu["draw.Q"].Cast<CheckBox>().CurrentValue;
+                    var drawR = Config.DrawingMenu["draw.R"].Cast<CheckBox>().CurrentValue;
 
-                var drawW = Config.DrawingMenu["draw.W"].Cast<CheckBox>().CurrentValue;
+                    var damage = Extension.DamageLibrary.CalculateDamage(unit, drawQ, drawW, drawE, drawR);
 
-                var drawE = Config.DrawingMenu["draw.E"].Cast<CheckBox>().CurrentValue;
+                    if (damage <= 0)
+                    {
+                        continue;
+                    }
+                    var damagePercentage = ((unit.TotalShieldHealth() - damage) > 0 ? (unit.TotalShieldHealth() - damage) : 0) /
+                                            (unit.MaxHealth + unit.AllShield + unit.AttackShield + unit.MagicShield);
+                    var currentHealthPercentage = unit.TotalShieldHealth() / (unit.MaxHealth + unit.AllShield + unit.AttackShield + unit.MagicShield);
 
-                var drawR = Config.DrawingMenu["draw.R"].Cast<CheckBox>().CurrentValue;
+                    var startPoint = new Vector2((int)(unit.HPBarPosition.X + damagePercentage * BarWidth), (int)unit.HPBarPosition.Y - 5);
+                    var endPoint = new Vector2((int)(unit.HPBarPosition.X + currentHealthPercentage * BarWidth) + 1, (int)unit.HPBarPosition.Y - 5);
 
-                var damage = (BarLength)
-                             *((Extension.DamageLibrary.CalculateDamage(aiHeroClient, drawQ, drawW, drawE, drawR)
-                                /aiHeroClient.MaxHealth) > 1
-                                 ? 1
-                                 : (Extension.DamageLibrary.CalculateDamage(
-                                     aiHeroClient,
-                                     drawQ,
-                                     drawW,
-                                     drawE,
-                                     drawR)/aiHeroClient.MaxHealth));
+                    var A = Config.DrawingMenu["draw_Alpha"].Cast<Slider>().CurrentValue;
+                    var R = Config.DrawingMenu["draw_Red"].Cast<Slider>().CurrentValue;
+                    var G = Config.DrawingMenu["draw_Green"].Cast<Slider>().CurrentValue;
+                    var B = Config.DrawingMenu["draw_Blue"].Cast<Slider>().CurrentValue;
 
-                var A = Config.DrawingMenu["draw_Alpha"].Cast<Slider>().CurrentValue;
-                var R = Config.DrawingMenu["draw_Red"].Cast<Slider>().CurrentValue;
-                var G = Config.DrawingMenu["draw_Green"].Cast<Slider>().CurrentValue;
-                var B = Config.DrawingMenu["draw_Blue"].Cast<Slider>().CurrentValue;
+                    var colorH = System.Drawing.Color.FromArgb(A - 120, R,
+                        G, B);
 
-                Line.DrawLine(
-                    Color.FromArgb(A, R, G, B),
-                    9f,
-                    new Vector2(pos.X, pos.Y),
-                    new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y));
-
-                Line.DrawLine(
-                    Color.FromArgb(A, R, G, B),
-                    3,
-                    new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y),
-                    new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y));
-
+                    Drawing.DrawLine(startPoint, endPoint, LineThickness, colorH);
+                }
             }
         }
     }

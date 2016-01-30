@@ -10,6 +10,8 @@ namespace LelBlanc.Modes
 
         public static void Execute()
         {
+            if (Player.Instance.IsUnderTurret()) return;
+
             var killableEnemies =
                 EntityManager.Heroes.Enemies.Where(
                     t =>
@@ -42,6 +44,8 @@ namespace LelBlanc.Modes
 
             else if (target.Health <= Extension.DamageLibrary.CalculateDamage(target, true, true, false, false))
             {
+                if (!Program.Q.IsReady() || !Program.W.IsReady()) return;
+
                 CastQ(target);
                 Core.DelayAction(() =>
                 {
@@ -55,6 +59,8 @@ namespace LelBlanc.Modes
 
             else if (target.Health <= Extension.DamageLibrary.CalculateDamage(target, true, false, false, true))
             {
+                if (!Program.Q.IsReady() || !Program.RReturn.IsReady()) return;
+
                 CastQ(target);
                 Core.DelayAction(() =>
                 {
@@ -65,6 +71,8 @@ namespace LelBlanc.Modes
 
             else
             {
+                if (!Program.Q.IsReady() || !Program.W.IsReady() || !Program.E.IsReady() || !Program.QUltimate.IsReady()) return;
+
                 CastQ(target);
                 Core.DelayAction(() =>
                 {

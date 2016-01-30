@@ -22,10 +22,10 @@ namespace LelBlanc
         {
             if (Player.Instance.Pet == null) return;
 
-            _humanizedDelay = new Random().Next(1000);
+            _humanizedDelay = new Random().Next(500);
             var enemiesAroundPet = Player.Instance.Pet.CountEnemiesInRange(Player.Instance.AttackRange);
-            var randX = new Random().Next(0, 500);
-            var randY = new Random().Next(0, 500);
+            var randX = new Random().Next(0, 200);
+            var randY = new Random().Next(0, 200);
 
             if (enemiesAroundPet > 1)
             {

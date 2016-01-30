@@ -69,6 +69,10 @@
     <Reference Include="SharpDX">
       <HintPath>C:\Users\KarmaPanda\AppData\Roaming\EloBuddy\Addons\Libraries\SharpDX.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.Direct3D9, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Users\KarmaPanda\AppData\Roaming\EloBuddy\Addons\Libraries\SharpDX.Direct3D9.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -80,11 +84,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColorPicker.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DamageIndicator.cs" />
     <Compile Include="Extension.cs" />
     <Compile Include="Modes\Combo.cs" />
-    <Compile Include="Modes\Gapcloser.cs" />
     <Compile Include="Modes\Harass.cs" />
     <Compile Include="Modes\JungleClear.cs" />
     <Compile Include="Modes\KillSteal.cs" />

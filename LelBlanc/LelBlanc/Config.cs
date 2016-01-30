@@ -1,4 +1,5 @@
-﻿using EloBuddy.SDK.Menu;
+﻿using EloBuddy;
+using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 
 namespace LelBlanc
@@ -24,6 +25,7 @@ namespace LelBlanc
             ComboMenu.AddLabel("Spell Settings");
             ComboMenu.Add("useQ", new CheckBox("Use Q"));
             ComboMenu.Add("useW", new CheckBox("Use W"));
+            ComboMenu.Add("useReturn", new CheckBox("Use W Return"));
             ComboMenu.Add("useE", new CheckBox("Use E"));
             ComboMenu.AddLabel("R Settings");
             ComboMenu.Add("useQR", new CheckBox("Use QR"));
@@ -34,6 +36,7 @@ namespace LelBlanc
             HarassMenu.AddLabel("Spell Settings");
             HarassMenu.Add("useQ", new CheckBox("Use Q"));
             HarassMenu.Add("useW", new CheckBox("Use W"));
+            HarassMenu.Add("useReturn", new CheckBox("Use W Return"));
             HarassMenu.Add("useE", new CheckBox("Use E"));
             HarassMenu.AddLabel("R Settings");
             HarassMenu.Add("useQR", new CheckBox("Use QR"));
@@ -74,7 +77,7 @@ namespace LelBlanc
             KillStealMenu.AddLabel("Misc Settings");
             KillStealMenu.Add("toggle", new CheckBox("Enable Kill Steal"));
 
-            DrawingMenu = ConfigMenu.AddSubMenu("Drawing", "dMenu");
+            DrawingMenu = ConfigMenu.AddSubMenu("Drawing Menu", "dMenu");
             DrawingMenu.AddLabel("Range Drawings");
             DrawingMenu.Add("drawQ", new CheckBox("Draw Q Range", false));
             DrawingMenu.Add("drawW", new CheckBox("Draw W Range", false));
@@ -85,24 +88,10 @@ namespace LelBlanc
             DrawingMenu.Add("draw.W", new CheckBox("Calculate W Damage"));
             DrawingMenu.Add("draw.E", new CheckBox("Calculate E Damage"));
             DrawingMenu.Add("draw.R", new CheckBox("Calculate R Damage"));
-            DrawingMenu.AddLabel("Color Settings for Damage Indicator");
-            DrawingMenu.Add("draw_Alpha", new Slider("Alpha: ", 255, 0, 255));
-            DrawingMenu.Add("draw_Red", new Slider("Red: ", 255, 0, 255));
-            DrawingMenu.Add("draw_Green", new Slider("Green: ", 0, 0, 255));
-            DrawingMenu.Add("draw_Blue", new Slider("Blue: ", 0, 0, 255));
 
-            MiscMenu = ConfigMenu.AddSubMenu("Misc", "mMenu");
+            MiscMenu = ConfigMenu.AddSubMenu("Misc Menu", "mMenu");
             MiscMenu.AddLabel("Miscellaneous");
-            MiscMenu.Add("pet", new CheckBox("Automatic Clone Movement -- BROKEN", false));
-            MiscMenu.AddLabel("Gapcloser Settings");
-            MiscMenu.Add("gapCloser", new CheckBox("Use Gapcloser Combo (W -> Q -> R -> E)"));
-            MiscMenu.Add("useQ", new CheckBox("Use Q"));
-            MiscMenu.Add("useW", new CheckBox("Use W"));
-            MiscMenu.Add("useE", new CheckBox("Use E"));
-            MiscMenu.AddLabel("R Settings");
-            MiscMenu.Add("useQR", new CheckBox("Use QR"));
-            MiscMenu.Add("useWR", new CheckBox("Use WR"));
-            MiscMenu.Add("useER", new CheckBox("Use ER"));
+            MiscMenu.Add("pet", new CheckBox("Automatic Clone Movement", false));
         }
     }
 }

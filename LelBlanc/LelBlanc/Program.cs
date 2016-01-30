@@ -10,16 +10,6 @@ namespace LelBlanc
     class Program
     {
         /// <summary>
-        /// Should Activate Gapcloser Combo
-        /// </summary>
-        public static bool ComboGapCloser;
-
-        /// <summary>
-        /// Gapcloser Target
-        /// </summary>
-        public static AIHeroClient GapCloserTarget;
-        
-        /// <summary>
         /// Position for Last W
         /// </summary>
         public static Vector3 LastWPosition;
@@ -60,6 +50,11 @@ namespace LelBlanc
         public static DamageIndicator Indicator;
 
         /// <summary>
+        /// Contains the Color Picker
+        /// </summary>
+        public static ColorPicker Picker;
+
+        /// <summary>
         /// Called when the Program is Initialized
         /// </summary>
         private static void Main()
@@ -73,6 +68,11 @@ namespace LelBlanc
         /// <param name="args"></param>
         private static void Loading_OnLoadingComplete(System.EventArgs args)
         {
+            if (Player.Instance.Hero != Champion.Leblanc)
+            {
+                return;
+            }
+
             Q = new Spell.Targeted(SpellSlot.Q, 720)
             {
                 CastDelay = 500
@@ -100,17 +100,15 @@ namespace LelBlanc
 
             Chat.Print("LelBlanc Loaded", System.Drawing.Color.Blue);
 
-            ComboGapCloser = false;
-
             // Methods
             Config.Initialize();
 
             // Constructors
+            Picker = new ColorPicker(Config.DrawingMenu, "draw_", System.Drawing.Color.FromArgb(255, 255, 0, 0), "Color Settings for Damage Indicator");
             Indicator = new DamageIndicator();
-            
+
             // Events
             Game.OnUpdate += Game_OnUpdate;
-            Gapcloser.OnGapcloser += Gapcloser_OnGapcloser;
             Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
             Drawing.OnDraw += OnDraw.DrawRange;
         }
@@ -135,24 +133,6 @@ namespace LelBlanc
                 LastWUltimatePosition = args.Start;
                 LastWUltimateEndPosition = args.End;
             }
-        }
-
-        /// <summary>
-        /// Called when Gapcloser is possible
-        /// </summary>
-        /// <param name="sender">The Sender of the Gapcloser</param>
-        /// <param name="e">The Event</param>
-        private static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
-        {
-            if (e.Target == null || ComboGapCloser) return;
-            if (!W.IsInRange(e.Target))
-            {
-                ComboGapCloser = false;
-                GapCloserTarget = null;
-                return;
-            }
-            ComboGapCloser = true;
-            GapCloserTarget = e.Target as AIHeroClient;
         }
 
         /// <summary>
@@ -181,11 +161,6 @@ namespace LelBlanc
                     return;
                 }
             }
-            if (GapCloserTarget != null && !W.IsInRange(GapCloserTarget))
-            {
-                GapCloserTarget = null;
-                ComboGapCloser = false;
-            }
             if (Config.MiscMenu["pet"].Cast<CheckBox>().CurrentValue)
             {
                 Pet.MovePet();
@@ -193,10 +168,6 @@ namespace LelBlanc
             if (Config.KillStealMenu["toggle"].Cast<CheckBox>().CurrentValue)
             {
                 Modes.KillSteal.Execute();
-            }
-            if (Config.MiscMenu["gapCloser"].Cast<CheckBox>().CurrentValue && ComboGapCloser && GapCloserTarget != null)
-            {
-                Modes.Gapcloser.Execute(GapCloserTarget);
             }
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {

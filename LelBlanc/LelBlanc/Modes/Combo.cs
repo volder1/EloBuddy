@@ -8,6 +8,7 @@ namespace LelBlanc.Modes
     {
         public static bool UseQ = Config.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
         public static bool UseW = Config.ComboMenu["useW"].Cast<CheckBox>().CurrentValue;
+        public static bool UseReturn = Config.ComboMenu["useReturn"].Cast<CheckBox>().CurrentValue;
         public static bool UseE = Config.ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
         public static bool UseQR = Config.ComboMenu["useQR"].Cast<CheckBox>().CurrentValue;
         public static bool UseWR = Config.ComboMenu["useWR"].Cast<CheckBox>().CurrentValue;
@@ -43,6 +44,12 @@ namespace LelBlanc.Modes
                 Program.Q.Cast(target);
             }
 
+            if (UseW && !Program.Q.IsLearned && !Program.E.IsLearned && Program.W.IsReady() &&
+                Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslide")
+            {
+                Program.W.Cast(target);
+            }
+
             if (UseW && !Program.Q.IsReady() && Program.W.IsReady() &&
                 Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslide" &&
                 Extension.IsMarked(target))
@@ -55,7 +62,7 @@ namespace LelBlanc.Modes
                 Program.E.Cast(target);
             }
 
-            if (UseW && Program.WReturn.IsReady() && !Program.Q.IsReady() && !Program.E.IsReady() &&
+            if (UseReturn && Program.WReturn.IsReady() && !Program.Q.IsReady() && !Program.E.IsReady() &&
                 Program.E.Range <= Program.LastWPosition.Distance(target) &&
                 Extension.DamageLibrary.CalculateDamage(target, true, true, true, true) < target.Health &&
                 Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslidereturn")
@@ -96,6 +103,12 @@ namespace LelBlanc.Modes
                 Program.QUltimate.Cast(target);
             }
 
+            if (UseW && !Program.Q.IsLearned && !Program.E.IsLearned && Program.W.IsReady() &&
+                Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslide")
+            {
+                Program.W.Cast(target);
+            }
+
             if (UseW && !Program.Q.IsReady() && !Program.QUltimate.IsReady() && Program.W.IsReady() &&
                 Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslide" &&
                 Extension.IsMarked(target))
@@ -120,7 +133,7 @@ namespace LelBlanc.Modes
                 Program.EUltimate.Cast(target);
             }
 
-            if (UseW && Program.WReturn.IsReady() && !Program.Q.IsReady() && !Program.E.IsReady() &&
+            if (UseReturn && Program.WReturn.IsReady() && !Program.Q.IsReady() && !Program.E.IsReady() &&
                 Program.E.Range <= Program.LastWPosition.Distance(target) &&
                 Extension.DamageLibrary.CalculateDamage(target, true, true, true, true) < target.Health &&
                 Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslidereturn")
