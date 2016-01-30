@@ -1,11 +1,21 @@
 ﻿using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
+using EloBuddy.SDK.Menu.Values;
 
 namespace LelBlanc.Modes
 {
     class KillSteal
     {
+        public static bool UseQ = Config.KillStealMenu["useQ"].Cast<CheckBox>().CurrentValue;
+        public static bool UseW = Config.KillStealMenu["useW"].Cast<CheckBox>().CurrentValue;
+        public static bool UseReturn = Config.KillStealMenu["useReturn"].Cast<CheckBox>().CurrentValue;
+        public static bool UseE = Config.KillStealMenu["useE"].Cast<CheckBox>().CurrentValue;
+        public static bool UseQR = Config.KillStealMenu["useQR"].Cast<CheckBox>().CurrentValue;
+        public static bool UseWR = Config.KillStealMenu["useWR"].Cast<CheckBox>().CurrentValue;
+        public static bool UseReturn2 = Config.KillStealMenu["useReturn2"].Cast<CheckBox>().CurrentValue;
+        public static bool UseER = Config.KillStealMenu["useER"].Cast<CheckBox>().CurrentValue;
+
         public static bool ResetW = false;
 
         public static void Execute()
@@ -16,23 +26,22 @@ namespace LelBlanc.Modes
                 EntityManager.Heroes.Enemies.Where(
                     t =>
                         t.IsValidTarget() && !t.HasUndyingBuff() &&
-                        Extension.DamageLibrary.CalculateDamage(t, Program.Q.IsReady(), Program.W.IsReady(),
-                            Program.E.IsReady(), Program.RReturn.IsReady()) >= t.Health);
+                        Extension.DamageLibrary.CalculateDamage(t, UseQ, UseW, UseE, UseQR) >= t.Health);
             var target = TargetSelector.GetTarget(killableEnemies, DamageType.Magical);
 
             if (target == null) return;
 
-            if (target.Health <= Extension.DamageLibrary.CalculateDamage(target, true, false, false, false))
+            if (UseQ && target.Health <= Extension.DamageLibrary.CalculateDamage(target, true, false, false, false))
             {
                 CastQ(target);    
             }
 
-            else if (target.Health <= Extension.DamageLibrary.CalculateDamage(target, false, true, false, false))
+            else if (UseW && target.Health <= Extension.DamageLibrary.CalculateDamage(target, false, true, false, false))
             {
                 CastW(target, true);
             }
 
-            else if (target.Health <= Extension.DamageLibrary.CalculateDamage(target, false, false, true, false))
+            else if (UseE && target.Health <= Extension.DamageLibrary.CalculateDamage(target, false, false, true, false))
             {
                 CastE(target);
             }
@@ -42,7 +51,7 @@ namespace LelBlanc.Modes
                 CastR(target, true);
             }
 
-            else if (target.Health <= Extension.DamageLibrary.CalculateDamage(target, true, true, false, false))
+            else if (UseQ && UseW && target.Health <= Extension.DamageLibrary.CalculateDamage(target, true, true, false, false))
             {
                 if (!Program.Q.IsReady() || !Program.W.IsReady()) return;
 
@@ -57,7 +66,7 @@ namespace LelBlanc.Modes
                 }, Program.Q.CastDelay);
             }
 
-            else if (target.Health <= Extension.DamageLibrary.CalculateDamage(target, true, false, false, true))
+            else if (UseQ && (UseQR || UseWR || UseER) && target.Health <= Extension.DamageLibrary.CalculateDamage(target, true, false, false, true))
             {
                 if (!Program.Q.IsReady() || !Program.RReturn.IsReady()) return;
 
@@ -112,7 +121,10 @@ namespace LelBlanc.Modes
                 Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslide")
             {
                 Program.W.Cast(target);
-                ResetW = useWReturn;
+                if (UseReturn)
+                {
+                    ResetW = useWReturn;
+                }
             }
         }
 
@@ -135,20 +147,23 @@ namespace LelBlanc.Modes
             }
 
             // Q
-            if (Program.QUltimate.IsInRange(target) && Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancchaosorbm")
+            if (UseQR && Program.QUltimate.IsInRange(target) && Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancchaosorbm")
             {
                 Program.QUltimate.Cast(target);
             }
 
             // W
-            if (Program.WUltimate.IsInRange(target) && Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancslidem")
+            if (UseWR && Program.WUltimate.IsInRange(target) && Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancslidem")
             {
                 Program.WUltimate.Cast(target);
-                ResetW = useWReturn;
+                if (UseReturn2)
+                {
+                    ResetW = useWReturn;
+                }
             }
 
             // E
-            if (Program.EUltimate.IsInRange(target) && Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancsoulshacklem")
+            if (UseER && Program.EUltimate.IsInRange(target) && Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancsoulshacklem")
             {
                 Program.EUltimate.Cast(target);
             }

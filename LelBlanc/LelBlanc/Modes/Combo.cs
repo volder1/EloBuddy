@@ -12,6 +12,7 @@ namespace LelBlanc.Modes
         public static bool UseE = Config.ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
         public static bool UseQR = Config.ComboMenu["useQR"].Cast<CheckBox>().CurrentValue;
         public static bool UseWR = Config.ComboMenu["useWR"].Cast<CheckBox>().CurrentValue;
+        public static bool UseReturn2 = Config.ComboMenu["useReturn2"].Cast<CheckBox>().CurrentValue;
         public static bool UseER = Config.ComboMenu["useER"].Cast<CheckBox>().CurrentValue;
 
         public static void Execute()
@@ -31,7 +32,7 @@ namespace LelBlanc.Modes
             var target = TargetSelector.GetTarget(700, DamageType.Magical);
             if (target == null)
             {
-                if (Program.WReturn.IsReady() && UseW &&
+                if (Program.WReturn.IsReady() && UseReturn &&
                     Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslidereturn")
                 {
                     Program.WReturn.Cast();
@@ -77,13 +78,13 @@ namespace LelBlanc.Modes
 
             if (target == null)
             {
-                if (Program.WReturn.IsReady() && UseW &&
+                if (Program.WReturn.IsReady() && UseReturn &&
                     Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslidereturn")
                 {
                     Program.WReturn.Cast();
                 }
 
-                if (Program.RReturn.IsReady() && UseWR &&
+                if (Program.RReturn.IsReady() && UseReturn2 &&
                     Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancslidereturnm")
                 {
                     Program.RReturn.Cast();

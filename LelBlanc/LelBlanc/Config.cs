@@ -29,8 +29,9 @@ namespace LelBlanc
             ComboMenu.Add("useE", new CheckBox("Use E"));
             ComboMenu.AddLabel("R Settings");
             ComboMenu.Add("useQR", new CheckBox("Use QR"));
-            ComboMenu.Add("useWR", new CheckBox("Use WR"));
-            ComboMenu.Add("useER", new CheckBox("Use ER"));
+            ComboMenu.Add("useWR", new CheckBox("Use WR", false));
+            ComboMenu.Add("useReturn2", new CheckBox("Use WR Return", false));
+            ComboMenu.Add("useER", new CheckBox("Use ER", false));
 
             HarassMenu = ConfigMenu.AddSubMenu("Harass Menu", "hMenu");
             HarassMenu.AddLabel("Spell Settings");
@@ -40,8 +41,9 @@ namespace LelBlanc
             HarassMenu.Add("useE", new CheckBox("Use E"));
             HarassMenu.AddLabel("R Settings");
             HarassMenu.Add("useQR", new CheckBox("Use QR"));
-            HarassMenu.Add("useWR", new CheckBox("Use WR"));
-            HarassMenu.Add("useER", new CheckBox("Use ER"));
+            HarassMenu.Add("useWR", new CheckBox("Use WR", false));
+            HarassMenu.Add("useReturn2", new CheckBox("Use WR Return"));
+            HarassMenu.Add("useER", new CheckBox("Use ER", false));
 
             LaneClearMenu = ConfigMenu.AddSubMenu("Laneclear Menu", "lcMenu");
             LaneClearMenu.AddLabel("Spell Settings");
@@ -69,10 +71,12 @@ namespace LelBlanc
             KillStealMenu.AddLabel("Spell Settings");
             KillStealMenu.Add("useQ", new CheckBox("Use Q"));
             KillStealMenu.Add("useW", new CheckBox("Use W"));
+            KillStealMenu.Add("useReturn", new CheckBox("Use W Return"));
             KillStealMenu.Add("useE", new CheckBox("Use E"));
             KillStealMenu.AddLabel("R Settings");
             KillStealMenu.Add("useQR", new CheckBox("Use QR"));
             KillStealMenu.Add("useWR", new CheckBox("Use WR"));
+            KillStealMenu.Add("useReturn2", new CheckBox("Use WR Return"));
             KillStealMenu.Add("useER", new CheckBox("Use ER"));
             KillStealMenu.AddLabel("Misc Settings");
             KillStealMenu.Add("toggle", new CheckBox("Enable Kill Steal"));
@@ -91,7 +95,7 @@ namespace LelBlanc
 
             MiscMenu = ConfigMenu.AddSubMenu("Misc Menu", "mMenu");
             MiscMenu.AddLabel("Miscellaneous");
-            MiscMenu.Add("pet", new CheckBox("Automatic Clone Movement", false));
+            MiscMenu.Add("pet", new CheckBox("Automatic Clone Movement"));
         }
     }
 }
