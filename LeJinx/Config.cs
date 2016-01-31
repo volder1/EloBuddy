@@ -83,22 +83,22 @@
             ComboMenu.Add("manaE", new Slider("ManaManager for E", 25));
             ComboMenu.Add("manaR", new Slider("ManaManager for R", 25));
             ComboMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
-            ComboMenu.Add("qCountC", new Slider("Use Q if Hit x Champion(s)", 3, 1, 5));
-            ComboMenu.Add("rCountC", new Slider("Use R if Hit x Champion(s)", 5, 1, 5));
+            ComboMenu.Add("qCountC", new Slider("Use Q if Hit {0} Champion(s)", 3, 1, 5));
+            ComboMenu.Add("rCountC", new Slider("Use R if Hit {0} Champion(s)", 5, 1, 5));
             ComboMenu.AddLabel("Prediction Settings");
-            ComboMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 80));
-            ComboMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 80));
-            ComboMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 80));
+            ComboMenu.Add("wSlider", new Slider("Use W if HitChance % is {0}", 80));
+            ComboMenu.Add("eSlider", new Slider("Use E if HitChance % is {0}", 80));
+            ComboMenu.Add("rSlider", new Slider("Use R if HitChance % is {0}", 80));
             ComboMenu.AddLabel("Extra Settings");
-            ComboMenu.Add("wRange2", new Slider("Only Use W if Player Range from Target is more than x", 150, 0, 1450));
-            ComboMenu.Add("eRange", new Slider("Only Use E if Player Range from Target is more than x", 150, 0, 900));
+            ComboMenu.Add("wRange2", new Slider("Only Use W if Player Range from Target is more than {0}", 150, 0, 1450));
+            ComboMenu.Add("eRange", new Slider("Only Use E if Player Range from Target is more than {0}", 150, 0, 900));
             ComboMenu.Add("eRange2", new Slider("Max E Range", 900, 0, 900));
             ComboMenu.Add("rRange2", new Slider("Max R Range", 3000, 0, 3000));
 
             LastHitMenu = ConfigMenu.AddSubMenu("LastHit", "LastHit");
             LastHitMenu.AddGroupLabel("LastHit Settings");
             LastHitMenu.Add("useQ", new CheckBox("Use Q"));
-            LastHitMenu.Add("qCountM", new Slider("Use Q if Hit x Minions", 3, 1, 7));
+            LastHitMenu.Add("qCountM", new Slider("Use Q if Hit {0} Minions", 3, 1, 7));
             LastHitMenu.AddLabel("ManaManager");
             LastHitMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
 
@@ -110,19 +110,19 @@
             HarassMenu.Add("manaQ", new Slider("ManaManager for Q", 15));
             HarassMenu.Add("manaW", new Slider("ManaManager for W", 35));
             HarassMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
-            HarassMenu.Add("qCountC", new Slider("Use Q if Hit x Champion(s)", 3, 1, 5));
-            HarassMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 3, 1, 7));
+            HarassMenu.Add("qCountC", new Slider("Use Q if Hit {0} Champion(s)", 3, 1, 5));
+            HarassMenu.Add("qCountM", new Slider("Use Q if Hit {0} Minion(s)", 3, 1, 7));
             HarassMenu.AddLabel("Prediction Settings");
-            HarassMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 95));
+            HarassMenu.Add("wSlider", new Slider("Use W if HitChance % is {0}", 95));
             HarassMenu.AddLabel("Extra Settings");
-            HarassMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is x", 0, 0, 1450));
+            HarassMenu.Add("wRange2", new Slider("Don't Use W if Player Range from Target is {0}", 0, 0, 1450));
 
             LaneClearMenu = ConfigMenu.AddSubMenu("Lane Clear", "LaneClear");
             LaneClearMenu.AddLabel("Lane Clear Settings");
             LaneClearMenu.Add("useQ", new CheckBox("Use Q"));
             LaneClearMenu.Add("lastHit", new CheckBox("Last Hit Minion Out of Range", false));
             LaneClearMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
-            LaneClearMenu.Add("qCountM", new Slider("Use Q if Hit x Minion(s)", 3, 1, 7));
+            LaneClearMenu.Add("qCountM", new Slider("Use Q if Hit {0} Minion(s)", 3, 1, 7));
 
             KillStealMenu = ConfigMenu.AddSubMenu("Kill Steal", "KillSteal");
             KillStealMenu.Add("toggle", new CheckBox("Use Kill Steal"));
@@ -132,8 +132,8 @@
             KillStealMenu.Add("manaW", new Slider("ManaManager for W", 25));
             KillStealMenu.Add("manaR", new Slider("ManaManager for R", 25));
             KillStealMenu.AddLabel("Prediction Settings");
-            KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 80));
-            KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is x", 80));
+            KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is {0}", 80));
+            KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is {0}", 80));
             KillStealMenu.AddLabel("Spell Settings");
             KillStealMenu.Add("wRange", new Slider("Minimum Distance for W", 450, 0, 3000));
             KillStealMenu.Add("rRange", new Slider("Max Distance for R", 3000, 0, 3000));
@@ -146,7 +146,7 @@
             JungleClearMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
             JungleClearMenu.Add("manaW", new Slider("ManaManager for W", 25));
             JungleClearMenu.AddLabel("Misc Settings");
-            JungleClearMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 85));
+            JungleClearMenu.Add("wSlider", new Slider("Use W if HitChance % is {0}", 85));
 
             JungleStealMenu = ConfigMenu.AddSubMenu("Jungle Steal", "JungleSteal");
             JungleStealMenu.AddLabel("Jungle Steal Settings");
@@ -186,8 +186,8 @@
             FleeMenu.AddLabel("Flee Settings");
             FleeMenu.Add("useW", new CheckBox("Use W while Fleeing"));
             FleeMenu.Add("useE", new CheckBox("Use E while Fleeing"));
-            FleeMenu.Add("wSlider", new Slider("Use W if HitChance is X", 75));
-            FleeMenu.Add("eSlider", new Slider("Use E if HitChance is X", 75));
+            FleeMenu.Add("wSlider", new Slider("Use W if HitChance is {0}", 75));
+            FleeMenu.Add("eSlider", new Slider("Use E if HitChance is {0}", 75));
 
             DrawingMenu = ConfigMenu.AddSubMenu("Drawing", "Drawing");
             DrawingMenu.AddLabel("Drawing Settings");
@@ -220,17 +220,17 @@
             MiscMenu.Add("autoW", new CheckBox("Automatically use W in certain situations"));
             MiscMenu.Add("autoE", new CheckBox("Automatically uses E in certain situations"));
             MiscMenu.Add("wRange", new CheckBox("Use W only if target is in AA range", false));
-            MiscMenu.Add("rRange", new Slider("Don't Use R if Player Range from target is X", 345, 0, 3000));
+            MiscMenu.Add("rRange", new Slider("Don't Use R if Player Range from target is {0}", 345, 0, 3000));
             MiscMenu.AddLabel("Auto W Settings (You must have Auto W on)");
             MiscMenu.Add("stunW", new CheckBox("Use W on Stunned Enemy"));
             MiscMenu.Add("charmW", new CheckBox("Use W on Charmed Enemy"));
             MiscMenu.Add("tauntW", new CheckBox("Use W on Taunted Enemy"));
             MiscMenu.Add("fearW", new CheckBox("Use W on Feared Enemy"));
             MiscMenu.Add("snareW", new CheckBox("Use W on Snared Enemy"));
-            MiscMenu.Add("wRange2", new Slider("Only Use W if Player Range from Target is more than x", 450, 0, 1450));
+            MiscMenu.Add("wRange2", new Slider("Only Use W if Player Range from Target is more than {0}", 450, 0, 1450));
             MiscMenu.AddLabel("Prediction Settings");
-            MiscMenu.Add("wSlider", new Slider("Use W if HitChance % is x", 75));
-            MiscMenu.Add("eSlider", new Slider("Use E if HitChance % is x", 75));
+            MiscMenu.Add("wSlider", new Slider("Use W if HitChance % is {0}", 75));
+            MiscMenu.Add("eSlider", new Slider("Use E if HitChance % is {0}", 75));
             MiscMenu.AddLabel("Allah Akbar");
             MiscMenu.Add("allahAkbarT", new CheckBox("Play Allah Akbar after casting R", false));
         }
