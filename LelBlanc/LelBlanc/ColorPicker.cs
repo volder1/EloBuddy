@@ -5,7 +5,6 @@ using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using EloBuddy.SDK.Rendering;
 using SharpDX;
-using SharpDX.Direct3D9;
 using Color = System.Drawing.Color;
 using Sprite = EloBuddy.SDK.Rendering.Sprite;
 

@@ -1,13 +1,39 @@
-﻿using EloBuddy;
+﻿using System.Linq;
+using EloBuddy;
 using EloBuddy.SDK;
 
 namespace LelBlanc
 {
     internal class Extension
     {
+        /// <summary>
+        /// Checks if the Player has the spell.
+        /// </summary>
+        /// <param name="s">The Spell Name</param>
+        /// <returns></returns>
+        public static bool HasSpell(string s)
+        {
+            return Player.Spells.FirstOrDefault(o => o.SData.Name.Contains(s)) != null;
+        }
+
+        /// <summary>
+        /// Checks to see if the target is being silenced
+        /// </summary>
+        /// <param name="target">The Target</param>
+        /// <returns></returns>
         public static bool IsMarked(Obj_AI_Base target)
         {
-            return target.HasBuff("LeBlancMarkOfSilence") || target.HasBuff("LeBlancMarkOfSilenceM");
+            return target.HasBuff("LeblancMarkOfSilence") || target.HasBuff("LeblancMarkOfSilenceM");
+        }
+
+        /// <summary>
+        /// Checks to see if the target is being E'ed
+        /// </summary>
+        /// <param name="target">The Target</param>
+        /// <returns></returns>
+        public static bool IsBeingE(Obj_AI_Base target)
+        {
+            return target.HasBuff("LeblancShackleBeam") || target.HasBuff("LeblancShackleBeamM");
         }
 
         internal class DamageLibrary
@@ -21,7 +47,7 @@ namespace LelBlanc
             /// <param name="e">The E</param>
             /// <param name="r">The R</param>
             /// <returns></returns>
-            public static float CalculateDamage(Obj_AI_Base target, bool q, bool w, bool e, bool r)
+            public static float CalculateDamage(Obj_AI_Base target, bool q, bool w, bool e, bool r, bool ignite)
             {
                 var totaldamage = 0f;
 
@@ -57,6 +83,11 @@ namespace LelBlanc
                     Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancchaosorbm")
                 {
                     totaldamage += QDamage(target);
+
+                    if (q && Program.Q.IsReady() || IsMarked(target))
+                    {
+                        totaldamage += QDamage(target);
+                    }
                 }
 
                 if (r && Program.WUltimate.IsReady() &&
@@ -79,6 +110,11 @@ namespace LelBlanc
                     {
                         totaldamage += QDamage(target);
                     }
+                }
+
+                if (ignite && Program.Ignite != null && Program.Ignite.IsReady() && Program.Ignite.IsInRange(target))
+                {
+                    totaldamage += Player.Instance.GetSummonerSpellDamage(target, EloBuddy.SDK.DamageLibrary.SummonerSpells.Ignite);
                 }
 
                 return totaldamage;

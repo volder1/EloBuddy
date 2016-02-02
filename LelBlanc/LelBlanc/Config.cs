@@ -1,5 +1,4 @@
-﻿using EloBuddy;
-using EloBuddy.SDK.Menu;
+﻿using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 
 namespace LelBlanc
@@ -49,23 +48,23 @@ namespace LelBlanc
             LaneClearMenu.AddLabel("Spell Settings");
             LaneClearMenu.Add("useQ", new CheckBox("Use Q", false));
             LaneClearMenu.Add("useW", new CheckBox("Use W"));
-            LaneClearMenu.Add("sliderW", new Slider("Use W if Kill x Minions", 3, 1, 5));
+            LaneClearMenu.Add("sliderW", new Slider("Use W if Kill {0} Minions", 3, 1, 5));
             LaneClearMenu.AddLabel("R Settings");
             LaneClearMenu.Add("useQR", new CheckBox("Use QR", false));
             LaneClearMenu.Add("useWR", new CheckBox("Use WR"));
-            LaneClearMenu.Add("sliderWR", new Slider("Use WR if Kill x Minions", 5, 1, 5));
+            LaneClearMenu.Add("sliderWR", new Slider("Use WR if Kill {0} Minions", 5, 1, 5));
 
             JungleClearMenu = ConfigMenu.AddSubMenu("Jungleclear Menu", "jcMenu");
             JungleClearMenu.AddLabel("Spell Settings");
             JungleClearMenu.Add("useQ", new CheckBox("Use Q"));
             JungleClearMenu.Add("useW", new CheckBox("Use W"));
             JungleClearMenu.Add("useE", new CheckBox("Use E"));
-            JungleClearMenu.Add("sliderW", new Slider("Use W if Hit x Minions", 3, 1, 5));
+            JungleClearMenu.Add("sliderW", new Slider("Use W if Hit {0} Minions", 3, 1, 5));
             JungleClearMenu.AddLabel("R Settings");
             JungleClearMenu.Add("useQR", new CheckBox("Use QR"));
             JungleClearMenu.Add("useWR", new CheckBox("Use WR"));
             JungleClearMenu.Add("useER", new CheckBox("Use ER"));
-            JungleClearMenu.Add("sliderWR", new Slider("Use WR if Hit x Minions", 5, 1, 5));
+            JungleClearMenu.Add("sliderWR", new Slider("Use WR if Hit {0} Minions", 5, 1, 5));
 
             KillStealMenu = ConfigMenu.AddSubMenu("Killsteal Menu", "ksMenu");
             KillStealMenu.AddLabel("Spell Settings");
@@ -79,6 +78,7 @@ namespace LelBlanc
             KillStealMenu.Add("useReturn2", new CheckBox("Use WR Return"));
             KillStealMenu.Add("useER", new CheckBox("Use ER"));
             KillStealMenu.AddLabel("Misc Settings");
+            KillStealMenu.Add("useIgnite", new CheckBox("Use Ignite"));
             KillStealMenu.Add("toggle", new CheckBox("Enable Kill Steal"));
 
             DrawingMenu = ConfigMenu.AddSubMenu("Drawing Menu", "dMenu");
@@ -92,6 +92,7 @@ namespace LelBlanc
             DrawingMenu.Add("draw.W", new CheckBox("Calculate W Damage"));
             DrawingMenu.Add("draw.E", new CheckBox("Calculate E Damage"));
             DrawingMenu.Add("draw.R", new CheckBox("Calculate R Damage"));
+            DrawingMenu.Add("draw.Ignite", new CheckBox("Calculate Ignite Damage"));
 
             MiscMenu = ConfigMenu.AddSubMenu("Misc Menu", "mMenu");
             MiscMenu.AddLabel("Miscellaneous");

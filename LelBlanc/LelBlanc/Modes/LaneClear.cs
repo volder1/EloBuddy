@@ -7,12 +7,35 @@ namespace LelBlanc.Modes
 {
     internal class LaneClear
     {
-        public static bool UseQ = Config.LaneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
-        public static bool UseW = Config.LaneClearMenu["useW"].Cast<CheckBox>().CurrentValue;
-        public static int SliderW = Config.LaneClearMenu["sliderW"].Cast<Slider>().CurrentValue;
-        public static bool UseQR = Config.LaneClearMenu["useQR"].Cast<CheckBox>().CurrentValue;
-        public static bool UseWR = Config.LaneClearMenu["useWR"].Cast<CheckBox>().CurrentValue;
-        public static int SliderWR = Config.LaneClearMenu["sliderWR"].Cast<Slider>().CurrentValue;
+        public static bool UseQ
+        {
+            get { return Config.LaneClearMenu["useQ"].Cast<CheckBox>().CurrentValue; }
+        }
+
+        public static bool UseW
+        {
+            get { return Config.LaneClearMenu["useW"].Cast<CheckBox>().CurrentValue; }
+        }
+
+        public static int SliderW
+        {
+            get { return Config.LaneClearMenu["sliderW"].Cast<Slider>().CurrentValue; }
+        }
+
+        public static bool UseQr
+        {
+            get { return Config.LaneClearMenu["useQR"].Cast<CheckBox>().CurrentValue; }
+        }
+
+        public static bool UseWr
+        {
+            get { return Config.LaneClearMenu["useWR"].Cast<CheckBox>().CurrentValue; }
+        }
+
+        public static int SliderWr
+        {
+            get { return Config.LaneClearMenu["sliderWR"].Cast<Slider>().CurrentValue; }
+        }
 
         public static void Execute()
         {
@@ -34,7 +57,7 @@ namespace LelBlanc.Modes
                     EntityManager.UnitTeam.Enemy,
                     Player.Instance.ServerPosition, Program.Q.Range)
                     .FirstOrDefault(
-                        t => Extension.DamageLibrary.CalculateDamage(t, true, false, false, false) >= t.Health);
+                        t => Extension.DamageLibrary.CalculateDamage(t, true, false, false, false, false) >= t.Health);
 
                 if (minion != null)
                 {
@@ -46,13 +69,13 @@ namespace LelBlanc.Modes
             {
                 var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
                     Player.Instance.ServerPosition, Program.W.Range)
-                    .Where(t => Extension.DamageLibrary.CalculateDamage(t, false, true, false, false) >= t.Health);
-                var wAOE = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
+                    .Where(t => Extension.DamageLibrary.CalculateDamage(t, false, true, false, false, false) >= t.Health);
+                var wAoe = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
                     (int) Program.W.Range);
 
-                if (wAOE.HitNumber > SliderW)
+                if (wAoe.HitNumber > SliderW)
                 {
-                    Program.W.Cast(wAOE.CastPosition);
+                    Program.W.Cast(wAoe.CastPosition);
                 }
             }
             if (UseW && Program.WReturn.IsReady() &&
@@ -70,21 +93,21 @@ namespace LelBlanc.Modes
                     EntityManager.UnitTeam.Enemy,
                     Player.Instance.ServerPosition, Program.Q.Range)
                     .FirstOrDefault(
-                        t => Extension.DamageLibrary.CalculateDamage(t, true, false, false, false) >= t.Health);
+                        t => Extension.DamageLibrary.CalculateDamage(t, true, false, false, false, false) >= t.Health);
 
                 if (minion != null)
                 {
                     Program.Q.Cast(minion);
                 }
             }
-            if (UseQR && Program.QUltimate.IsReady() &&
+            if (UseQr && Program.QUltimate.IsReady() &&
                 Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancchaosorbm")
             {
                 var minion = EntityManager.MinionsAndMonsters.Get(EntityManager.MinionsAndMonsters.EntityType.Minion,
                     EntityManager.UnitTeam.Enemy,
                     Player.Instance.ServerPosition, Program.QUltimate.Range)
                     .FirstOrDefault(
-                        t => Extension.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health);
+                        t => Extension.DamageLibrary.CalculateDamage(t, false, false, false, true, false) >= t.Health);
 
                 if (minion != null)
                 {
@@ -96,13 +119,13 @@ namespace LelBlanc.Modes
             {
                 var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
                     Player.Instance.ServerPosition, Program.W.Range)
-                    .Where(t => Extension.DamageLibrary.CalculateDamage(t, false, true, false, false) >= t.Health);
-                var wAOE = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
+                    .Where(t => Extension.DamageLibrary.CalculateDamage(t, false, true, false, false, false) >= t.Health);
+                var wAoe = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
                     (int) Program.W.Range);
 
-                if (wAOE.HitNumber >= SliderW)
+                if (wAoe.HitNumber >= SliderW)
                 {
-                    Program.W.Cast(wAOE.CastPosition);
+                    Program.W.Cast(wAoe.CastPosition);
                 }
             }
             if (UseW && Program.WReturn.IsReady() &&
@@ -111,22 +134,22 @@ namespace LelBlanc.Modes
                 Program.WReturn.Cast();
             }
 
-            if (UseWR && Program.WUltimate.IsReady() &&
+            if (UseWr && Program.WUltimate.IsReady() &&
                 Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancslidem")
             {
                 var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
                     Player.Instance.ServerPosition, Program.WUltimate.Range)
-                    .Where(t => Extension.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health);
-                var wAOE = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.WUltimate.Width,
+                    .Where(t => Extension.DamageLibrary.CalculateDamage(t, false, false, false, true, false) >= t.Health);
+                var wAoe = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.WUltimate.Width,
                     (int) Program.WUltimate.Range);
 
-                if (wAOE.HitNumber >= SliderWR)
+                if (wAoe.HitNumber >= SliderWr)
                 {
-                    Program.WUltimate.Cast(wAOE.CastPosition);
+                    Program.WUltimate.Cast(wAoe.CastPosition);
                 }
             }
 
-            if (UseWR && Program.RReturn.IsReady() &&
+            if (UseWr && Program.RReturn.IsReady() &&
                 Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancslidereturnm")
             {
                 Program.RReturn.Cast();

@@ -7,38 +7,50 @@ namespace LelBlanc
 {
     class Pet
     {
-        private static Vector3 _randomPosition;
-        
         /// <summary>
-        /// Delay for Movement and Attacking
+        /// The Pet Instance
         /// </summary>
-        private static int _humanizedDelay;
+        public static GameObject LeBlancPet { get; set; }
+
+        /// <summary>
+        /// The Path of the Player
+        /// </summary>
+        public static Vector3 NewPath { get; set; }
+
+        /// <summary>
+        /// Delay for Movement
+        /// </summary>
+        public static int HumanizedDelay { get; set; }
 
         /// <summary>
         /// Method to Move Pet
         /// </summary>
-        /// <param name="args"></param>
         public static void MovePet()
         {
-            if (Player.Instance.Pet == null) return;
-
-            _humanizedDelay = new Random().Next(500);
-            var enemiesAroundPet = Player.Instance.Pet.CountEnemiesInRange(Player.Instance.AttackRange);
-            var randX = new Random().Next(0, 200);
-            var randY = new Random().Next(0, 200);
-
-            if (enemiesAroundPet > 1)
+            if (LeBlancPet == null)
             {
-                var target = TargetSelector.GetTarget(Player.Instance.AttackRange, DamageType.Physical, Player.Instance.Pet.Position);
+                return;
+            }
 
-                if (target != null && Player.Instance.Pet.IsInRange(target.Position.To2D(), Player.Instance.AttackRange))
-                    Core.DelayAction(() => Player.IssueOrder(GameObjectOrder.AutoAttackPet, target), _humanizedDelay);
-            }
-            else
+            Core.DelayAction(() =>
             {
-                _randomPosition = new Vector3(Player.Instance.Position.X + randX, Player.Instance.Position.Y + randY, Player.Instance.Position.Z);
-                Core.DelayAction(() => Player.IssueOrder(GameObjectOrder.MovePet, _randomPosition), _humanizedDelay);
-            }
+                Player.IssueOrder(GameObjectOrder.MovePet, CalculatePosition(Player.Instance, NewPath));
+            }, HumanizedDelay);
+        }
+
+        /// <summary>
+        /// Calculates Reflected Position. Returns no Vector if it is a wall, building, or prop
+        /// </summary>
+        /// <param name="source">The Player or Position Being Reflected</param>
+        /// <param name="newPath">The Path</param>
+        /// <returns></returns>
+        private static Vector3 CalculatePosition(Obj_AI_Base source, Vector3 path)
+        {
+            var playerPosition2D = source.Position.To2D();
+            var pathPosition2D = path.To2D();
+            var reflectedPos = Vector2.Reflect(pathPosition2D, playerPosition2D).To3D();
+
+            return reflectedPos;
         }
     }
 }

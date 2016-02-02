@@ -7,14 +7,45 @@ namespace LelBlanc.Modes
 {
     internal class JungleClear
     {
-        public static bool UseQ = Config.JungleClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
-        public static bool UseW = Config.JungleClearMenu["useW"].Cast<CheckBox>().CurrentValue;
-        public static bool UseE = Config.JungleClearMenu["useE"].Cast<CheckBox>().CurrentValue;
-        public static int SliderW = Config.JungleClearMenu["sliderW"].Cast<Slider>().CurrentValue;
-        public static bool UseQR = Config.JungleClearMenu["useQR"].Cast<CheckBox>().CurrentValue;
-        public static bool UseWR = Config.JungleClearMenu["useWR"].Cast<CheckBox>().CurrentValue;
-        public static bool UseER = Config.JungleClearMenu["useER"].Cast<CheckBox>().CurrentValue;
-        public static int SliderWR = Config.JungleClearMenu["sliderWR"].Cast<Slider>().CurrentValue;
+        public static bool UseQ
+        {
+            get { return Config.JungleClearMenu["useQ"].Cast<CheckBox>().CurrentValue; }
+        }
+
+        public static bool UseW
+        {
+            get { return Config.JungleClearMenu["useW"].Cast<CheckBox>().CurrentValue; }
+        }
+
+        public static bool UseE
+        {
+            get { return Config.JungleClearMenu["useE"].Cast<CheckBox>().CurrentValue; }
+        }
+
+        public static int SliderW
+        {
+            get { return Config.JungleClearMenu["sliderW"].Cast<Slider>().CurrentValue; }
+        }
+
+        public static bool UseQr
+        {
+            get { return Config.JungleClearMenu["useQR"].Cast<CheckBox>().CurrentValue; }
+        }
+
+        public static bool UseWr
+        {
+            get { return Config.JungleClearMenu["useWR"].Cast<CheckBox>().CurrentValue; }
+        }
+
+        public static bool UseEr
+        {
+            get { return Config.JungleClearMenu["useER"].Cast<CheckBox>().CurrentValue; }
+        }
+
+        public static int SliderWr
+        {
+            get { return Config.JungleClearMenu["sliderWR"].Cast<Slider>().CurrentValue; }
+        }
 
         public static void Execute()
         {
@@ -48,12 +79,12 @@ namespace LelBlanc.Modes
                 var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
                     Program.W.Range);
                     //.Where(t => Extension.DamageLibrary.CalculateDamage(t, false, true, false, false) >= t.Health);
-                var wAOE = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
+                var wAoe = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
                     (int) Program.W.Range);
 
-                if (wAOE.HitNumber >= SliderW)
+                if (wAoe.HitNumber >= SliderW)
                 {
-                    Program.W.Cast(wAOE.CastPosition);
+                    Program.W.Cast(wAoe.CastPosition);
                 }
             }
             if (UseW && Program.WReturn.IsReady() &&
@@ -94,12 +125,12 @@ namespace LelBlanc.Modes
                 var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
                     Program.W.Range);
                     //.Where(t => Extension.DamageLibrary.CalculateDamage(t, false, true, false, false) >= t.Health);
-                var wAOE = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
+                var wAoe = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
                     (int) Program.W.Range);
 
-                if (wAOE.HitNumber >= SliderW)
+                if (wAoe.HitNumber >= SliderW)
                 {
-                    Program.W.Cast(wAOE.CastPosition);
+                    Program.W.Cast(wAoe.CastPosition);
                 }
             }
 
@@ -109,22 +140,22 @@ namespace LelBlanc.Modes
                 Program.WReturn.Cast();
             }
 
-            if (UseWR && Program.WUltimate.IsReady() &&
+            if (UseWr && Program.WUltimate.IsReady() &&
                 Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancslidem")
             {
                 var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
                     Program.WUltimate.Range);
                     //.Where(t => Extension.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health);
-                var wAOE = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
+                var wAoe = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
                     (int) Program.W.Range);
 
-                if (wAOE.HitNumber >= SliderW)
+                if (wAoe.HitNumber >= SliderW)
                 {
-                    Program.WUltimate.Cast(wAOE.CastPosition);
+                    Program.WUltimate.Cast(wAoe.CastPosition);
                 }
             }
 
-            if (UseWR && Program.RReturn.IsReady() &&
+            if (UseWr && Program.RReturn.IsReady() &&
                 Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancslidereturnm")
             {
                 Program.RReturn.Cast();
@@ -141,7 +172,7 @@ namespace LelBlanc.Modes
                 }
             }
 
-            if (UseER && Program.EUltimate.IsReady() &&
+            if (UseEr && Program.EUltimate.IsReady() &&
                 Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancsoulshacklem")
             {
                 var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,

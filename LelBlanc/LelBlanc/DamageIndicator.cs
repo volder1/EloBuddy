@@ -21,7 +21,7 @@ namespace LelBlanc
             Drawing.OnEndScene += OnEndScene;
         }
 
-        private static void OnEndScene(EventArgs args)
+        public static void OnEndScene(EventArgs args)
         {
             if (Config.DrawingMenu["draw.Damage"].Cast<CheckBox>().CurrentValue)
             {
@@ -35,7 +35,9 @@ namespace LelBlanc
 
                     var drawR = Config.DrawingMenu["draw.R"].Cast<CheckBox>().CurrentValue;
 
-                    var damage = Extension.DamageLibrary.CalculateDamage(unit, drawQ, drawW, drawE, drawR);
+                    var drawIgnite = Config.DrawingMenu["draw.Ignite"].Cast<CheckBox>().CurrentValue;
+
+                    var damage = Extension.DamageLibrary.CalculateDamage(unit, drawQ, drawW, drawE, drawR, drawIgnite);
 
                     if (damage <= 0)
                     {
@@ -48,13 +50,13 @@ namespace LelBlanc
                     var startPoint = new Vector2((int)(unit.HPBarPosition.X + damagePercentage * BarWidth), (int)unit.HPBarPosition.Y - 5);
                     var endPoint = new Vector2((int)(unit.HPBarPosition.X + currentHealthPercentage * BarWidth) + 1, (int)unit.HPBarPosition.Y - 5);
 
-                    var A = Config.DrawingMenu["draw_Alpha"].Cast<Slider>().CurrentValue;
-                    var R = Config.DrawingMenu["draw_Red"].Cast<Slider>().CurrentValue;
-                    var G = Config.DrawingMenu["draw_Green"].Cast<Slider>().CurrentValue;
-                    var B = Config.DrawingMenu["draw_Blue"].Cast<Slider>().CurrentValue;
+                    var a = Config.DrawingMenu["draw_Alpha"].Cast<Slider>().CurrentValue;
+                    var r = Config.DrawingMenu["draw_Red"].Cast<Slider>().CurrentValue;
+                    var g = Config.DrawingMenu["draw_Green"].Cast<Slider>().CurrentValue;
+                    var b = Config.DrawingMenu["draw_Blue"].Cast<Slider>().CurrentValue;
 
-                    var colorH = System.Drawing.Color.FromArgb(A - 120, R,
-                        G, B);
+                    var colorH = System.Drawing.Color.FromArgb(a - 120, r,
+                        g, b);
 
                     Drawing.DrawLine(startPoint, endPoint, LineThickness, colorH);
                 }
