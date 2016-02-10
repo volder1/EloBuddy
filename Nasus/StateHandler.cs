@@ -1,4 +1,6 @@
-﻿namespace Nasus
+﻿using System;
+
+namespace Nasus
 {
     using System.Linq;
 
@@ -7,41 +9,30 @@
     using EloBuddy.SDK.Enumerations;
     using EloBuddy.SDK.Menu.Values;
 
-    internal class StateHandler
+    class StateHandler
     {
         /// <summary>
         /// Does KillSteal
         /// </summary>
-        public static void KillSteal()
+        public static void KillSteal(EventArgs args)
         {
-            var useE = Program.KillStealMenu["useE"].Cast<CheckBox>().CurrentValue;
+            var useE = Config.KillStealMenu["useE"].Cast<CheckBox>().CurrentValue;
 
             if (!useE)
             {
                 return;
             }
-            var target = EntityManager.Heroes.Enemies.Where(t => Program.E.IsInRange(t) && t.IsValidTarget()).OrderBy(t => t.Health).FirstOrDefault();
+            var target = TargetSelector.GetTarget(
+                EntityManager.Heroes.Enemies.Where(
+                    t =>
+                        Program.E.IsInRange(t) && t.IsValidTarget() &&
+                        Extensions.DamageLibrary.CalculateDamage(t, false, true)
+                        >= t.Health)
+                    .OrderBy(t => t.Health), DamageType.Magical);
 
-            if (target == null)
-            {
-                return;
-            }
-            var pred = Program.E.GetPrediction(target);
+            if (target == null) return;
 
-            if (pred == null)
-            {
-                return;
-            }
-            if (
-                !(Player.Instance.GetSpellDamage(target, SpellSlot.E)
-                  >= target.Health))
-            {
-                return;
-            }
-            if (pred.HitChance >= HitChance.High)
-            {
-                Program.E.Cast(pred.CastPosition);
-            }
+            Program.E.Cast(target);
         }
 
         /// <summary>
@@ -49,22 +40,33 @@
         /// </summary>
         public static void LastHit()
         {
-            var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Instance.ServerPosition, Program.Q.Range).FirstOrDefault();
+            if (!Program.Q.IsReady())
+            {
+                return;
+            }
 
-            if (minion == null)
+            var minion =
+                Orbwalker.LastHitMinionsList.Where(
+                    t => t.IsEnemy && t.IsValidTarget() && Program.Q.IsInRange(t) &&
+                         Extensions.DamageLibrary.CalculateDamage(t, true, false) >= t.Health);
+
+            foreach (var m in minion)
             {
-                return;
+                Program.Q.Cast();
+                Core.DelayAction(() =>
+                {
+                    Orbwalker.DisableAttacking = true;
+                    Orbwalker.DisableMovement = true;
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, m);
+                    Core.DelayAction(() =>
+                    {
+                        Orbwalker.DisableAttacking = false;
+                        Orbwalker.DisableMovement = false;
+                    }
+                        , (int)Math.Round(Player.Instance.AttackDelay));
+
+                }, Program.Q.CastDelay);
             }
-            if (!Program.Q.IsReady() || !Program.Q.IsInRange(minion) || !(Program.GetDamage(minion) >= minion.Health))
-            {
-                return;
-            }
-            Program.Q.Cast();
-            Orbwalker.DisableAttacking = true;
-            Orbwalker.DisableMovement = true;
-            Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
-            Orbwalker.DisableAttacking = false;
-            Orbwalker.DisableMovement = false;
         }
 
         /// <summary>
@@ -72,16 +74,20 @@
         /// </summary>
         public static void Harass()
         {
-            var useEH = Program.FarmMenu["useEH"].Cast<CheckBox>().CurrentValue;
-            var manaEH = Program.FarmMenu["manaEH"].Cast<Slider>().CurrentValue;
+            var useEh = Config.FarmMenu["useEH"].Cast<CheckBox>().CurrentValue;
+            var manaEh = Config.FarmMenu["manaEH"].Cast<Slider>().CurrentValue;
 
-            if (!Program.E.IsReady() || !useEH || !(Player.Instance.ManaPercent >= manaEH))
+            if (!Program.E.IsReady() || !useEh || !(Player.Instance.ManaPercent >= manaEh))
             {
                 return;
             }
             var target = EntityManager.Heroes.Enemies.Where(t => Program.E.IsInRange(t) && t.IsValidTarget());
 
-            foreach (var pred in target.Select(t => Program.E.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance >= HitChance.High))
+            foreach (
+                var pred in
+                    target.Select(t => Program.E.GetPrediction(t))
+                        .Where(pred => pred != null)
+                        .Where(pred => pred.HitChance >= HitChance.High))
             {
                 Program.E.Cast(pred.CastPosition);
             }
@@ -92,19 +98,25 @@
         /// </summary>
         public static void LaneClear()
         {
-            var useELC = Program.FarmMenu["useELC"].Cast<CheckBox>().CurrentValue;
-            var useELCS = Program.FarmMenu["useELCS"].Cast<Slider>().CurrentValue;
-            var manaELC = Program.FarmMenu["manaELC"].Cast<Slider>().CurrentValue;
+            var useElc = Config.FarmMenu["useELC"].Cast<CheckBox>().CurrentValue;
+            var useElcs = Config.FarmMenu["useELCS"].Cast<Slider>().CurrentValue;
+            var manaElc = Config.FarmMenu["manaELC"].Cast<Slider>().CurrentValue;
 
-            if (!Program.E.IsReady() || !useELC || !(Player.Instance.ManaPercent >= manaELC))
+            if (!Program.E.IsReady() || !useElc || !(Player.Instance.ManaPercent >= manaElc))
             {
                 return;
             }
-            var minion = EntityManager.MinionsAndMonsters.EnemyMinions.Where(t => Program.E.IsInRange(t) && t.IsValidTarget()).ToArray();
+            var minion =
+                EntityManager.MinionsAndMonsters.EnemyMinions.Where(
+                    t =>
+                        Program.E.IsInRange(t) && t.IsValidTarget() &&
+                        Extensions.DamageLibrary.CalculateDamage(t, false, true) >= t.Health)
+                    .ToArray();
 
-            var pred = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.E.Width, (int)Program.E.Range);
+            var pred = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.E.Width,
+                (int) Program.E.Range);
 
-            if (pred.HitNumber >= useELCS)
+            if (pred.HitNumber >= useElcs)
             {
                 Program.E.Cast(pred.CastPosition);
             }
@@ -115,48 +127,55 @@
         /// </summary>
         public static void Combo()
         {
-            var useW = Program.ComboMenu["useW"].Cast<CheckBox>().CurrentValue;
-            var manaW = Program.ComboMenu["manaW"].Cast<Slider>().CurrentValue;
+            var useW = Config.ComboMenu["useW"].Cast<CheckBox>().CurrentValue;
+            var manaW = Config.ComboMenu["manaW"].Cast<Slider>().CurrentValue;
 
             if (Program.W.IsReady()
                 && useW
                 && Player.Instance.ManaPercent >= manaW)
             {
-                var target = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget(Program.W.Range)).OrderBy(t => t.Health).FirstOrDefault();
-                
+                var target =
+                    EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget(Program.W.Range))
+                        .OrderBy(t => t.Health)
+                        .FirstOrDefault();
+
                 if (target != null)
                 {
                     Program.W.Cast(target);
                 }
             }
 
-            var useE = Program.ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
-            var manaE = Program.ComboMenu["manaE"].Cast<Slider>().CurrentValue;
+            var useE = Config.ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
+            var manaE = Config.ComboMenu["manaE"].Cast<Slider>().CurrentValue;
 
             if (Program.E.IsReady()
                 && useE
                 && Player.Instance.ManaPercent >= manaE)
             {
                 var target = EntityManager.Heroes.Enemies.Where(t => Program.E.IsInRange(t)
-                    && t.IsValidTarget());
+                                                                     && t.IsValidTarget());
 
-                foreach (var pred in target.Select(t => Program.E.GetPrediction(t)).Where(pred => pred != null).Where(pred => pred.HitChance >= HitChance.High))
+                foreach (
+                    var pred in
+                        target.Select(t => Program.E.GetPrediction(t))
+                            .Where(pred => pred != null)
+                            .Where(pred => pred.HitChance >= HitChance.High))
                 {
                     Program.E.Cast(pred.CastPosition);
                 }
             }
 
-            var useR = Program.ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
-            var hpR = (float)Program.ComboMenu["hpR"].Cast<Slider>().CurrentValue;
-            var rangeR = (float)Program.ComboMenu["rangeR"].Cast<Slider>().CurrentValue;
-            var intR = Program.ComboMenu["intR"].Cast<Slider>().CurrentValue;
+            var useR = Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
+            var hpR = Config.ComboMenu["hpR"].Cast<Slider>().CurrentValue;
+            var rangeR = Config.ComboMenu["rangeR"].Cast<Slider>().CurrentValue;
+            var intR = Config.ComboMenu["intR"].Cast<Slider>().CurrentValue;
 
             if (!Program.R.IsReady() || !useR || !(Player.Instance.HealthPercent <= hpR))
             {
                 return;
             }
             var enemies = EntityManager.Heroes.Enemies.Count(t => Player.Instance.Distance(t) <= rangeR);
-                
+
             if (enemies >= intR)
             {
                 Program.R.Cast();
