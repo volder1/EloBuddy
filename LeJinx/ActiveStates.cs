@@ -65,7 +65,7 @@
 
             var stunW = Config.MiscMenu["stunW"].Cast<CheckBox>().CurrentValue;
             var charmW = Config.MiscMenu["charmW"].Cast<CheckBox>().CurrentValue;
-            var tauntW = Config.MiscMenu["tauntW"].Cast<CheckBox>().CurrentValue;
+            //var tauntW = Config.MiscMenu["tauntW"].Cast<CheckBox>().CurrentValue;
             var fearW = Config.MiscMenu["fearW"].Cast<CheckBox>().CurrentValue;
             var snareW = Config.MiscMenu["snareW"].Cast<CheckBox>().CurrentValue;
             var wRange = Config.MiscMenu["wRange"].Cast<CheckBox>().CurrentValue;
@@ -103,7 +103,7 @@
                     }
                 }
 
-                else if (tauntW && target.IsTaunted)
+                /*else if (tauntW && target.IsTaunted)
                 {
                     var prediction = Program.W.GetPrediction(target);
 
@@ -111,7 +111,7 @@
                     {
                         Program.W.Cast(prediction.CastPosition);
                     }
-                }
+                }*/
 
                 else if (fearW && target.IsFeared)
                 {
@@ -153,6 +153,21 @@
                 .Where(pred => pred != null && pred.HitChancePercent >= 75))
             {
                 Program.E.Cast(pred.CastPosition);
+            }
+
+            var enemies =
+                EntityManager.Heroes.Enemies.Where(
+                    t =>
+                        t.IsValidTarget(Program.E.Range) &&
+                        (t.IsCharmed || t.IsStunned || t.IsRecalling() || t.IsRooted || t.IsFeared));
+            var target = TargetSelector.GetTarget(enemies, DamageType.Physical);
+            if (target == null) return;
+
+            var prediction = Program.E.GetPrediction(target);
+
+            if (prediction != null && prediction.HitChancePercent >= 75)
+            {
+                Program.E.Cast(prediction.CastPosition);
             }
         }
 

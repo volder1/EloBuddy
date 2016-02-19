@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Jinx
 {
@@ -268,29 +269,12 @@ namespace Jinx
             /// <returns>Returns the Damage done with useR</returns>
             private static float RDamage(Obj_AI_Base target)
             {
-                var distance = target.Distance(Player.Instance);
-                var increment = (int)distance/100;
-                var extraPercent = ((10 + (increment*6))/100);
+                var distance = Player.Instance.Distance(target);
+                var increment = distance/100f;
+                var extraPercent = ((10f + (increment*6f))/100f);
                 var damage = new[] {0f, 25f, 35f, 45f}[Program.R.Level]*(1f + extraPercent) +
-                             new[] {0, 0.25f, 0.3f, 0.35f}[Program.R.Level]*((target.MaxHealth - target.Health)/100) +
+                             (new[] {0, 0.25f, 0.3f, 0.35f}[Program.R.Level]*(target.MaxHealth - target.Health)/100f) +
                              (0.1f + Player.Instance.FlatPhysicalDamageMod);
-
-                if (target.IsMinion || target.IsMonster)
-                {
-                    var damagetoMob = new[] {0f, 20f, 28f, 36f}[Program.R.Level]*(1f + extraPercent) +
-                                      new[] {0, 0.20f, 0.24f, 0.28f}[Program.R.Level]*
-                                      ((target.MaxHealth - target.Health)/100) +
-                                      (0.1f + Player.Instance.FlatPhysicalDamageMod);
-
-                    if (damagetoMob > 300f)
-                    {
-                        return 300f;
-                    }
-                    if (damagetoMob <= 300f)
-                    {
-                        return damagetoMob;
-                    }
-                }
 
                 return damage;
             }

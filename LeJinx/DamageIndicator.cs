@@ -18,7 +18,7 @@
         /// </summary>
         public class DamageIndicator
         {
-            private const float BarLength = 104;
+            private const float BarLength = 109;
             private const float XOffset = 2;
             private const float YOffset = 9;
             public float CheckDistance = 1200;

@@ -98,8 +98,7 @@
                     {
                         var ePrediction = Program.E.GetPrediction(target);
 
-                        if (ePrediction != null && ePrediction.HitChancePercent >= eSlider &&
-                            !target.IsFacing(Player.Instance))
+                        if (ePrediction != null && ePrediction.HitChancePercent >= eSlider)
                         {
                             Program.E.Cast(ePrediction.CastPosition);
                         }
