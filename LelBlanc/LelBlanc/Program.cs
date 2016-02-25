@@ -80,7 +80,7 @@ namespace LelBlanc
                 CastDelay = 500
             };
 
-            W = new Spell.Skillshot(SpellSlot.W, 850, SkillShotType.Circular, 600, 1450, 220);
+            W = new Spell.Skillshot(SpellSlot.W, 600, SkillShotType.Circular, 500, 1450, 220);
 
             WReturn = new Spell.Active(SpellSlot.W);
 
@@ -96,7 +96,7 @@ namespace LelBlanc
                 CastDelay = 500
             };
 
-            WUltimate = new Spell.Skillshot(SpellSlot.R, 850, SkillShotType.Circular, 600, 1450, 220);
+            WUltimate = new Spell.Skillshot(SpellSlot.R, 600, SkillShotType.Circular, 500, 1450, 220);
 
             EUltimate = new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Linear, 300, 1650, 55)
             {
@@ -163,7 +163,9 @@ namespace LelBlanc
         {
             if (sender.IsMe)
             {
-                Pet.NewPath = args.Path[0];
+                var path = Player.Instance.Position.Extend(args.Path[0], 1000);
+                var extendedPath = new Vector3(path, NavMesh.GetHeightForPosition(path.X, path.Y));
+                Pet.NewPath = extendedPath;
             }
         }
 

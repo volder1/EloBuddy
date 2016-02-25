@@ -47,8 +47,8 @@ namespace LelBlanc
                                             (unit.MaxHealth + unit.AllShield + unit.AttackShield + unit.MagicShield);
                     var currentHealthPercentage = unit.TotalShieldHealth() / (unit.MaxHealth + unit.AllShield + unit.AttackShield + unit.MagicShield);
 
-                    var startPoint = new Vector2((int)(unit.HPBarPosition.X + damagePercentage * BarWidth), (int)unit.HPBarPosition.Y - 5);
-                    var endPoint = new Vector2((int)(unit.HPBarPosition.X + currentHealthPercentage * BarWidth) + 1, (int)unit.HPBarPosition.Y - 5);
+                    var startPoint = new Vector2((int)(unit.HPBarPosition.X + damagePercentage * BarWidth), (int)unit.HPBarPosition.Y - 5 + 14);
+                    var endPoint = new Vector2((int)(unit.HPBarPosition.X + currentHealthPercentage * BarWidth) + 1, (int)unit.HPBarPosition.Y - 5 + 14);
 
                     var a = Config.DrawingMenu["draw_Alpha"].Cast<Slider>().CurrentValue;
                     var r = Config.DrawingMenu["draw_Red"].Cast<Slider>().CurrentValue;

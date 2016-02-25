@@ -27,30 +27,24 @@ namespace LelBlanc
         /// </summary>
         public static void MovePet()
         {
-            if (LeBlancPet == null)
+            if (LeBlancPet == null || NewPath.IsZero)
             {
                 return;
             }
 
+            HumanizedDelay = new Random().Next(1000);
+
             Core.DelayAction(() =>
             {
-                Player.IssueOrder(GameObjectOrder.MovePet, CalculatePosition(Player.Instance, NewPath));
+                Player.IssueOrder(GameObjectOrder.MovePet, RotatePosition(NewPath));
             }, HumanizedDelay);
         }
 
-        /// <summary>
-        /// Calculates Reflected Position. Returns no Vector if it is a wall, building, or prop
-        /// </summary>
-        /// <param name="source">The Player or Position Being Reflected</param>
-        /// <param name="newPath">The Path</param>
-        /// <returns></returns>
-        private static Vector3 CalculatePosition(Obj_AI_Base source, Vector3 path)
+        public static Vector3 RotatePosition(Vector3 path)
         {
-            var playerPosition2D = source.Position.To2D();
-            var pathPosition2D = path.To2D();
-            var reflectedPos = Vector2.Reflect(pathPosition2D, playerPosition2D).To3D();
-
-            return reflectedPos;
+            var rotateAroundPoint = path.To2D().RotateAroundPoint(Player.Instance.Position.To2D(), 180);
+            var finalPath = new Vector3(rotateAroundPoint, NavMesh.GetHeightForPosition(rotateAroundPoint.X, rotateAroundPoint.Y));
+            return finalPath;
         }
     }
 }
