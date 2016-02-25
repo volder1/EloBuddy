@@ -95,15 +95,15 @@ namespace TwistedBuddy
                 Status = SelectStatus.Selected;
             }
 
-            if (SelectedCard == Cards.Blue && wName == "bluecardlock" && Environment.TickCount - Delay > LastW)
+            if (SelectedCard == Cards.Blue && wName.ToLower() == "bluecardlock" && Environment.TickCount - Delay > LastW)
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, false);
             }
-            else if (SelectedCard == Cards.Yellow && wName == "goldcardlock" && Environment.TickCount - Delay > LastW)
+            else if (SelectedCard == Cards.Yellow && wName.ToLower() == "goldcardlock" && Environment.TickCount - Delay > LastW)
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, false);
             }
-            else if (SelectedCard == Cards.Red && wName == "redcardlock" && Environment.TickCount - Delay > LastW)
+            else if (SelectedCard == Cards.Red && wName.ToLower() == "redcardlock" && Environment.TickCount - Delay > LastW)
             {
                 ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, false);
             }

@@ -67,7 +67,7 @@
                     Player.Instance.ServerPosition,
                     Player.Instance.AttackRange + 100).FirstOrDefault();
             var useCard = Essentials.LaneClearMenu["useCard"].Cast<CheckBox>().CurrentValue;
-            var chooser = Essentials.LaneClearMenu["chooser"].Cast<Slider>().DisplayName;
+            var chooser = Essentials.LaneClearMenu["chooser"].Cast<ComboBox>().SelectedText;
 
             if (useCard && minion != null)
             {
@@ -129,7 +129,7 @@
 
             if (useCard && minion != null)
             {
-                var chooser = Essentials.JungleClearMenu["chooser"].Cast<Slider>().DisplayName;
+                var chooser = Essentials.JungleClearMenu["chooser"].Cast<ComboBox>().SelectedText;
 
                 if (chooser == "Smart")
                 {
@@ -169,7 +169,7 @@
                 Player.Instance.ServerPosition,
                 Player.Instance.AttackRange + wSlider).FirstOrDefault();
             var useCard = Essentials.HarassMenu["useCard"].Cast<CheckBox>().CurrentValue;
-            var chooser = Essentials.HarassMenu["chooser"].Cast<Slider>().DisplayName;
+            var chooser = Essentials.HarassMenu["chooser"].Cast<ComboBox>().SelectedText;
 
             if (useCard && m != null)
             {
@@ -255,7 +255,7 @@
                 Player.Instance.AttackRange + wSlider,
                 DamageType.Magical);
             var useCard = Essentials.ComboMenu["useCard"].Cast<CheckBox>().CurrentValue;
-            var chooser = Essentials.ComboMenu["chooser"].Cast<Slider>().DisplayName;
+            var chooser = Essentials.ComboMenu["chooser"].Cast<ComboBox>().SelectedText;
 
             if (useCard && wTarget != null)
             {
@@ -287,40 +287,19 @@
                 DamageType.Magical);
             var useQ = Essentials.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
 
-            if (useQ && qTarget != null)
+            if (!useQ || qTarget == null) return;
+            var useQStun = Essentials.ComboMenu["useQStun"].Cast<CheckBox>().CurrentValue;
+            var qPred = Essentials.ComboMenu["qPred"].Cast<Slider>().CurrentValue;
+            var manaManagerQ = Essentials.ComboMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
+
+            if (useQStun) return;
+            if (!Program.Q.IsInRange(qTarget) || !Program.Q.IsReady() ||
+                !(Player.Instance.ManaPercent >= manaManagerQ)) return;
+            var pred = Program.Q.GetPrediction(qTarget);
+
+            if (pred.HitChancePercent >= qPred)
             {
-                var useQStun = Essentials.ComboMenu["useQStun"].Cast<CheckBox>().CurrentValue;
-                var qPred = Essentials.ComboMenu["qPred"].Cast<Slider>().CurrentValue;
-                var manaManagerQ = Essentials.ComboMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
-
-                if (useQStun)
-                {
-                    if (Program.Q.IsInRange(qTarget) && Program.Q.IsReady() &&
-                        Player.Instance.ManaPercent >= manaManagerQ &&
-                        qTarget.IsStunned)
-                    {
-                        var pred = Program.Q.GetPrediction(qTarget);
-
-                        if (pred.HitChancePercent >= qPred)
-                        {
-                            Program.Q.Cast(pred.CastPosition);
-                        }
-                    }
-                }
-
-                if (!useQStun)
-                {
-                    if (Program.Q.IsInRange(qTarget) && Program.Q.IsReady() &&
-                        Player.Instance.ManaPercent >= manaManagerQ)
-                    {
-                        var pred = Program.Q.GetPrediction(qTarget);
-
-                        if (pred.HitChancePercent >= qPred)
-                        {
-                            Program.Q.Cast(pred.CastPosition);
-                        }
-                    }
-                }
+                Program.Q.Cast(pred.CastPosition);
             }
         }
 
@@ -360,6 +339,32 @@
         /// </summary>
         public static void AutoQ()
         {
+            if (Essentials.UseStunQ &&
+                (Essentials.MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue ||
+                 Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) &&
+                 Essentials.ComboMenu["useQStun"].Cast<CheckBox>().CurrentValue))
+            {
+                var target = Essentials.StunnedTarget;
+
+                if (target != null)
+                {
+                    var qPrediction = Program.Q.GetPrediction(target);
+
+                    if (qPrediction != null &&
+                        qPrediction.HitChancePercent >= Essentials.MiscMenu["qPred"].Cast<Slider>().CurrentValue)
+                    {
+                        Program.Q.Cast(qPrediction.CastPosition);
+                        Essentials.UseStunQ = false;
+                        Essentials.StunnedTarget = null;
+                    }
+                }
+            }
+
+            if (!Essentials.MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue)
+            {
+                return;
+            }
+
             var enemies = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget(Program.Q.Range) && t.IsStunned);
 
             foreach (

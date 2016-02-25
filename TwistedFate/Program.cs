@@ -85,13 +85,14 @@
             Essentials.ComboMenu.Add("wSlider", new Slider("Range from enemy before picking card (Not including the additional range)", 300, 0, 10000));
             Essentials.ComboMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
             Essentials.ComboMenu.AddSeparator();
-            var comboCardChooserSlider = Essentials.ComboMenu.Add("chooser", new Slider("Yellow", 0, 0, 3));
+            Essentials.ComboMenu    .Add("chooser", new ComboBox("Card Select Mode", new[] { "Smart", "Blue", "Red", "Yellow" }));
+            /*var comboCardChooserSlider = Essentials.ComboMenu.Add("chooser", new Slider("Yellow", 0, 0, 3));
             var comboCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             comboCardChooserSlider.DisplayName = comboCardArray[comboCardChooserSlider.CurrentValue];
             comboCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
             {
                 sender.DisplayName = comboCardArray[changeArgs.NewValue];
-            };
+            };*/
 
             // Harass Menu
             Essentials.HarassMenu = Essentials.MainMenu.AddSubMenu("Harass Menu", "harassMenu");
@@ -102,13 +103,14 @@
             Essentials.HarassMenu.Add("wSlider", new Slider("Range from enemy before picking card (Not including the additional range)", 300, 0, 10000));
             Essentials.HarassMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
             Essentials.HarassMenu.AddSeparator();
-            var harassCardChooserSlider = Essentials.HarassMenu.Add("chooser", new Slider("Smart", 0, 0, 3));
+            Essentials.HarassMenu.Add("chooser", new ComboBox("Card Select Mode", new[] { "Smart", "Blue", "Red", "Yellow" }));
+            /*var harassCardChooserSlider = Essentials.HarassMenu.Add("chooser", new Slider("Smart", 0, 0, 3));
             var harassCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             harassCardChooserSlider.DisplayName = harassCardArray[harassCardChooserSlider.CurrentValue];
             harassCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
             {
                 sender.DisplayName = harassCardArray[changeArgs.NewValue];
-            };
+            };*/
 
             // Lane Clear Menu
             Essentials.LaneClearMenu = Essentials.MainMenu.AddSubMenu("Lane Clear", "laneclearMenu");
@@ -118,14 +120,15 @@
             Essentials.LaneClearMenu.Add("qPred", new Slider("Use Q if Hit x Minions", 3, 1, 5));
             Essentials.LaneClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
             Essentials.LaneClearMenu.AddSeparator();
-            var laneclearCardChooserSlider = Essentials.LaneClearMenu.Add("chooser", new Slider("Smart", 0, 0, 3));
+            Essentials.LaneClearMenu.Add("chooser", new ComboBox("Card Select Mode", new[] { "Smart", "Blue", "Red", "Yellow" }));
+            /*var laneclearCardChooserSlider = Essentials.LaneClearMenu.Add("chooser", new Slider("Smart", 0, 0, 3));
             var laneclearCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             laneclearCardChooserSlider.DisplayName = laneclearCardArray[laneclearCardChooserSlider.CurrentValue];
             laneclearCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
             {
                 sender.DisplayName = laneclearCardArray[changeArgs.NewValue];
-            };
-            
+            };*/
+
             // Jungle Clear Menu
             Essentials.JungleClearMenu = Essentials.MainMenu.AddSubMenu("Jungle Clear Menu", "jgMenu");
             Essentials.JungleClearMenu.AddGroupLabel("JungleClear Settings");
@@ -134,13 +137,14 @@
             Essentials.JungleClearMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.JungleClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
             Essentials.JungleClearMenu.AddSeparator();
-            var jungleclearCardChooserSlider = Essentials.JungleClearMenu.Add("chooser", new Slider("Smart", 0, 0, 3));
+            Essentials.JungleClearMenu.Add("chooser", new ComboBox("Card Select Mode", new[] {"Smart", "Blue", "Red", "Yellow"}));
+            /*var jungleclearCardChooserSlider = Essentials.JungleClearMenu.Add("chooser", new Slider("Smart", 0, 0, 3));
             var jungleclearCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
             jungleclearCardChooserSlider.DisplayName = jungleclearCardArray[jungleclearCardChooserSlider.CurrentValue];
             jungleclearCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
             {
                 sender.DisplayName = jungleclearCardArray[changeArgs.NewValue];
-            };
+            };*/
 
             // Kill Steal Menu
             Essentials.KillStealMenu = Essentials.MainMenu.AddSubMenu("Kill Steal Menu", "ksMenu");
@@ -168,12 +172,64 @@
             Essentials.MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
             Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 175, 175, 345));
 
-            Chat.Print("TwistedBuddy 2.2.0.1 - By KarmaPanda", System.Drawing.Color.Green);
+            Chat.Print("TwistedBuddy 2.2.0.2 - By KarmaPanda", System.Drawing.Color.Green);
 
             // Events
             Game.OnUpdate += Game_OnUpdate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        /// <summary>
+        /// Called after Spell Cast
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private static void Obj_AI_Base_OnSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (!sender.IsMe)
+            {
+                return;
+            }
+
+            var target = args.Target as AIHeroClient;
+
+            if (target == null || args.SData.Name != "goldcardpreattack" || !Q.IsReady() || !Q.IsInRange(target))
+            {
+                return;
+            }
+
+            if (Essentials.MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue)
+            {
+                var pred = Q.GetPrediction(target);
+
+                if (pred != null && pred.HitChancePercent >= Essentials.MiscMenu["qPred"].Cast<Slider>().CurrentValue)
+                {
+                    Q.Cast(pred.CastPosition);
+                }
+                else
+                {
+                    Essentials.UseStunQ = true;
+                    Essentials.StunnedTarget = target;
+                }
+            }
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) &&
+                Essentials.ComboMenu["useQStun"].Cast<CheckBox>().CurrentValue)
+            {
+                var pred = Q.GetPrediction(target);
+
+                if (pred != null && pred.HitChancePercent >= Essentials.ComboMenu["qPred"].Cast<Slider>().CurrentValue)
+                {
+                    Q.Cast(pred.CastPosition);
+                }
+                else
+                {
+                    Essentials.UseStunQ = true;
+                    Essentials.StunnedTarget = target;
+                }
+            }
         }
 
         /// <summary>
@@ -186,31 +242,6 @@
             if (!sender.IsMe)
             {
                 return;
-            }
-
-            var target = args.Target as AIHeroClient;
-
-            if (target != null && args.SData.Name == "goldcardpreattack" &&
-                Essentials.MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue)
-            {
-                var pred = Q.GetPrediction(target);
-
-                if (pred != null && pred.HitChancePercent >= Essentials.MiscMenu["qPred"].Cast<Slider>().CurrentValue)
-                {
-                    Q.Cast(pred.CastPosition);
-                }
-            }
-
-            if (target != null && args.SData.Name == "goldcardpreattack" &&
-                Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) &&
-                Essentials.ComboMenu["useQStun"].Cast<CheckBox>().CurrentValue)
-            {
-                var pred = Q.GetPrediction(target);
-
-                if (pred != null && pred.HitChancePercent >= Essentials.ComboMenu["qPred"].Cast<Slider>().CurrentValue)
-                {
-                    Q.Cast(pred.CastPosition);
-                }
             }
 
             if (args.SData.Name == "gate" && Essentials.MiscMenu["autoY"].Cast<CheckBox>().CurrentValue)
@@ -270,10 +301,7 @@
                 {
                     CardSelector.StartSelecting(Cards.Red);
                 }
-            }
 
-            if (Essentials.MiscMenu["autoQ"].Cast<CheckBox>().CurrentValue)
-            {
                 StateManager.AutoQ();
             }
 

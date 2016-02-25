@@ -10,6 +10,16 @@
     internal class Essentials
     {
         /// <summary>
+        /// Use Auto Q Next Time
+        /// </summary>
+        public static bool UseStunQ = false;
+
+        /// <summary>
+        /// The Target to Q. Target who got hit by yellow card.
+        /// </summary>
+        public static AIHeroClient StunnedTarget { get; set; }
+
+        /// <summary>
         /// Menu
         /// </summary>
         public static Menu MainMenu, CardSelectorMenu, ComboMenu, LaneClearMenu, JungleClearMenu, HarassMenu, KillStealMenu, DrawingMenu, MiscMenu;
