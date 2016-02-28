@@ -86,6 +86,7 @@
             Essentials.ComboMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
             Essentials.ComboMenu.AddGroupLabel("Card Selector Configuration");
             Essentials.ComboMenu.Add("chooser", new ComboBox("Card Select Mode", new[] { "Smart", "Blue", "Red", "Yellow" }));
+            Essentials.ComboMenu.Add("enemyW", new Slider("How many enemies before selecting Red Card (SMART)", 4, 1, 5));
             Essentials.ComboMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
 
             // Harass Menu
@@ -98,6 +99,7 @@
             Essentials.HarassMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
             Essentials.HarassMenu.AddGroupLabel("Card Selector Configuration");
             Essentials.HarassMenu.Add("chooser", new ComboBox("Card Select Mode", new[] { "Smart", "Blue", "Red", "Yellow" }));
+            Essentials.HarassMenu.Add("enemyW", new Slider("How many enemies before selecting Red Card (SMART)", 3, 1, 5));
             Essentials.HarassMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
 
             // Lane Clear Menu

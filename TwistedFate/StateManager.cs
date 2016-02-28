@@ -273,27 +273,30 @@ namespace TwistedBuddy
                 var wTarget = TargetSelector.GetTarget(
                     Player.Instance.AttackRange + wSlider,
                     DamageType.Magical);
-                if (wTarget == null) return;
-                var chooser = Essentials.ComboMenu["chooser"].Cast<ComboBox>().SelectedText;
-                if (chooser == "Smart")
+
+                if (wTarget != null)
                 {
-                    var selectedCard = Essentials.HeroCardSelection(wTarget, Essentials.ComboMenu);
-                    if (selectedCard != Cards.None)
+                    var chooser = Essentials.ComboMenu["chooser"].Cast<ComboBox>().SelectedText;
+
+                    switch (chooser)
                     {
-                        SelectCard(wTarget, selectedCard);
+                        case "Smart":
+                            var selectedCard = Essentials.HeroCardSelection(wTarget, Essentials.ComboMenu);
+                            if (selectedCard != Cards.None)
+                            {
+                                SelectCard(wTarget, selectedCard);
+                            }
+                            break;
+                        case "Yellow":
+                            SelectCard(wTarget, Cards.Yellow);
+                            break;
+                        case "Red":
+                            SelectCard(wTarget, Cards.Red);
+                            break;
+                        case "Blue":
+                            SelectCard(wTarget, Cards.Blue);
+                            break;
                     }
-                }
-                else if (chooser == "Yellow")
-                {
-                    SelectCard(wTarget, Cards.Yellow);
-                }
-                else if (chooser == "Red")
-                {
-                    SelectCard(wTarget, Cards.Red);
-                }
-                else if (chooser == "Blue")
-                {
-                    SelectCard(wTarget, Cards.Blue);
                 }
             }
             var useQ = Essentials.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;

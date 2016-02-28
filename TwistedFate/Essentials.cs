@@ -26,6 +26,8 @@
         
         public static Cards HeroCardSelection(AIHeroClient t, Menu menu)
         {
+            if (t == null || menu == null) return Cards.None;
+
             var card = Cards.None; 
             var alliesaroundTarget = t.CountEnemiesInRange(200);
             var enemyW = menu["enemyW"].Cast<Slider>().CurrentValue;
