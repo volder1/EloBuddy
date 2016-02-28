@@ -1,4 +1,7 @@
-﻿namespace TwistedBuddy
+﻿using System;
+using Microsoft.Win32.SafeHandles;
+
+namespace TwistedBuddy
 {
     using System.Linq;
 
@@ -39,58 +42,78 @@
         /// </summary>
         public static void LaneClear()
         {
-            var qMinion =
-                EntityManager.MinionsAndMonsters.GetLaneMinions(
-                    EntityManager.UnitTeam.Enemy,
-                    Player.Instance.ServerPosition,
-                    Program.Q.Range).OrderBy(t => t.Health);
             var useQ = Essentials.LaneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
-            var qPred = Essentials.LaneClearMenu["qPred"].Cast<Slider>().CurrentValue;
-            var manaManagerQ = Essentials.LaneClearMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
 
-            if (useQ && (Program.Q.IsReady() && Player.Instance.ManaPercent >= manaManagerQ))
+            if (useQ)
             {
-                var minionPrediction = EntityManager.MinionsAndMonsters.GetLineFarmLocation(
-                    qMinion,
-                    Program.Q.Width,
-                    (int) Program.Q.Range);
+                var qMinion =
+                    EntityManager.MinionsAndMonsters.GetLaneMinions(
+                        EntityManager.UnitTeam.Enemy,
+                        Player.Instance.ServerPosition,
+                        Program.Q.Range).OrderBy(t => t.Health);
+                var qPred = Essentials.LaneClearMenu["qPred"].Cast<Slider>().CurrentValue;
+                var manaManagerQ = Essentials.LaneClearMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
 
-                if (minionPrediction.HitNumber >= qPred)
+                if (Program.Q.IsReady() && Player.Instance.ManaPercent >= manaManagerQ)
                 {
-                    Program.Q.Cast(minionPrediction.CastPosition);
+                    var minionPrediction = EntityManager.MinionsAndMonsters.GetLineFarmLocation(
+                        qMinion,
+                        Program.Q.Width,
+                        (int) Program.Q.Range);
+
+                    if (minionPrediction.HitNumber >= qPred)
+                    {
+                        Program.Q.Cast(minionPrediction.CastPosition);
+                    }
                 }
             }
 
-            var minion =
-                EntityManager.MinionsAndMonsters.GetLaneMinions(
-                    EntityManager.UnitTeam.Enemy,
-                    Player.Instance.ServerPosition,
-                    Player.Instance.AttackRange + 100).FirstOrDefault();
             var useCard = Essentials.LaneClearMenu["useCard"].Cast<CheckBox>().CurrentValue;
-            var chooser = Essentials.LaneClearMenu["chooser"].Cast<ComboBox>().SelectedText;
 
-            if (useCard && minion != null)
+            if (useCard)
             {
-                if (chooser == "Smart")
-                {
-                    var selectedCard = Essentials.MinionCardSelection(minion);
+                var chooser = Essentials.LaneClearMenu["chooser"].Cast<ComboBox>().SelectedText;
+                var minion =
+                    EntityManager.MinionsAndMonsters.GetLaneMinions(
+                        EntityManager.UnitTeam.Enemy,
+                        Player.Instance.ServerPosition,
+                        Player.Instance.AttackRange + 100).ToArray();
 
-                    if (selectedCard != Cards.None)
-                    {
-                        SelectCard(minion, selectedCard);
-                    }
-                }
-                else if (chooser == "Yellow")
+                if (!minion.Any()) return;
+
+                switch (chooser)
                 {
-                    SelectCard(minion, Cards.Yellow);
-                }
-                else if (chooser == "Red")
-                {
-                    SelectCard(minion, Cards.Red);
-                }
-                else if (chooser == "Blue")
-                {
-                    SelectCard(minion, Cards.Blue);
+                    case "Smart":
+                        var redCardKillableMinions = minion.Count(
+                            target => target.Distance(minion.FirstOrDefault()) <= 200 &&
+                                      target.Health <=
+                                      DamageLibrary.PredictWDamage(target, Cards.Red));
+                        var selectedCard = Cards.None;
+
+                        if (selectedCard == Cards.None && Player.Instance.ManaPercent < Essentials.LaneClearMenu["manaW"].Cast<Slider>().CurrentValue)
+                        {
+                            selectedCard = Cards.Blue;
+                        }
+
+                        if (selectedCard == Cards.None && redCardKillableMinions >= Essentials.LaneClearMenu["enemyW"].Cast<Slider>().CurrentValue)
+                        {
+                            selectedCard = Cards.Red;
+                        }
+
+                        if (selectedCard != Cards.None)
+                        {
+                            SelectCard(minion.FirstOrDefault(), selectedCard);
+                        }
+                        break;
+                    case "Yellow":
+                        SelectCard(minion.FirstOrDefault(), Cards.Yellow);
+                        break;
+                    case "Red":
+                        SelectCard(minion.FirstOrDefault(), Cards.Red);
+                        break;
+                    case "Blue":
+                        SelectCard(minion.FirstOrDefault(), Cards.Blue);
+                        break;
                 }
             }
         }
@@ -100,17 +123,19 @@
         /// </summary>
         public static void JungleClear()
         {
-            var qMinion =
-                EntityManager.MinionsAndMonsters.GetJungleMonsters(
-                    Player.Instance.ServerPosition,
-                    Program.Q.Range,
-                    false).OrderByDescending(t => t.Health).FirstOrDefault();
             var useQ = Essentials.JungleClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
-            var qPred = Essentials.JungleClearMenu["qPred"].Cast<Slider>().CurrentValue;
-            var manaManagerQ = Essentials.JungleClearMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
 
-            if (useQ && qMinion != null)
+            if (useQ)
             {
+                var qMinion =
+                    EntityManager.MinionsAndMonsters.GetJungleMonsters(
+                        Player.Instance.ServerPosition,
+                        Program.Q.Range).OrderByDescending(t => t.Distance(Player.Instance)).FirstOrDefault();
+                if (qMinion == null) return;
+
+                var qPred = Essentials.JungleClearMenu["qPred"].Cast<Slider>().CurrentValue;
+                var manaManagerQ = Essentials.JungleClearMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
+
                 if (Program.Q.IsReady() && Player.Instance.ManaPercent >= manaManagerQ)
                 {
                     var minionPrediction = Program.Q.GetPrediction(qMinion);
@@ -122,35 +147,54 @@
                 }
             }
 
-            var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(
-                Player.Instance.ServerPosition,
-                Program.Q.Range).FirstOrDefault();
             var useCard = Essentials.JungleClearMenu["useCard"].Cast<CheckBox>().CurrentValue;
 
-            if (useCard && minion != null)
+            if (useCard)
             {
+                var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
+                    Player.Instance.AttackRange + 100).ToArray();
                 var chooser = Essentials.JungleClearMenu["chooser"].Cast<ComboBox>().SelectedText;
 
-                if (chooser == "Smart")
-                {
-                    var selectedCard = Essentials.MinionCardSelection(minion);
+                if (!minion.Any()) return;
 
-                    if (selectedCard != Cards.None)
-                    {
-                        SelectCard(minion, selectedCard);
-                    }
-                }
-                else if (chooser == "Yellow")
+                switch (chooser)
                 {
-                    SelectCard(minion, Cards.Yellow);
-                }
-                else if (chooser == "Red")
-                {
-                    SelectCard(minion, Cards.Red);
-                }
-                else if (chooser == "Blue")
-                {
-                    SelectCard(minion, Cards.Blue);
+                    case "Smart":
+                        var redCardKillableMinions = minion.Count(
+                            target => target.Distance(minion.FirstOrDefault()) <= 200 &&
+                                      target.Health <=
+                                      DamageLibrary.PredictWDamage(target, Cards.Red));
+                        var selectedCard = Cards.None;
+
+                        if (selectedCard == Cards.None && Player.Instance.ManaPercent < Essentials.JungleClearMenu["manaW"].Cast<Slider>().CurrentValue)
+                        {
+                            selectedCard = Cards.Blue;
+                        }
+
+                        if (selectedCard == Cards.None && redCardKillableMinions >= Essentials.JungleClearMenu["enemyW"].Cast<Slider>().CurrentValue)
+                        {
+                            selectedCard = Cards.Red;
+                        }
+
+                        if (selectedCard == Cards.None && redCardKillableMinions < Essentials.JungleClearMenu["enemyW"].Cast<Slider>().CurrentValue)
+                        {
+                            selectedCard = Cards.Yellow;
+                        }
+
+                        if (selectedCard != Cards.None)
+                        {
+                            SelectCard(minion.FirstOrDefault(), selectedCard);
+                        }
+                        break;
+                    case "Yellow":
+                        SelectCard(minion.FirstOrDefault(), Cards.Yellow);
+                        break;
+                    case "Red":
+                        SelectCard(minion.FirstOrDefault(), Cards.Red);
+                        break;
+                    case "Blue":
+                        SelectCard(minion.FirstOrDefault(), Cards.Blue);
+                        break;
                 }
             }
         }
@@ -160,47 +204,22 @@
         /// </summary>
         public static void Harass()
         {
-            var wSlider = Essentials.HarassMenu["wSlider"].Cast<Slider>().CurrentValue;
-            var t = TargetSelector.GetTarget(
-                Player.Instance.AttackRange + wSlider,
-                DamageType.Mixed);
-            var m = EntityManager.MinionsAndMonsters.GetLaneMinions(
-                EntityManager.UnitTeam.Enemy,
-                Player.Instance.ServerPosition,
-                Player.Instance.AttackRange + wSlider).FirstOrDefault();
             var useCard = Essentials.HarassMenu["useCard"].Cast<CheckBox>().CurrentValue;
-            var chooser = Essentials.HarassMenu["chooser"].Cast<ComboBox>().SelectedText;
 
-            if (useCard && m != null)
+            if (useCard)
             {
+                var wSlider = Essentials.HarassMenu["wSlider"].Cast<Slider>().CurrentValue;
+                var t = TargetSelector.GetTarget(
+                    Player.Instance.AttackRange + wSlider,
+                    DamageType.Mixed);
+
+                if (t == null) return;
+
+                var chooser = Essentials.HarassMenu["chooser"].Cast<ComboBox>().SelectedText;
+
                 if (chooser == "Smart")
                 {
-                    var selectedCard = Essentials.MinionCardSelection(m);
-
-                    if (selectedCard != Cards.None)
-                    {
-                        SelectCard(m, selectedCard);
-                    }
-                }
-                else if (chooser == "Yellow")
-                {
-                    SelectCard(m, Cards.Yellow);
-                }
-                else if (chooser == "Red")
-                {
-                    SelectCard(m, Cards.Red);
-                }
-                else if (chooser == "Blue")
-                {
-                    SelectCard(m, Cards.Blue);
-                }
-            }
-
-            if (useCard && t != null)
-            {
-                if (chooser == "Smart")
-                {
-                    var selectedCard = Essentials.HeroCardSelection(t);
+                    var selectedCard = Essentials.HeroCardSelection(t, Essentials.HarassMenu);
                     SelectCard(t, selectedCard);
                 }
                 else if (chooser == "Yellow")
@@ -217,31 +236,27 @@
                 }
             }
 
-            var qTarget = TargetSelector.GetTarget(Program.Q.Range, DamageType.Magical);
             var useQ = Essentials.HarassMenu["useQ"].Cast<CheckBox>().CurrentValue;
-            var qPred = Essentials.HarassMenu["qPred"].Cast<Slider>().CurrentValue;
-            var manaManagerQ = Essentials.HarassMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
 
-            if (!useQ)
+            if (useQ)
             {
-                return;
-            }
-
-            if (qTarget == null)
-            {
-                return;
-            }
-
-            if (!Program.Q.IsInRange(qTarget) || !Program.Q.IsReady()
-                || !(Player.Instance.ManaPercent >= manaManagerQ))
-            {
-                return;
-            }
-            var pred = Program.Q.GetPrediction(qTarget);
-
-            if (pred.HitChancePercent >= qPred)
-            {
-                Program.Q.Cast(pred.CastPosition);
+                var qTarget = TargetSelector.GetTarget(Program.Q.Range, DamageType.Magical);
+                if (qTarget == null)
+                {
+                    return;
+                }
+                var manaManagerQ = Essentials.HarassMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
+                if (!Program.Q.IsInRange(qTarget) || !Program.Q.IsReady()
+                    || !(Player.Instance.ManaPercent >= manaManagerQ))
+                {
+                    return;
+                }
+                var qPred = Essentials.HarassMenu["qPred"].Cast<Slider>().CurrentValue;
+                var pred = Program.Q.GetPrediction(qTarget);
+                if (pred.HitChancePercent >= qPred)
+                {
+                    Program.Q.Cast(pred.CastPosition);
+                }
             }
         }
 
@@ -250,19 +265,19 @@
         /// </summary>
         public static void Combo()
         {
-            var wSlider = Essentials.ComboMenu["wSlider"].Cast<Slider>().CurrentValue;
-            var wTarget = TargetSelector.GetTarget(
-                Player.Instance.AttackRange + wSlider,
-                DamageType.Magical);
             var useCard = Essentials.ComboMenu["useCard"].Cast<CheckBox>().CurrentValue;
-            var chooser = Essentials.ComboMenu["chooser"].Cast<ComboBox>().SelectedText;
 
-            if (useCard && wTarget != null)
+            if (useCard)
             {
+                var wSlider = Essentials.ComboMenu["wSlider"].Cast<Slider>().CurrentValue;
+                var wTarget = TargetSelector.GetTarget(
+                    Player.Instance.AttackRange + wSlider,
+                    DamageType.Magical);
+                if (wTarget == null) return;
+                var chooser = Essentials.ComboMenu["chooser"].Cast<ComboBox>().SelectedText;
                 if (chooser == "Smart")
                 {
-                    var selectedCard = Essentials.HeroCardSelection(wTarget);
-
+                    var selectedCard = Essentials.HeroCardSelection(wTarget, Essentials.ComboMenu);
                     if (selectedCard != Cards.None)
                     {
                         SelectCard(wTarget, selectedCard);
@@ -281,25 +296,28 @@
                     SelectCard(wTarget, Cards.Blue);
                 }
             }
-
-            var qTarget = TargetSelector.GetTarget(
-                Program.Q.Range,
-                DamageType.Magical);
             var useQ = Essentials.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
 
-            if (!useQ || qTarget == null) return;
-            var useQStun = Essentials.ComboMenu["useQStun"].Cast<CheckBox>().CurrentValue;
-            var qPred = Essentials.ComboMenu["qPred"].Cast<Slider>().CurrentValue;
-            var manaManagerQ = Essentials.ComboMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
-
-            if (useQStun) return;
-            if (!Program.Q.IsInRange(qTarget) || !Program.Q.IsReady() ||
-                !(Player.Instance.ManaPercent >= manaManagerQ)) return;
-            var pred = Program.Q.GetPrediction(qTarget);
-
-            if (pred.HitChancePercent >= qPred)
+            if (useQ)
             {
-                Program.Q.Cast(pred.CastPosition);
+                var qTarget = TargetSelector.GetTarget(
+                    Program.Q.Range,
+                    DamageType.Magical);
+                if (qTarget == null) return;
+
+                var useQStun = Essentials.ComboMenu["useQStun"].Cast<CheckBox>().CurrentValue;
+                var qPred = Essentials.ComboMenu["qPred"].Cast<Slider>().CurrentValue;
+                var manaManagerQ = Essentials.ComboMenu["manaManagerQ"].Cast<Slider>().CurrentValue;
+
+                if (useQStun) return;
+                if (!Program.Q.IsInRange(qTarget) || !Program.Q.IsReady() ||
+                    !(Player.Instance.ManaPercent >= manaManagerQ)) return;
+                var pred = Program.Q.GetPrediction(qTarget);
+
+                if (pred.HitChancePercent >= qPred)
+                {
+                    Program.Q.Cast(pred.CastPosition);
+                }
             }
         }
 

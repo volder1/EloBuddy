@@ -84,15 +84,9 @@
             Essentials.ComboMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.ComboMenu.Add("wSlider", new Slider("Range from enemy before picking card (Not including the additional range)", 300, 0, 10000));
             Essentials.ComboMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
-            Essentials.ComboMenu.AddSeparator();
-            Essentials.ComboMenu    .Add("chooser", new ComboBox("Card Select Mode", new[] { "Smart", "Blue", "Red", "Yellow" }));
-            /*var comboCardChooserSlider = Essentials.ComboMenu.Add("chooser", new Slider("Yellow", 0, 0, 3));
-            var comboCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
-            comboCardChooserSlider.DisplayName = comboCardArray[comboCardChooserSlider.CurrentValue];
-            comboCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = comboCardArray[changeArgs.NewValue];
-            };*/
+            Essentials.ComboMenu.AddGroupLabel("Card Selector Configuration");
+            Essentials.ComboMenu.Add("chooser", new ComboBox("Card Select Mode", new[] { "Smart", "Blue", "Red", "Yellow" }));
+            Essentials.ComboMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
 
             // Harass Menu
             Essentials.HarassMenu = Essentials.MainMenu.AddSubMenu("Harass Menu", "harassMenu");
@@ -102,15 +96,9 @@
             Essentials.HarassMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.HarassMenu.Add("wSlider", new Slider("Range from enemy before picking card (Not including the additional range)", 300, 0, 10000));
             Essentials.HarassMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 25));
-            Essentials.HarassMenu.AddSeparator();
+            Essentials.HarassMenu.AddGroupLabel("Card Selector Configuration");
             Essentials.HarassMenu.Add("chooser", new ComboBox("Card Select Mode", new[] { "Smart", "Blue", "Red", "Yellow" }));
-            /*var harassCardChooserSlider = Essentials.HarassMenu.Add("chooser", new Slider("Smart", 0, 0, 3));
-            var harassCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
-            harassCardChooserSlider.DisplayName = harassCardArray[harassCardChooserSlider.CurrentValue];
-            harassCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = harassCardArray[changeArgs.NewValue];
-            };*/
+            Essentials.HarassMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
 
             // Lane Clear Menu
             Essentials.LaneClearMenu = Essentials.MainMenu.AddSubMenu("Lane Clear", "laneclearMenu");
@@ -119,15 +107,10 @@
             Essentials.LaneClearMenu.Add("useCard", new CheckBox("Use W in LaneClear"));
             Essentials.LaneClearMenu.Add("qPred", new Slider("Use Q if Hit x Minions", 3, 1, 5));
             Essentials.LaneClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
-            Essentials.LaneClearMenu.AddSeparator();
+            Essentials.LaneClearMenu.AddGroupLabel("Card Selector Configuration");
             Essentials.LaneClearMenu.Add("chooser", new ComboBox("Card Select Mode", new[] { "Smart", "Blue", "Red", "Yellow" }));
-            /*var laneclearCardChooserSlider = Essentials.LaneClearMenu.Add("chooser", new Slider("Smart", 0, 0, 3));
-            var laneclearCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
-            laneclearCardChooserSlider.DisplayName = laneclearCardArray[laneclearCardChooserSlider.CurrentValue];
-            laneclearCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = laneclearCardArray[changeArgs.NewValue];
-            };*/
+            Essentials.LaneClearMenu.Add("enemyW", new Slider("How many enemies before selecting Red Card (SMART)", 2, 1, 5));
+            Essentials.LaneClearMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
 
             // Jungle Clear Menu
             Essentials.JungleClearMenu = Essentials.MainMenu.AddSubMenu("Jungle Clear Menu", "jgMenu");
@@ -136,15 +119,10 @@
             Essentials.JungleClearMenu.Add("useCard", new CheckBox("Use W in JungleClear"));
             Essentials.JungleClearMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.JungleClearMenu.Add("manaManagerQ", new Slider("How much mana before using Q", 50));
-            Essentials.JungleClearMenu.AddSeparator();
+            Essentials.JungleClearMenu.AddGroupLabel("Card Selector Configuration");
             Essentials.JungleClearMenu.Add("chooser", new ComboBox("Card Select Mode", new[] {"Smart", "Blue", "Red", "Yellow"}));
-            /*var jungleclearCardChooserSlider = Essentials.JungleClearMenu.Add("chooser", new Slider("Smart", 0, 0, 3));
-            var jungleclearCardArray = new[] { "Smart", "Blue", "Red", "Yellow" };
-            jungleclearCardChooserSlider.DisplayName = jungleclearCardArray[jungleclearCardChooserSlider.CurrentValue];
-            jungleclearCardChooserSlider.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = jungleclearCardArray[changeArgs.NewValue];
-            };*/
+            Essentials.JungleClearMenu.Add("enemyW", new Slider("How many enemies before selecting Red Card (SMART)", 2, 1, 5));
+            Essentials.JungleClearMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
 
             // Kill Steal Menu
             Essentials.KillStealMenu = Essentials.MainMenu.AddSubMenu("Kill Steal Menu", "ksMenu");
@@ -167,12 +145,9 @@
             Essentials.MiscMenu.Add("autoQ", new CheckBox("Automatically Q's a Stunned Target"));
             Essentials.MiscMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.MiscMenu.Add("autoY", new CheckBox("Automatically select Yellow Card when R"));
-            Essentials.MiscMenu.AddGroupLabel("Card Selector Configuration");
-            Essentials.MiscMenu.Add("enemyW", new Slider("How many enemies before selecting Red Card (SMART)", 2, 1, 5));
-            Essentials.MiscMenu.Add("manaW", new Slider("How much mana before selecting Blue Card (SMART)", 25));
             Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 175, 175, 345));
 
-            Chat.Print("TwistedBuddy 2.2.0.2 - By KarmaPanda", System.Drawing.Color.Green);
+            Chat.Print("TwistedBuddy 2.2.0.3 - By KarmaPanda", System.Drawing.Color.Green);
 
             // Events
             Game.OnUpdate += Game_OnUpdate;
@@ -244,7 +219,7 @@
                 return;
             }
 
-            if (args.SData.Name == "gate" && Essentials.MiscMenu["autoY"].Cast<CheckBox>().CurrentValue)
+            if (args.SData.Name.ToLower() == "gate" && Essentials.MiscMenu["autoY"].Cast<CheckBox>().CurrentValue)
             {
                 CardSelector.StartSelecting(Cards.Yellow);
             }
