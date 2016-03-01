@@ -94,7 +94,7 @@
 
                 if (target != null)
                 {
-                    if (Player.Instance.Distance(target) <= eRange)
+                    if (Player.Instance.Distance(target) >= eRange)
                     {
                         var ePrediction = Program.E.GetPrediction(target);
 

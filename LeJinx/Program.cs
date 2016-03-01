@@ -42,11 +42,8 @@ namespace Jinx
         /// Stores Damage Indicator
         /// </summary>
         public static DamageIndicator.DamageIndicator Indicator;
-
-        /// <summary>
-        /// Stores Allah Akbar File
-        /// </summary>
-        public static SoundPlayer AllahAkbar;
+        
+        //public static SoundPlayer AllahAkbar;
 
         /// <summary>
         /// Called when the Program is run
@@ -68,12 +65,12 @@ namespace Jinx
             }
 
             Q = new Spell.Active(SpellSlot.Q);
-            W = new Spell.Skillshot(SpellSlot.W, 1450, SkillShotType.Linear, 500, 1500, 60)
+            W = new Spell.Skillshot(SpellSlot.W, 1500, SkillShotType.Linear, 500, 3300, 60)
             {
                 AllowedCollisionCount = 0
             };
-            E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Circular, 1200, 1750, 100);
-            R = new Spell.Skillshot(SpellSlot.R, 3000, SkillShotType.Linear, 700, 1500, 140);
+            E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Circular, 250, 1750, 315);
+            R = new Spell.Skillshot(SpellSlot.R, 3000, SkillShotType.Linear, 500, 1500, 140);
 
             Config.Initialize();
             Indicator = new DamageIndicator.DamageIndicator();
@@ -91,7 +88,7 @@ namespace Jinx
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
 
-            try
+            /*try
             {
                 var sandBox = SandboxConfig.DataDirectory + @"\JinXXX\";
 
@@ -104,7 +101,7 @@ namespace Jinx
                 if (!File.Exists(sandBox + "Allahu_Akbar_Sound_Effect_Download_Link.wav"))
                 {
                     var client = new WebClient();
-                    client.DownloadFile("http://italianbuffet.it/Allahu_Akbar_Sound_Effect_Download_Link.wav",
+                    client.DownloadFile("http://upload.karmapanda.org/cc9981d8638aa6617e5ee96130134c05.wav",
                         sandBox + "Allahu_Akbar_Sound_Effect_Download_Link.wav");
                     client.DownloadFileCompleted += Client_DownloadFileCompleted;
                 }
@@ -122,15 +119,10 @@ namespace Jinx
             catch (Exception e)
             {
                 Chat.Print("Failed to load Allah Akbar: " + e);
-            }
+            }*/
         }
-
-        /// <summary>
-        /// Download Finished
-        /// </summary>
-        /// <param name="sender">The Sender</param>
-        /// <param name="e">The Args</param>
-        private static void Client_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        
+        /*private static void Client_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
             Chat.Print("Failed Downloading: " + e.Error);
             AllahAkbar = new SoundPlayer
@@ -139,7 +131,7 @@ namespace Jinx
                     SandboxConfig.DataDirectory + @"\JinXXX\" + "Allahu_Akbar_Sound_Effect_Download_Link.wav"
             };
             AllahAkbar.Load();
-        }
+        }*/
 
         /// <summary>
         /// Called Before Attack
@@ -269,19 +261,19 @@ namespace Jinx
         /// <param name="args">The Spell</param>
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            var allahAkbarT = Config.MiscMenu["allahAkbarT"].Cast<CheckBox>().CurrentValue;
+            //var allahAkbarT = Config.MiscMenu["allahAkbarT"].Cast<CheckBox>().CurrentValue;
             var autoE = Config.MiscMenu["autoE"].Cast<CheckBox>().CurrentValue;
             var eSlider = Config.MiscMenu["eSlider"].Cast<Slider>().CurrentValue;
 
-            if (AllahAkbar != null)
+            /*if (AllahAkbar != null)
             {
                 if (allahAkbarT && sender.IsMe && args.SData.Name.Equals("JinxR"))
                 {
                     AllahAkbar.Play();
                 }
-            }
+            }*/
 
-            if (!autoE || !E.IsReady())
+            if (!autoE || sender.IsMinion || !E.IsReady())
             {
                 return;
             }

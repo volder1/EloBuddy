@@ -90,7 +90,7 @@
             ComboMenu.Add("eSlider", new Slider("Use E if HitChance % is {0}", 80));
             ComboMenu.Add("rSlider", new Slider("Use R if HitChance % is {0}", 80));
             ComboMenu.AddLabel("Extra Settings");
-            ComboMenu.Add("wRange2", new Slider("Only Use W if Player Range from Target is more than {0}", 150, 0, 1450));
+            ComboMenu.Add("wRange2", new Slider("Only Use W if Player Range from Target is more than {0}", 150, 0, 1500));
             ComboMenu.Add("eRange", new Slider("Only Use E if Player Range from Target is more than {0}", 150, 0, 900));
             ComboMenu.Add("eRange2", new Slider("Max E Range", 900, 0, 900));
             ComboMenu.Add("rRange2", new Slider("Max R Range", 3000, 0, 3000));
@@ -135,7 +135,7 @@
             KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is {0}", 80));
             KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is {0}", 80));
             KillStealMenu.AddLabel("Spell Settings");
-            KillStealMenu.Add("wRange", new Slider("Minimum Distance for W", 450, 0, 3000));
+            KillStealMenu.Add("wRange", new Slider("Minimum Distance for W", 450, 0, 1500));
             KillStealMenu.Add("rRange", new Slider("Max Distance for R", 3000, 0, 3000));
 
             JungleClearMenu = ConfigMenu.AddSubMenu("Jungle Clear", "JungleClear");
@@ -227,12 +227,12 @@
             //MiscMenu.Add("tauntW", new CheckBox("Use W on Taunted Enemy", false));
             MiscMenu.Add("fearW", new CheckBox("Use W on Feared Enemy", false));
             MiscMenu.Add("snareW", new CheckBox("Use W on Snared Enemy", false));
-            MiscMenu.Add("wRange2", new Slider("Only Use W if Player Range from Target is more than {0}", 450, 0, 1450));
+            MiscMenu.Add("wRange2", new Slider("Only Use W if Player Range from Target is more than {0}", 450, 0, 1500));
             MiscMenu.AddLabel("Prediction Settings");
             MiscMenu.Add("wSlider", new Slider("Use W if HitChance % is {0}", 75));
             MiscMenu.Add("eSlider", new Slider("Use E if HitChance % is {0}", 75));
-            MiscMenu.AddLabel("Allah Akbar");
-            MiscMenu.Add("allahAkbarT", new CheckBox("Play Allah Akbar after casting R", false));
+            /*MiscMenu.AddLabel("Allah Akbar");
+            MiscMenu.Add("allahAkbarT", new CheckBox("Play Allah Akbar after casting R", false));*/
         }
     }
 }

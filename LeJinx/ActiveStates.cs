@@ -145,21 +145,11 @@
                 return;
             }
 
-            foreach (var pred in EntityManager.Heroes.Enemies.Where(
-                enemy => enemy != null &&
-                         Program.E.IsInRange(enemy) && enemy.IsValidTarget() && !enemy.CanMove &&
-                         Game.Time - Essentials.GrabTime > 1)
-                .Select(enemy => Program.E.GetPrediction(enemy))
-                .Where(pred => pred != null && pred.HitChancePercent >= 75))
-            {
-                Program.E.Cast(pred.CastPosition);
-            }
-
             var enemies =
                 EntityManager.Heroes.Enemies.Where(
                     t =>
                         t.IsValidTarget(Program.E.Range) &&
-                        (t.IsCharmed || t.IsStunned || t.IsRecalling() || t.IsRooted || t.IsFeared));
+                        (t.IsCharmed || t.IsStunned || t.IsRecalling() || t.IsRooted || t.IsFeared || t.HasBuffOfType(BuffType.Slow)));
             var target = TargetSelector.GetTarget(enemies, DamageType.Physical);
             if (target == null) return;
 
@@ -168,6 +158,17 @@
             if (prediction != null && prediction.HitChancePercent >= 75)
             {
                 Program.E.Cast(prediction.CastPosition);
+            }
+
+            /* OKTW Logic ; Credits to Sebby */
+            foreach (var pred in EntityManager.Heroes.Enemies.Where(
+                enemy => enemy != null &&
+                         Program.E.IsInRange(enemy) && enemy.IsValidTarget() && !enemy.CanMove &&
+                         Game.Time - Essentials.GrabTime > 1)
+                .Select(enemy => Program.E.GetPrediction(enemy))
+                .Where(pred => pred != null && pred.HitChancePercent >= 75))
+            {
+                Program.E.Cast(pred.CastPosition);
             }
         }
 
