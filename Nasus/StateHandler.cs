@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Nasus
+﻿namespace Nasus
 {
     using System.Linq;
 
@@ -9,50 +7,38 @@ namespace Nasus
     using EloBuddy.SDK.Enumerations;
     using EloBuddy.SDK.Menu.Values;
 
-    class StateHandler
+    internal class StateHandler
     {
-        /// <summary>
-        /// Does KillSteal
-        /// </summary>
-        public static void KillSteal(EventArgs args)
-        {
-            var useE = Config.KillStealMenu["useE"].Cast<CheckBox>().CurrentValue;
-
-            if (!useE)
-            {
-                return;
-            }
-            var target = TargetSelector.GetTarget(
-                EntityManager.Heroes.Enemies.Where(
-                    t => t.IsValidTarget(Program.E.Range) &&
-                        Extensions.DamageLibrary.CalculateDamage(t, false, true)
-                        >= t.Health), DamageType.Magical);
-
-            if (target == null) return;
-
-            Program.E.Cast(target);
-        }
-
         /// <summary>
         /// Does LastHit
         /// </summary>
-        public static void LastHit()
+        public static void LastHit(Obj_AI_Base minion = null)
         {
-            if (!Program.Q.IsReady() || !Orbwalker.CanAutoAttack)
+            if (minion == null)
             {
-                return;
+                if (!Program.Q.IsReady() || !Orbwalker.CanAutoAttack)
+                {
+                    return;
+                }
+
+                minion = EntityManager.MinionsAndMonsters.EnemyMinions.Where(
+                    t => t.IsValidTarget(Program.Q.Range) &&
+                         Extensions.DamageLibrary.CalculateDamage(t, true, false) >= t.Health)
+                    .OrderByDescending(t => t.Distance(Player.Instance))
+                    .FirstOrDefault();
+
+                if (minion == null) return;
+
+                Program.Q.Cast();
+                Orbwalker.ForcedTarget = minion;
             }
+            else
+            {
+                if (minion.Health > Extensions.DamageLibrary.CalculateDamage(minion, true, false)) return;
 
-            var minion = EntityManager.MinionsAndMonsters.EnemyMinions.Where(
-                t => t.IsValidTarget(Program.Q.Range) &&
-                     Extensions.DamageLibrary.CalculateDamage(t, true, false) >= t.Health)
-                .OrderByDescending(t => t.Distance(Player.Instance))
-                .FirstOrDefault();
-
-            if (minion == null) return;
-
-            Program.Q.Cast();
-            Orbwalker.ForcedTarget = minion;
+                Program.Q.Cast();
+                Orbwalker.ForcedTarget = minion;
+            }
         }
 
         /// <summary>

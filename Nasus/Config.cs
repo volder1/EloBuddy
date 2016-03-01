@@ -3,12 +3,12 @@ using EloBuddy.SDK.Menu.Values;
 
 namespace Nasus
 {
-    class Config
+    internal class Config
     {
         /// <summary>
         /// Initializes the Menu
         /// </summary>
-        public static Menu ConfigMenu, FarmMenu, ComboMenu, KillStealMenu, DrawingMenu;
+        public static Menu ConfigMenu, FarmMenu, ComboMenu, DrawingMenu;
 
         /// <summary>
         /// Creates the Menu
@@ -18,7 +18,8 @@ namespace Nasus
             // Main Menu
             ConfigMenu = MainMenu.AddMenu("KA Nasus", "ConfigMenu");
             ConfigMenu.AddGroupLabel("This addon is made by KarmaPanda and should not be redistributed in any way.");
-            ConfigMenu.AddGroupLabel("Any unauthorized redistribution without credits will result in severe consequences.");
+            ConfigMenu.AddGroupLabel(
+                "Any unauthorized redistribution without credits will result in severe consequences.");
             ConfigMenu.AddGroupLabel("Thank you for using this addon and have a fun time!");
 
             // Farm Menu
@@ -51,16 +52,20 @@ namespace Nasus
             ComboMenu.Add("intR", new Slider("Use R when x Enemies are Around", 1, 0, 5));
             ComboMenu.Add("rangeR", new Slider("Use R when Enemies are in x Range", 1200, 0, 2000));
 
-            // Kill Steal Menu
-            KillStealMenu = ConfigMenu.AddSubMenu("Kill Steal", "KillSteal");
-            KillStealMenu.AddGroupLabel("Spell Usage Settings");
-            KillStealMenu.Add("useE", new CheckBox("Use E in Kill Steal"));
-
             // Drawing Menu
             DrawingMenu = ConfigMenu.AddSubMenu("Drawing", "Drawing");
             DrawingMenu.AddGroupLabel("Spell Drawing Settings");
             DrawingMenu.Add("drawW", new CheckBox("Draw W Range", false));
             DrawingMenu.Add("drawE", new CheckBox("Draw E Range", false));
+            DrawingMenu.AddLabel("DamageIndicator");
+            DrawingMenu.Add("draw.Damage", new CheckBox("Draw Damage"));
+            DrawingMenu.Add("draw.Q", new CheckBox("Calculate Q Damage"));
+            DrawingMenu.Add("draw.E", new CheckBox("Calculate E Damage"));
+            DrawingMenu.AddLabel("Color Settings for Damage Indicator");
+            DrawingMenu.Add("draw_Alpha", new Slider("Alpha: ", 255, 0, 255));
+            DrawingMenu.Add("draw_Red", new Slider("Red: ", 255, 0, 255));
+            DrawingMenu.Add("draw_Green", new Slider("Green: ", 0, 0, 255));
+            DrawingMenu.Add("draw_Blue", new Slider("Blue: ", 0, 0, 255));
         }
     }
 }

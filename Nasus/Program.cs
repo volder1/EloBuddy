@@ -12,7 +12,7 @@
     /// <summary>
     /// Main Class
     /// </summary>
-    class Program
+    internal class Program
     {
         /// <summary>
         /// Spell Q
@@ -33,6 +33,11 @@
         /// Spell R
         /// </summary>
         public static Spell.Active R;
+
+        /// <summary>
+        /// Stores Damage Indicator
+        /// </summary>
+        public static DamageIndicator Indicator;
 
         /// <summary>
         /// Called when the Program Starts
@@ -64,13 +69,24 @@
             // Methods
             Config.Initialize();
             Chat.Print("KA Nasus: Loaded", System.Drawing.Color.Green);
+            Indicator = new DamageIndicator();
 
             // Events
             Game.OnTick += Game_OnTick;
-            Game.OnTick += StateHandler.KillSteal;
             Drawing.OnDraw += Drawing_OnDraw;
             Orbwalker.OnPostAttack += Orbwalker_OnPostAttack;
+            Orbwalker.OnAttack += Orbwalker_OnAttack;
             Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
+        }
+
+        private static void Orbwalker_OnAttack(AttackableUnit target, EventArgs args)
+        {
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) ||
+                Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit) ||
+                Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+            {
+                StateHandler.LastHit(target as Obj_AI_Base);
+            }
         }
 
         private static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
@@ -100,16 +116,25 @@
         /// <param name="args">The Args</param>
         private static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
         {
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit) ||
-                Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) ||
-                Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
-            {
-                var aaDisable = Config.FarmMenu["disableAA"].Cast<CheckBox>().CurrentValue;
+            if (!Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit) &&
+                !Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) &&
+                !Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear)) return;
 
-                if (aaDisable && !Player.Instance.HasBuff("SiphoningStrike"))
-                {
-                    args.Process = false;
-                }
+            var aaDisable = Config.FarmMenu["disableAA"].Cast<CheckBox>().CurrentValue;
+
+            if (aaDisable && !Player.Instance.HasBuff("SiphoningStrike"))
+            {
+                args.Process = false;
+            }
+
+            var minion = target as Obj_AI_Minion;
+
+            if (minion == null || !minion.IsMinion) return;
+
+            if (Player.Instance.HasBuff("SiphoningStrike") &&
+                target.Health > Extensions.DamageLibrary.CalculateDamage(minion, true, false))
+            {
+                args.Process = false;
             }
         }
 

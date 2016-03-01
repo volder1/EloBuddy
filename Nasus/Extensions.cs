@@ -3,7 +3,7 @@ using EloBuddy.SDK;
 
 namespace Nasus
 {
-    class Extensions
+    internal class Extensions
     {
         internal class DamageLibrary
         {
@@ -57,7 +57,8 @@ namespace Nasus
                 return
                     Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
                         (new float[] {0, 30, 50, 70, 90, 110}[Program.Q.Level] + Player.Instance.FlatPhysicalDamageMod +
-                        Player.Instance.GetBuffCount("NasusQStacks")) + dmgItem) + Player.Instance.GetAutoAttackDamage(target);
+                         Player.Instance.GetBuffCount("NasusQStacks")) + dmgItem) +
+                    Player.Instance.GetAutoAttackDamage(target);
             }
 
             /// <summary>
