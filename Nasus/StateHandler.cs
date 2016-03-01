@@ -14,6 +14,8 @@
         /// </summary>
         public static void LastHit(Obj_AI_Base minion = null)
         {
+            if (!Config.FarmMenu["useQ"].Cast<CheckBox>().CurrentValue) return;
+
             if (minion == null)
             {
                 if (!Program.Q.IsReady() || !Orbwalker.CanAutoAttack)
