@@ -45,20 +45,19 @@ namespace Nasus
                 if (Item.HasItem(3057) && (Item.CanUseItem(3057) || Player.HasBuff("sheen"))
                     && Player.Instance.BaseAttackDamage > dmgItem)
                 {
-                    dmgItem = Player.Instance.GetAutoAttackDamage(target);
+                    dmgItem = Player.Instance.BaseAttackDamage;
                 }
 
                 if (Item.HasItem(3025) && (Item.CanUseItem(3025) || Player.HasBuff("itemfrozenfist"))
                     && Player.Instance.BaseAttackDamage*1.25 > dmgItem)
                 {
-                    dmgItem = Player.Instance.GetAutoAttackDamage(target)*1.25f;
+                    dmgItem = Player.Instance.BaseAttackDamage*1.25f;
                 }
 
                 return
-                    target.CalculateDamageOnUnit(target, DamageType.Physical,
-                        new float[] {0, 30, 50, 70, 90, 110}[Program.Q.Level] + Player.Instance.FlatPhysicalDamageMod +
-                        Player.Instance.GetBuffCount("NasusQStacks")) + Player.Instance.GetAutoAttackDamage(target) +
-                    dmgItem;
+                    Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical,
+                        (new float[] {0, 30, 50, 70, 90, 110}[Program.Q.Level] + Player.Instance.FlatPhysicalDamageMod +
+                        Player.Instance.GetBuffCount("NasusQStacks")) + dmgItem) + Player.Instance.GetAutoAttackDamage(target);
             }
 
             /// <summary>

@@ -24,11 +24,9 @@ namespace Nasus
             }
             var target = TargetSelector.GetTarget(
                 EntityManager.Heroes.Enemies.Where(
-                    t =>
-                        Program.E.IsInRange(t) && t.IsValidTarget() &&
+                    t => t.IsValidTarget(Program.E.Range) &&
                         Extensions.DamageLibrary.CalculateDamage(t, false, true)
-                        >= t.Health)
-                    .OrderBy(t => t.Health), DamageType.Magical);
+                        >= t.Health), DamageType.Magical);
 
             if (target == null) return;
 
@@ -40,33 +38,21 @@ namespace Nasus
         /// </summary>
         public static void LastHit()
         {
-            if (!Program.Q.IsReady())
+            if (!Program.Q.IsReady() || !Orbwalker.CanAutoAttack)
             {
                 return;
             }
 
-            var minion =
-                Orbwalker.LastHitMinionsList.Where(
-                    t => t.IsEnemy && t.IsValidTarget() && Program.Q.IsInRange(t) &&
-                         Extensions.DamageLibrary.CalculateDamage(t, true, false) >= t.Health);
+            var minion = EntityManager.MinionsAndMonsters.EnemyMinions.Where(
+                t => t.IsValidTarget(Program.Q.Range) &&
+                     Extensions.DamageLibrary.CalculateDamage(t, true, false) >= t.Health)
+                .OrderByDescending(t => t.Distance(Player.Instance))
+                .FirstOrDefault();
 
-            foreach (var m in minion)
-            {
-                Program.Q.Cast();
-                Core.DelayAction(() =>
-                {
-                    Orbwalker.DisableAttacking = true;
-                    Orbwalker.DisableMovement = true;
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, m);
-                    Core.DelayAction(() =>
-                    {
-                        Orbwalker.DisableAttacking = false;
-                        Orbwalker.DisableMovement = false;
-                    }
-                        , (int)Math.Round(Player.Instance.AttackDelay));
+            if (minion == null) return;
 
-                }, Program.Q.CastDelay);
-            }
+            Program.Q.Cast();
+            Orbwalker.ForcedTarget = minion;
         }
 
         /// <summary>

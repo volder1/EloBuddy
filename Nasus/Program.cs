@@ -55,7 +55,10 @@
 
             Q = new Spell.Active(SpellSlot.Q, 150);
             W = new Spell.Targeted(SpellSlot.W, 600);
-            E = new Spell.Skillshot(SpellSlot.E, 650, SkillShotType.Circular, 250, 190, int.MaxValue);
+            E = new Spell.Skillshot(SpellSlot.E, 650, SkillShotType.Circular, 500, 20, 380)
+            {
+                AllowedCollisionCount = int.MaxValue
+            };
             R = new Spell.Active(SpellSlot.R);
 
             // Methods
@@ -66,16 +69,11 @@
             Game.OnTick += Game_OnTick;
             Game.OnTick += StateHandler.KillSteal;
             Drawing.OnDraw += Drawing_OnDraw;
-            Orbwalker.OnAttack += Orbwalker_OnAttack;
+            Orbwalker.OnPostAttack += Orbwalker_OnPostAttack;
             Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
         }
 
-        /// <summary>
-        /// Called whenever a target is going to be attacked by Orbwalker.
-        /// </summary>
-        /// <param name="target">The Target</param>
-        /// <param name="args">The Args</param>
-        private static void Orbwalker_OnAttack(AttackableUnit target, EventArgs args)
+        private static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) ||
                 Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
@@ -84,13 +82,13 @@
                 var useQ = Config.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
                 var useQh = Config.FarmMenu["useQH"].Cast<CheckBox>().CurrentValue;
 
-                if (t == null || (!useQ && !useQh))
+                if (t != null && (useQ || useQh))
                 {
-                    return;
-                }
-                if (t.IsValidTarget() && Q.IsReady())
-                {
-                    Q.Cast();
+                    if (t.IsValidTarget() && Q.IsReady())
+                    {
+                        Q.Cast();
+                        Orbwalker.ForcedTarget = target;
+                    }
                 }
             }
         }
@@ -141,6 +139,16 @@
         /// <param name="args">The Args</param>
         private static void Game_OnTick(EventArgs args)
         {
+            if (Orbwalker.ForcedTarget != null)
+            {
+                if (!Player.Instance.IsInAutoAttackRange(Orbwalker.ForcedTarget) ||
+                    !Orbwalker.ForcedTarget.IsValidTarget() ||
+                    Orbwalker.ForcedTarget.IsInvulnerable)
+                {
+                    Orbwalker.ForcedTarget = null;
+                }
+            }
+
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
                 StateHandler.Combo();
