@@ -1,5 +1,4 @@
-﻿using EloBuddy.SDK.Enumerations;
-using EloBuddy.SDK.Menu;
+﻿using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using SharpDX;
 using Color = System.Drawing.Color;
@@ -12,7 +11,7 @@ namespace NidaleeBuddyEvolution
     using EloBuddy;
     using EloBuddy.SDK;
 
-    class Essentials
+    internal class Essentials
     {
         /// <summary>
         /// Attack range for Human Form
@@ -23,7 +22,7 @@ namespace NidaleeBuddyEvolution
         /// Attack range for Cougar Form
         /// </summary>
         public const float CatRange = 125;
-        
+
         /// <summary>
         /// Contains the Last Hunted Target
         /// </summary>
@@ -158,7 +157,7 @@ namespace NidaleeBuddyEvolution
                     result = 0;
                     break;
             }
-            
+
             return Player.Instance.ManaPercent >= result;
         }
 
@@ -199,24 +198,16 @@ namespace NidaleeBuddyEvolution
         /// <returns>Returns if there is a summoner spell with Name Provided.</returns>
         public static bool HasSpell(string s)
         {
-            return Player.Spells.FirstOrDefault(o => o.SData.Name.Contains(s)) != null;
+            return Player.Spells.FirstOrDefault(o => o.SData.Name.ToLower().Contains(s)) != null;
         }
 
         /// <summary>
-        /// Gets the amount of damage smite does. (Taken from ActivatorBuddy)
+        /// Gets the amount of damage smite does.
         /// </summary>
         /// <returns></returns>
-        public static float GetSmiteDamage()
+        public static float GetSmiteDamage(Obj_AI_Base target)
         {
-            var level = Player.Instance.Level;
-            float[] smitedamage =
-            {
-                20f*level + 370f,
-                30f*level + 330f,
-                40f*level + 240f,
-                50f*level + 100f
-            };
-            return smitedamage.Max();
+            return Player.Instance.GetSummonerSpellDamage(target, EloBuddy.SDK.DamageLibrary.SummonerSpells.Smite);
         }
 
         /// <summary>
@@ -232,13 +223,15 @@ namespace NidaleeBuddyEvolution
             var dir = (end - start).Normalized();
             var pDir = dir.Perpendicular();
 
-            var rightStartPos = start + pDir * radius;
-            var leftStartPos = start - pDir * radius;
-            var rightEndPos = end + pDir * radius;
-            var leftEndPos = end - pDir * radius;
+            var rightStartPos = start + pDir*radius;
+            var leftStartPos = start - pDir*radius;
+            var rightEndPos = end + pDir*radius;
+            var leftEndPos = end - pDir*radius;
 
-            var rStartPos = Drawing.WorldToScreen(new Vector3(rightStartPos.X, rightStartPos.Y, Player.Instance.Position.Z));
-            var lStartPos = Drawing.WorldToScreen(new Vector3(leftStartPos.X, leftStartPos.Y, Player.Instance.Position.Z));
+            var rStartPos =
+                Drawing.WorldToScreen(new Vector3(rightStartPos.X, rightStartPos.Y, Player.Instance.Position.Z));
+            var lStartPos =
+                Drawing.WorldToScreen(new Vector3(leftStartPos.X, leftStartPos.Y, Player.Instance.Position.Z));
             var rEndPos = Drawing.WorldToScreen(new Vector3(rightEndPos.X, rightEndPos.Y, Player.Instance.Position.Z));
             var lEndPos = Drawing.WorldToScreen(new Vector3(leftEndPos.X, leftEndPos.Y, Player.Instance.Position.Z));
 
@@ -248,48 +241,98 @@ namespace NidaleeBuddyEvolution
             Drawing.DrawLine(lEndPos, rEndPos, width, color);
         }
 
-        private static readonly int[] SmiteBlue = { 3706, 1403, 1402, 1401, 1400 };
-
-        private static readonly int[] SmiteRed = { 3715, 1415, 1414, 1413, 1412 };
+        /// <summary>
+        /// Item ID's for Skirmersher
+        /// </summary>
+        public static ItemId[] SkirmisherItemIds =
+        {
+            ItemId.Skirmishers_Sabre,
+            ItemId.Skirmishers_Sabre_Enchantment_Cinderhulk, ItemId.Skirmishers_Sabre_Enchantment_Devourer,
+            ItemId.Skirmishers_Sabre_Enchantment_Runic_Echoes, ItemId.Skirmishers_Sabre_Enchantment_Sated_Devourer,
+            ItemId.Skirmishers_Sabre_Enchantment_Warrior,
+        };
 
         /// <summary>
-        /// (Taken from ActivatorBuddy)
+        /// Item ID's for Stalker Blade
+        /// </summary>
+        public static ItemId[] StalkerBladeItemIds =
+        {
+            ItemId.Stalkers_Blade,
+            ItemId.Stalkers_Blade_Enchantment_Cinderhulk, ItemId.Stalkers_Blade_Enchantment_Devourer,
+            ItemId.Stalkers_Blade_Enchantment_Runic_Echoes, ItemId.Stalkers_Blade_Enchantment_Sated_Devourer,
+            ItemId.Stalkers_Blade_Enchantment_Warrior,
+        };
+
+        /// <summary>
+        /// Item ID's for Tracker Knife
+        /// </summary>
+        public static ItemId[] TrackerKnifeItemIds =
+        {
+            ItemId.Trackers_Knife,
+            ItemId.Trackers_Knife_Enchantment_Cinderhulk, ItemId.Trackers_Knife_Enchantment_Devourer,
+            ItemId.Trackers_Knife_Enchantment_Runic_Echoes, ItemId.Trackers_Knife_Enchantment_Sated_Devourer,
+            ItemId.Trackers_Knife_Enchantment_Warrior,
+        };
+
+        /// <summary>
+        /// Fixed for Patch 6.x
         /// </summary>
         public static void SetSmiteSlot()
         {
             SpellSlot smiteSlot;
-            if (SmiteBlue.Any(x => ObjectManager.Player.InventoryItems.FirstOrDefault(a => a.Id == (ItemId)x) != null))
+
+            if (StalkerBladeItemIds.Any(item => Player.Instance.HasItem(item)))
+            {
                 smiteSlot = ObjectManager.Player.GetSpellSlotFromName("s5_summonersmiteplayerganker");
-            else if (SmiteRed.Any(x => ObjectManager.Player.InventoryItems.FirstOrDefault(a => a.Id == (ItemId)x) != null))
+            }
+            else if (SkirmisherItemIds.Any(item => Player.Instance.HasItem(item)))
+            {
+
                 smiteSlot = ObjectManager.Player.GetSpellSlotFromName("s5_summonersmiteduel");
-            else
+            }
+            else if (TrackerKnifeItemIds.Any(item => Player.Instance.HasItem(item)))
+            {
                 smiteSlot = ObjectManager.Player.GetSpellSlotFromName("summonersmite");
+            }
+            else
+            {
+                smiteSlot = ObjectManager.Player.GetSpellSlotFromName("summonersmite");
+            }
+
             Program.Smite = new Spell.Targeted(smiteSlot, 500);
         }
 
         /// <summary>
         /// Jungle Mob List 
         /// </summary>
-        public static readonly string[] JungleMobsList = { "SRU_Red", "SRU_Blue", "SRU_Dragon", "SRU_Baron", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Krug", "Sru_Crab" };
+        public static readonly string[] JungleMobsList =
+        {
+            "SRU_Red", "SRU_Blue", "SRU_Dragon", "SRU_Baron", "SRU_Gromp",
+            "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Krug", "Sru_Crab"
+        };
 
         /// <summary>
         /// Jungle Mob List for Twisted Treeline
         /// </summary>
-        public static readonly string[] JungleMobsListTwistedTreeline = { "TT_NWraith1.1", "TT_NWraith4.1", "TT_NGolem2.1", "TT_NGolem5.1", "TT_NWolf3.1", "TT_NWolf6.1", "TT_Spiderboss8.1" };
+        public static readonly string[] JungleMobsListTwistedTreeline =
+        {
+            "TT_NWraith1.1", "TT_NWraith4.1",
+            "TT_NGolem2.1", "TT_NGolem5.1", "TT_NWolf3.1", "TT_NWolf6.1", "TT_Spiderboss8.1"
+        };
 
         /// <summary>
         /// Stores the current tickcount of the spell.
         /// </summary>
         public static Dictionary<string, float> SpellTimer = new Dictionary<string, float>
         {
-            { "Takedown", 0f },
-            { "Pounce", 0f },
-            { "ExPounce", 0f },
-            { "Swipe", 0f },
-            { "Javelin", 0f },
-            { "Bushwhack", 0f },
-            { "Primalsurge", 0f },
-            { "Aspect", 0f  }
+            {"Takedown", 0f},
+            {"Pounce", 0f},
+            {"ExPounce", 0f},
+            {"Swipe", 0f},
+            {"Javelin", 0f},
+            {"Bushwhack", 0f},
+            {"Primalsurge", 0f},
+            {"Aspect", 0f}
         };
 
         /// <summary>
@@ -297,12 +340,12 @@ namespace NidaleeBuddyEvolution
         /// </summary>
         public static Dictionary<string, float> TimeStamp = new Dictionary<string, float>
         {
-            { "Takedown", 0f },
-            { "Pounce", 0f },
-            { "Swipe", 0f },
-            { "Javelin", 0f },
-            { "Bushwhack", 0f },
-            { "Primalsurge", 0f },
+            {"Takedown", 0f},
+            {"Pounce", 0f},
+            {"Swipe", 0f},
+            {"Javelin", 0f},
+            {"Bushwhack", 0f},
+            {"Primalsurge", 0f},
         };
 
         /// <summary>
@@ -393,33 +436,35 @@ namespace NidaleeBuddyEvolution
                         i = i + 3.875;
                         extraDmg2 += 1;
                     }
-                    
+
                     var finalExtra2 = extraDmg2 <= 200f ? extraDmg2/100f : 2f;
 
                     return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical,
                         (new[] {0f, 60f, 77.5f, 95f, 112.5f, 130f}[Program.QHuman.Level] +
-                         (Player.Instance.TotalMagicalDamage*(0.4f*finalExtra2))));
+                         (Player.Instance.TotalMagicalDamage*(0.4f)))) * finalExtra2;
                 }
 
                 if (CatForm())
                 {
-                    var missingHealth = (target.MaxHealth - target.Health) / 100f;
+                    var missingHealth = (target.MaxHealth - target.Health)/100f;
                     var extraDmg = 0f;
                     for (var i = 0; i < missingHealth; i++)
                     {
                         extraDmg += 1.5f;
                     }
-                    var finalExtra = extraDmg <= 150f ? (extraDmg / 100f) : 1.5f;
+                    var finalExtra = extraDmg <= 150f ? (extraDmg/100f) : 1.5f;
 
                     if (IsHunted(target))
                     {
                         return Player.Instance.CalculateDamageOnUnit(target, DamageType.Mixed,
-                            (new[] { 0f, 5.3f, 26.7f, 66.7f, 120f }[Program.R.Level] +
-                             (Player.Instance.TotalAttackDamage * finalExtra) + (Player.Instance.TotalMagicalDamage * (0.48f * finalExtra))));
+                            (new[] {0f, 5.3f, 26.7f, 66.7f, 120f}[Program.R.Level] +
+                             (Player.Instance.TotalAttackDamage*finalExtra) +
+                             (Player.Instance.TotalMagicalDamage*(0.48f*finalExtra))));
                     }
                     return Player.Instance.CalculateDamageOnUnit(target, DamageType.Mixed,
-                        (new[] { 0f, 4f, 20f, 50f, 90f }[Program.R.Level] +
-                         (Player.Instance.TotalAttackDamage * (0.75f * finalExtra)) + (Player.Instance.TotalMagicalDamage * (0.36f * finalExtra))));
+                        (new[] {0f, 4f, 20f, 50f, 90f}[Program.R.Level] +
+                         (Player.Instance.TotalAttackDamage*(0.75f*finalExtra)) +
+                         (Player.Instance.TotalMagicalDamage*(0.36f*finalExtra))));
                 }
 
                 return 0f;

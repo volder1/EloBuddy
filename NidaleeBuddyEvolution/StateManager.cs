@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Tracing;
-using System.Linq;
+﻿using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu.Values;
@@ -184,7 +183,11 @@ namespace NidaleeBuddyEvolution
                     }, Program.R.CastDelay);
                 }
 
-                var eHTarget = EntityManager.Heroes.Allies.FirstOrDefault(t => Program.EHuman.IsInRange(t) && t.Health <= NidaleeMenu.MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue);
+                var eHTarget =
+                    EntityManager.Heroes.Allies.FirstOrDefault(
+                        t =>
+                            Program.EHuman.IsInRange(t) &&
+                            t.Health <= NidaleeMenu.MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue);
 
                 if (eHTarget != null && NidaleeMenu.MiscMenu["autoHeal"].Cast<CheckBox>().CurrentValue &&
                     NidaleeMenu.MiscMenu["autoHeal_" + eHTarget.BaseSkinName].Cast<CheckBox>().CurrentValue &&
@@ -294,15 +297,15 @@ namespace NidaleeBuddyEvolution
                 if (useEC)
                 {
                     var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
-                            Player.Instance.ServerPosition, Program.ECat.Range).Where(t => t.IsValidTarget());
+                        Player.Instance.ServerPosition, Program.ECat.Range).Where(t => t.IsValidTarget());
 
-                    var pred = Prediction.Position.PredictConeSpellAoe(minion.ToArray(), Program.ECat.Range,
-                        Program.ECat.ConeAngleDegrees, Program.ECat.CastDelay, Program.ECat.Speed,
-                        Player.Instance.ServerPosition);
+                    var ePrediction = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion,
+                        Program.ECat.Range,
+                        Program.ECat.ConeAngleDegrees, Program.ECat.CastDelay, Program.ECat.Speed);
 
-                    foreach (var p in pred.Where(p => p.HitChancePercent >= predEC))
+                    if (ePrediction.HitNumber >= predEC)
                     {
-                        Program.ECat.Cast(p.CastPosition);
+                        Program.ECat.Cast(ePrediction.CastPosition);
                     }
                 }
 
@@ -464,23 +467,22 @@ namespace NidaleeBuddyEvolution
                 if (useEC)
                 {
                     var eTarget =
-                        EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
-                            Program.ECat.Range);
+                        EntityManager.MinionsAndMonsters.Monsters.Where(t => t.IsValidTarget(Program.ECat.Range))
+                            .ToArray();
 
-                    var ePrediction = Prediction.Position.PredictConeSpellAoe(eTarget.ToArray(), Program.ECat.Range,
-                        Program.ECat.ConeAngleDegrees, Program.ECat.CastDelay, Program.ECat.Speed,
-                        Player.Instance.ServerPosition);
+                    var ePrediction = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(eTarget,
+                        Program.ECat.Range,
+                        Program.ECat.ConeAngleDegrees, Program.ECat.CastDelay, Program.ECat.Speed);
 
-                    if (ePrediction != null)
+                    if (ePrediction.HitNumber >= predEC)
                     {
-                        foreach (var pred in ePrediction.Where(pred => pred.HitChancePercent >= predEC))
-                        {
-                            Program.ECat.Cast(pred.CastPosition);
-                        }
+                        Program.ECat.Cast(ePrediction.CastPosition);
                     }
                 }
 
-                var qHTarget = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition, Program.QHuman.Range).FirstOrDefault();
+                var qHTarget =
+                    EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
+                        Program.QHuman.Range).FirstOrDefault();
 
                 if (qHTarget == null)
                 {

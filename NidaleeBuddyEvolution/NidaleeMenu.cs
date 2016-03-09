@@ -27,7 +27,7 @@ namespace NidaleeBuddyEvolution
         /// </summary>
         public static void Create()
         {
-            DefaultMenu = MainMenu.AddMenu("NidaleeBuddyEvolution", "NidaleeBuddyEvolution");
+            DefaultMenu = MainMenu.AddMenu("NidaleeBuddy", "NidaleeBuddy");
             DefaultMenu.AddGroupLabel("This addon is made by KarmaPanda and should not be redistributed in any way.");
             DefaultMenu.AddGroupLabel(
                 "Any unauthorized redistribution without credits will result in severe consequences.");
@@ -93,7 +93,7 @@ namespace NidaleeBuddyEvolution
             LaneClearMenu.Add("useR", new CheckBox("Cast R during Lane Clear", false));
             LaneClearMenu.AddLabel("Farm Settings - Cougar Form");
             LaneClearMenu.Add("predWC", new Slider("Cast W if it hits x minions", 1, 1, 7));
-            LaneClearMenu.Add("predEC", new Slider("Cast E if HitChance % is x", 75));
+            LaneClearMenu.Add("predEC", new Slider("Cast E if it hits x minions", 1, 1, 7));
 
             #endregion
 
@@ -109,7 +109,7 @@ namespace NidaleeBuddyEvolution
             JungleClearMenu.AddLabel("Prediction Settings");
             JungleClearMenu.Add("predQH", new Slider("Cast Q in Human Form if HitChance % is x", 75));
             JungleClearMenu.Add("predWC", new Slider("Cast W in Cougar Form if HitChance % is x", 75));
-            JungleClearMenu.Add("predEC", new Slider("Cast E in Cougar Form if HitChance % is x", 75));
+            JungleClearMenu.Add("predEC", new Slider("Cast E in Cougar Form if hits x mobs", 1, 1, 3));
 
             #endregion
 

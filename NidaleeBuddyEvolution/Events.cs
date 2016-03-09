@@ -65,17 +65,16 @@ namespace NidaleeBuddyEvolution
 
             if (Program.QHuman.IsReady() && useQ)
             {
-                var target =
+                var target = TargetSelector.GetTarget(
                     EntityManager.Heroes.Enemies.Where(
                         t =>
                             t.IsValidTarget() && Program.QHuman.IsInRange(t) &&
-                            t.Health <= Essentials.DamageLibrary.CalculateDamage(t, true, false, false, false));
+                            t.Health <= Essentials.DamageLibrary.CalculateDamage(t, true, false, false, false)),
+                    DamageType.Magical);
 
-                foreach (
-                    var pred in
-                        target
-                            .Select(t => Program.QHuman.GetPrediction(t))
-                            .Where(pred => pred.HitChancePercent >= predQ))
+                var pred = Program.QHuman.GetPrediction(target);
+
+                if (pred.HitChancePercent >= predQ)
                 {
                     Program.QHuman.Cast(pred.CastPosition);
                 }
@@ -122,7 +121,7 @@ namespace NidaleeBuddyEvolution
                 }
             }
         }
-        
+
         /// <summary>
         /// Executes the Spells to steal jungle
         /// </summary>
@@ -147,7 +146,7 @@ namespace NidaleeBuddyEvolution
                 if (Program.Smite != null)
                 {
                     if (mob.IsValidTarget(Program.Smite.Range)
-                        && mob.Health <= Essentials.GetSmiteDamage())
+                        && mob.Health <= Essentials.GetSmiteDamage(mob))
                     {
                         Program.Smite.Cast(mob);
                     }
@@ -190,7 +189,10 @@ namespace NidaleeBuddyEvolution
                 return;
             }
 
-            var lowestHealthAlly = EntityManager.Heroes.Allies.Where(a => Program.EHuman.IsInRange(a) && !a.IsMe).OrderBy(a => a.Health).FirstOrDefault();
+            var lowestHealthAlly =
+                EntityManager.Heroes.Allies.Where(a => Program.EHuman.IsInRange(a) && !a.IsMe)
+                    .OrderBy(a => a.Health)
+                    .FirstOrDefault();
 
             if (Player.Instance.HealthPercent <= NidaleeMenu.MiscMenu["autoHealPercent"].Cast<Slider>().CurrentValue &&
                 NidaleeMenu.MiscMenu["autoHeal_" + Player.Instance.BaseSkinName].Cast<CheckBox>().CurrentValue)
