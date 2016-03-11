@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using EloBuddy;
+﻿using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
@@ -88,7 +87,7 @@ namespace LelBlanc
             E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Linear, 300, 1650, 55)
             {
                 AllowedCollisionCount = 0,
-                MinimumHitChance = HitChance.Collision
+                MinimumHitChance = HitChance.High
             };
 
             QUltimate = new Spell.Targeted(SpellSlot.R, 720)
@@ -101,7 +100,7 @@ namespace LelBlanc
             EUltimate = new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Linear, 300, 1650, 55)
             {
                 AllowedCollisionCount = 0,
-                MinimumHitChance = HitChance.Collision
+                MinimumHitChance = HitChance.High
             };
 
             if (Extension.HasSpell("summonerdot"))
@@ -253,7 +252,14 @@ namespace LelBlanc
                 }
                 if (Modes.KillSteal.ResetW && Player.Instance.ServerPosition.IsInRange(LastWEndPosition, 100))
                 {
-                    if (!E.IsReady())
+                    Modes.KillSteal.ResetW = Extension.LogicReturn();
+
+                    if (Modes.KillSteal.ResetW == false)
+                        LastWEndPosition = Vector3.Zero;
+
+                    #region Old Code
+
+                    /*if (!E.IsReady())
                     {
                         var eEnemies =
                             EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget(E.Range) && Extension.IsBeingE(t))
@@ -294,11 +300,20 @@ namespace LelBlanc
                         LastWEndPosition = Vector3.Zero;
                         Modes.KillSteal.ResetW = false;
                         return;
-                    }
+                    }*/
+
+                    #endregion
                 }
                 if (Modes.KillSteal.ResetW && Player.Instance.ServerPosition.IsInRange(LastWUltimateEndPosition, 100))
                 {
-                    if (!E.IsReady())
+                    Modes.KillSteal.ResetW = Extension.LogicReturn(true);
+
+                    if (Modes.KillSteal.ResetW == false)
+                        LastWEndPosition = Vector3.Zero;
+
+                    #region Old Code
+
+                    /*if (!E.IsReady())
                     {
                         var eEnemies =
                             EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget(E.Range) && Extension.IsBeingE(t))
@@ -340,8 +355,11 @@ namespace LelBlanc
                         LastWUltimateEndPosition = Vector3.Zero;
                         Modes.KillSteal.ResetW = false;
                         return;
-                    }
+                    }*/
+
+                    #endregion
                 }
+
                 Modes.KillSteal.Execute();
             }
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))

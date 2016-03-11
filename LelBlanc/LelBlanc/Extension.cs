@@ -9,7 +9,7 @@ namespace LelBlanc
         /// <summary>
         /// Checks if Player should use W to return.
         /// </summary>
-        public static void LogicReturn(bool w2 = false)
+        public static bool LogicReturn(bool w2 = false)
         {
             var enemiesBeingE =
                 EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget(Program.E.Range) && IsBeingE(t))
@@ -17,12 +17,12 @@ namespace LelBlanc
 
             if (enemiesBeingE.Any())
             {
-                return;
+                return false;
             }
 
             if (!enemiesBeingE.Any() && Program.E.IsReady() && Player.Instance.CountEnemiesInRange(Program.E.Range) > 0)
             {
-                return;
+                return false;
             }
 
             var enemiesNearLastPosition = Program.LastWPosition.CountEnemiesInRange(Player.Instance.AttackRange);
@@ -34,7 +34,7 @@ namespace LelBlanc
                 alliesNearCurrentPosition > alliesNearLastPosition ||
                 !Player.Instance.IsUnderTurret() && Program.LastWPosition.IsUnderTurret())
             {
-                return;
+                return false;
             }
 
             if (w2)
@@ -43,16 +43,18 @@ namespace LelBlanc
                     Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() != "leblancslidereturnm")
                 {
                     Program.RReturn.Cast();
+                    return true;
                 }
+                return false;
             }
-            else
+
+            if (Program.WReturn.IsReady() &&
+                Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslidereturn")
             {
-                if (Program.WReturn.IsReady() &&
-                    Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslidereturn")
-                {
-                    Program.WReturn.Cast();
-                }
+                Program.WReturn.Cast();
+                return true;
             }
+            return false;
         }
 
         /// <summary>

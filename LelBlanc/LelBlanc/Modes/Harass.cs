@@ -137,7 +137,7 @@ namespace LelBlanc.Modes
 
         private static void Post6Combo()
         {
-            switch (Config.ComboMenu["mode"].Cast<ComboBox>().SelectedIndex)
+            switch (Config.HarassMenu["mode"].Cast<ComboBox>().SelectedIndex)
             {
                 // Default Logic
                 case 0:
@@ -190,7 +190,7 @@ namespace LelBlanc.Modes
 
         private static void DoubleELogic()
         {
-            var target = TargetSelector.GetTarget(Program.E.Range, DamageType.Magical);
+            var target = TargetSelector.GetTarget(Program.Q.Range, DamageType.Magical);
 
             if (target == null)
             {
