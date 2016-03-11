@@ -6,7 +6,7 @@ using Color = SharpDX.Color;
 
 namespace LelBlanc
 {
-    class OnDraw
+    internal class OnDraw
     {
         public static void DrawRange(EventArgs args)
         {

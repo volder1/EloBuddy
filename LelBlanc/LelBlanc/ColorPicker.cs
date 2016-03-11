@@ -13,7 +13,7 @@ namespace LelBlanc
     /// <summary>
     /// Credits to MarioGK. From KickAss AIO.
     /// </summary>
-    class ColorPicker
+    internal class ColorPicker
     {
         public Slider RedSlider { get; set; }
         public Slider BlueSlider { get; set; }
@@ -52,37 +52,44 @@ namespace LelBlanc
             GreenSlider.OnValueChange += OnValueChange;
             BlueSlider.OnValueChange += OnValueChange;
 
-            Picker.SetColor(Color.FromArgb(GetValue(ColorBytes.Alpha), GetValue(ColorBytes.Red), GetValue(ColorBytes.Green), GetValue(ColorBytes.Blue)));
+            Picker.SetColor(Color.FromArgb(GetValue(ColorBytes.Alpha), GetValue(ColorBytes.Red),
+                GetValue(ColorBytes.Green), GetValue(ColorBytes.Blue)));
         }
 
         private void OnValueChange(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs args)
         {
             if (sender.DisplayName == RedSlider.DisplayName)
             {
-                Picker.SetColor(Color.FromArgb(Picker.CurrentValue.A, sender.CurrentValue, Picker.CurrentValue.G, Picker.CurrentValue.B));
+                Picker.SetColor(Color.FromArgb(Picker.CurrentValue.A, sender.CurrentValue, Picker.CurrentValue.G,
+                    Picker.CurrentValue.B));
             }
             if (sender.DisplayName == GreenSlider.DisplayName)
             {
-                Picker.SetColor(Color.FromArgb(Picker.CurrentValue.A, Picker.CurrentValue.R, sender.CurrentValue, Picker.CurrentValue.B));
+                Picker.SetColor(Color.FromArgb(Picker.CurrentValue.A, Picker.CurrentValue.R, sender.CurrentValue,
+                    Picker.CurrentValue.B));
             }
             if (sender.DisplayName == BlueSlider.DisplayName)
             {
-                Picker.SetColor(Color.FromArgb(Picker.CurrentValue.A, Picker.CurrentValue.R, Picker.CurrentValue.G, sender.CurrentValue));
+                Picker.SetColor(Color.FromArgb(Picker.CurrentValue.A, Picker.CurrentValue.R, Picker.CurrentValue.G,
+                    sender.CurrentValue));
             }
             if (sender.DisplayName == AlphaSlider.DisplayName)
             {
-                Picker.SetColor(Color.FromArgb(sender.CurrentValue, Picker.CurrentValue.R, Picker.CurrentValue.G, Picker.CurrentValue.B));
+                Picker.SetColor(Color.FromArgb(sender.CurrentValue, Picker.CurrentValue.R, Picker.CurrentValue.G,
+                    Picker.CurrentValue.B));
             }
         }
 
         public ColorBGRA GetSharpColor()
         {
-            return new ColorBGRA(GetValue(ColorBytes.Red), GetValue(ColorBytes.Green), GetValue(ColorBytes.Blue), GetValue(ColorBytes.Alpha));
+            return new ColorBGRA(GetValue(ColorBytes.Red), GetValue(ColorBytes.Green), GetValue(ColorBytes.Blue),
+                GetValue(ColorBytes.Alpha));
         }
 
         public Color GetSystemColor()
         {
-            return Color.FromArgb(GetValue(ColorBytes.Alpha), GetValue(ColorBytes.Red), GetValue(ColorBytes.Green), GetValue(ColorBytes.Blue));
+            return Color.FromArgb(GetValue(ColorBytes.Alpha), GetValue(ColorBytes.Red), GetValue(ColorBytes.Green),
+                GetValue(ColorBytes.Blue));
         }
 
         public byte GetValue(ColorBytes color)
@@ -100,6 +107,7 @@ namespace LelBlanc
             }
             return 255;
         }
+
         private class ColorPickerControl : ValueBase<Color>
         {
             private readonly string _name;
@@ -110,8 +118,15 @@ namespace LelBlanc
             private Sprite _colorOverlaySprite;
             private TextureLoader _textureLoader;
 
-            public override string VisibleName { get { return _name; } }
-            public override Vector2 Offset { get { return _offset; } }
+            public override string VisibleName
+            {
+                get { return _name; }
+            }
+
+            public override Vector2 Offset
+            {
+                get { return _offset; }
+            }
 
             public ColorPickerControl(string uId, Color defaultValue) : base(uId, "", 52)
             {
@@ -142,6 +157,7 @@ namespace LelBlanc
             {
                 SelectedColor = color;
             }
+
             private void Init(Color color)
             {
                 _offset = new Vector2(0, 10);
@@ -151,11 +167,15 @@ namespace LelBlanc
                 SelectedColor = color;
             }
 
-            public override Color CurrentValue { get { return SelectedColor; } }
+            public override Color CurrentValue
+            {
+                get { return SelectedColor; }
+            }
 
             public override bool Draw()
             {
-                var rect = new SharpDX.Rectangle((int)MainMenu.Position.X + 160, (int)MainMenu.Position.Y + 95 + 50, 750, 380);
+                var rect = new SharpDX.Rectangle((int) MainMenu.Position.X + 160, (int) MainMenu.Position.Y + 95 + 50,
+                    750, 380);
                 if (MainMenu.IsVisible && IsVisible && rect.IsInside(Position))
                 {
                     _colorPickerSprite.Draw(new Vector2(Position.X + 522, Position.Y - 34));
@@ -169,7 +189,10 @@ namespace LelBlanc
 
         public enum ColorBytes
         {
-            Alpha, Red, Green, Blue
+            Alpha,
+            Red,
+            Green,
+            Blue
         }
     }
 }

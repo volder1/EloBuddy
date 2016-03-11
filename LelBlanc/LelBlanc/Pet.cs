@@ -5,7 +5,7 @@ using SharpDX;
 
 namespace LelBlanc
 {
-    class Pet
+    internal class Pet
     {
         /// <summary>
         /// The Pet Instance
@@ -43,7 +43,8 @@ namespace LelBlanc
         public static Vector3 RotatePosition(Vector3 path)
         {
             var rotateAroundPoint = path.To2D().RotateAroundPoint(Player.Instance.Position.To2D(), 180);
-            var finalPath = new Vector3(rotateAroundPoint, NavMesh.GetHeightForPosition(rotateAroundPoint.X, rotateAroundPoint.Y));
+            var finalPath = new Vector3(rotateAroundPoint,
+                NavMesh.GetHeightForPosition(rotateAroundPoint.X, rotateAroundPoint.Y));
             return finalPath;
         }
     }

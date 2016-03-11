@@ -3,12 +3,24 @@ using EloBuddy.SDK.Menu.Values;
 
 namespace LelBlanc
 {
-    class Config
+    internal class Config
     {
         /// <summary>
         /// Contains all the Menu's
         /// </summary>
-        public static Menu ConfigMenu, ComboMenu, HarassMenu, LaneClearMenu, JungleClearMenu, KillStealMenu, DrawingMenu, MiscMenu;
+        public static Menu ConfigMenu,
+            ComboMenu,
+            HarassMenu,
+            LaneClearMenu,
+            JungleClearMenu,
+            KillStealMenu,
+            DrawingMenu,
+            MiscMenu;
+
+        /// <summary>
+        /// Contains Different Modes
+        /// </summary>
+        private static readonly string[] LogicModes = {"Burst Logic", "Two Chain(TM) Logic"};
 
         /// <summary>
         /// Creates the Menu
@@ -17,7 +29,8 @@ namespace LelBlanc
         {
             ConfigMenu = MainMenu.AddMenu("LelBlanc", "LelBlanc");
             ConfigMenu.AddGroupLabel("This addon is made by KarmaPanda and should not be redistributed in any way.");
-            ConfigMenu.AddGroupLabel("Any unauthorized redistribution without credits will result in severe consequences.");
+            ConfigMenu.AddGroupLabel(
+                "Any unauthorized redistribution without credits will result in severe consequences.");
             ConfigMenu.AddGroupLabel("Thank you for using this addon and have a fun time!");
 
             ComboMenu = ConfigMenu.AddSubMenu("Combo Menu", "cMenu");
@@ -31,6 +44,8 @@ namespace LelBlanc
             ComboMenu.Add("useWR", new CheckBox("Use WR", false));
             ComboMenu.Add("useReturn2", new CheckBox("Use WR Return", false));
             ComboMenu.Add("useER", new CheckBox("Use ER", false));
+            ComboMenu.AddLabel("Extra Settings");
+            ComboMenu.Add("mode", new ComboBox("Combo Mode", 0, LogicModes));
 
             HarassMenu = ConfigMenu.AddSubMenu("Harass Menu", "hMenu");
             HarassMenu.AddLabel("Spell Settings");
@@ -43,6 +58,8 @@ namespace LelBlanc
             HarassMenu.Add("useWR", new CheckBox("Use WR", false));
             HarassMenu.Add("useReturn2", new CheckBox("Use WR Return"));
             HarassMenu.Add("useER", new CheckBox("Use ER", false));
+            HarassMenu.AddLabel("Extra Settings");
+            HarassMenu.Add("mode", new ComboBox("Harass Modes", 1, LogicModes));
 
             LaneClearMenu = ConfigMenu.AddSubMenu("Laneclear Menu", "lcMenu");
             LaneClearMenu.AddLabel("Spell Settings");

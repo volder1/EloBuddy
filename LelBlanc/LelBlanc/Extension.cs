@@ -7,13 +7,62 @@ namespace LelBlanc
     internal class Extension
     {
         /// <summary>
+        /// Checks if Player should use W to return.
+        /// </summary>
+        public static void LogicReturn(bool w2 = false)
+        {
+            var enemiesBeingE =
+                EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget(Program.E.Range) && IsBeingE(t))
+                    .ToArray();
+
+            if (enemiesBeingE.Any())
+            {
+                return;
+            }
+
+            if (!enemiesBeingE.Any() && Program.E.IsReady() && Player.Instance.CountEnemiesInRange(Program.E.Range) > 0)
+            {
+                return;
+            }
+
+            var enemiesNearLastPosition = Program.LastWPosition.CountEnemiesInRange(Player.Instance.AttackRange);
+            var enemiesNearCurrentPosition = Player.Instance.CountEnemiesInRange(Player.Instance.AttackRange);
+            var alliesNearLastPosition = Program.LastWPosition.CountAlliesInRange(Player.Instance.AttackRange);
+            var alliesNearCurrentPosition = Player.Instance.CountAlliesInRange(Player.Instance.AttackRange);
+
+            if (enemiesNearCurrentPosition < enemiesNearLastPosition ||
+                alliesNearCurrentPosition > alliesNearLastPosition ||
+                !Player.Instance.IsUnderTurret() && Program.LastWPosition.IsUnderTurret())
+            {
+                return;
+            }
+
+            if (w2)
+            {
+                if (Program.RReturn.IsReady() &&
+                    Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() != "leblancslidereturnm")
+                {
+                    Program.RReturn.Cast();
+                }
+            }
+            else
+            {
+                if (Program.WReturn.IsReady() &&
+                    Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslidereturn")
+                {
+                    Program.WReturn.Cast();
+                }
+            }
+        }
+
+        /// <summary>
         /// Checks if the Player has the spell.
         /// </summary>
         /// <param name="s">The Spell Name</param>
         /// <returns></returns>
         public static bool HasSpell(string s)
         {
-            return Player.Spells.FirstOrDefault(o => o.SData.Name.Contains(s)) != null;
+            return Player.Spells.FirstOrDefault(o => o.SData.Name.ToLower() == s) != null;
         }
 
         /// <summary>
@@ -114,7 +163,8 @@ namespace LelBlanc
 
                 if (ignite && Program.Ignite != null && Program.Ignite.IsReady() && Program.Ignite.IsInRange(target))
                 {
-                    totaldamage += Player.Instance.GetSummonerSpellDamage(target, EloBuddy.SDK.DamageLibrary.SummonerSpells.Ignite);
+                    totaldamage += Player.Instance.GetSummonerSpellDamage(target,
+                        EloBuddy.SDK.DamageLibrary.SummonerSpells.Ignite);
                 }
 
                 return totaldamage;

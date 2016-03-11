@@ -4,12 +4,11 @@ using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu.Values;
-using LelBlanc.Modes;
 using SharpDX;
 
 namespace LelBlanc
 {
-    class Program
+    internal class Program
     {
         /// <summary>
         /// Position for Last W
@@ -88,7 +87,8 @@ namespace LelBlanc
 
             E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Linear, 300, 1650, 55)
             {
-                AllowedCollisionCount = 0
+                AllowedCollisionCount = 0,
+                MinimumHitChance = HitChance.Collision
             };
 
             QUltimate = new Spell.Targeted(SpellSlot.R, 720)
@@ -100,7 +100,8 @@ namespace LelBlanc
 
             EUltimate = new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Linear, 300, 1650, 55)
             {
-                AllowedCollisionCount = 0
+                AllowedCollisionCount = 0,
+                MinimumHitChance = HitChance.Collision
             };
 
             if (Extension.HasSpell("summonerdot"))
@@ -115,7 +116,8 @@ namespace LelBlanc
             Config.Initialize();
 
             // Constructors
-            Picker = new ColorPicker(Config.DrawingMenu, "draw_", System.Drawing.Color.FromArgb(255, 255, 0, 0), "Color Settings for Damage Indicator");
+            Picker = new ColorPicker(Config.DrawingMenu, "draw_", System.Drawing.Color.FromArgb(255, 255, 0, 0),
+                "Color Settings for Damage Indicator");
             Indicator = new DamageIndicator();
 
             // Events
@@ -268,7 +270,7 @@ namespace LelBlanc
                             {
                                 WReturn.Cast();
                                 LastWEndPosition = Vector3.Zero;
-                                KillSteal.ResetW = false;
+                                Modes.KillSteal.ResetW = false;
                                 return;
                             }
                         }
@@ -313,7 +315,7 @@ namespace LelBlanc
                             {
                                 RReturn.Cast();
                                 LastWEndPosition = Vector3.Zero;
-                                KillSteal.ResetW = false;
+                                Modes.KillSteal.ResetW = false;
                                 return;
                             }
                         }

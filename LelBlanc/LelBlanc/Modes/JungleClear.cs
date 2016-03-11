@@ -78,7 +78,6 @@ namespace LelBlanc.Modes
             {
                 var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
                     Program.W.Range);
-                    //.Where(t => Extension.DamageLibrary.CalculateDamage(t, false, true, false, false) >= t.Health);
                 var wAoe = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
                     (int) Program.W.Range);
 
@@ -124,7 +123,6 @@ namespace LelBlanc.Modes
             {
                 var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
                     Program.W.Range);
-                    //.Where(t => Extension.DamageLibrary.CalculateDamage(t, false, true, false, false) >= t.Health);
                 var wAoe = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
                     (int) Program.W.Range);
 
@@ -145,7 +143,6 @@ namespace LelBlanc.Modes
             {
                 var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
                     Program.WUltimate.Range);
-                    //.Where(t => Extension.DamageLibrary.CalculateDamage(t, false, false, false, true) >= t.Health);
                 var wAoe = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minion, Program.W.Width,
                     (int) Program.W.Range);
 

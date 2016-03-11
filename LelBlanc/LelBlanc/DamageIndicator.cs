@@ -11,7 +11,7 @@ namespace LelBlanc
     /// <summary>
     /// Credits to MarioGK. From KickAss AIO
     /// </summary>
-    class DamageIndicator
+    internal class DamageIndicator
     {
         private const int BarWidth = 106;
         private const float LineThickness = 9.8f;
@@ -43,12 +43,18 @@ namespace LelBlanc
                     {
                         continue;
                     }
-                    var damagePercentage = ((unit.TotalShieldHealth() - damage) > 0 ? (unit.TotalShieldHealth() - damage) : 0) /
-                                            (unit.MaxHealth + unit.AllShield + unit.AttackShield + unit.MagicShield);
-                    var currentHealthPercentage = unit.TotalShieldHealth() / (unit.MaxHealth + unit.AllShield + unit.AttackShield + unit.MagicShield);
+                    var damagePercentage = ((unit.TotalShieldHealth() - damage) > 0
+                        ? (unit.TotalShieldHealth() - damage)
+                        : 0)/
+                                           (unit.MaxHealth + unit.AllShield + unit.AttackShield + unit.MagicShield);
+                    var currentHealthPercentage = unit.TotalShieldHealth()/
+                                                  (unit.MaxHealth + unit.AllShield + unit.AttackShield +
+                                                   unit.MagicShield);
 
-                    var startPoint = new Vector2((int)(unit.HPBarPosition.X + damagePercentage * BarWidth), (int)unit.HPBarPosition.Y - 5 + 14);
-                    var endPoint = new Vector2((int)(unit.HPBarPosition.X + currentHealthPercentage * BarWidth) + 1, (int)unit.HPBarPosition.Y - 5 + 14);
+                    var startPoint = new Vector2((int) (unit.HPBarPosition.X + damagePercentage*BarWidth),
+                        (int) unit.HPBarPosition.Y - 5 + 14);
+                    var endPoint = new Vector2((int) (unit.HPBarPosition.X + currentHealthPercentage*BarWidth) + 1,
+                        (int) unit.HPBarPosition.Y - 5 + 14);
 
                     var a = Config.DrawingMenu["draw_Alpha"].Cast<Slider>().CurrentValue;
                     var r = Config.DrawingMenu["draw_Red"].Cast<Slider>().CurrentValue;
