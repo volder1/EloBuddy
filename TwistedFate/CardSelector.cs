@@ -27,10 +27,7 @@ namespace TwistedBuddy
         public static int LastW;
         public static SelectStatus Status { get; set; }
 
-        public static int Delay
-        {
-            get { return Essentials.MiscMenu["delay"].Cast<Slider>().CurrentValue; }
-        }
+        public static int Delay => Essentials.MiscMenu["delay"].Cast<CheckBox>().CurrentValue ? 500 : new Random().Next(125, 250);
 
         static CardSelector()
         {
@@ -43,7 +40,7 @@ namespace TwistedBuddy
             if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Name == "PickACard" && Status == SelectStatus.Ready)
             {
                 SelectedCard = card;
-                if (Environment.TickCount - LastW > 170 + Game.Ping/2)
+                if (Environment.TickCount - LastW > 170 + Game.Ping / 2)
                 {
                     Program.W.Cast();
                     LastW = Environment.TickCount;
@@ -63,8 +60,8 @@ namespace TwistedBuddy
                 Status = SelectStatus.Selecting;
             }
 
-            if (args.SData.Name == "goldcardlock" || args.SData.Name == "bluecardlock" ||
-                args.SData.Name == "redcardlock")
+            if (args.SData.Name.ToLower() == "goldcardlock" || args.SData.Name.ToLower() == "bluecardlock" ||
+                args.SData.Name.ToLower() == "redcardlock")
             {
                 Status = SelectStatus.Selected;
                 SelectedCard = Cards.None;

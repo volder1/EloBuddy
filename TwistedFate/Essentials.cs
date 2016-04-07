@@ -1,7 +1,5 @@
 ﻿namespace TwistedBuddy
 {
-    using System.Linq;
-
     using EloBuddy;
     using EloBuddy.SDK;
     using EloBuddy.SDK.Menu;
@@ -12,7 +10,7 @@
         /// <summary>
         /// Use Auto Q Next Time
         /// </summary>
-        public static bool UseStunQ = false;
+        public static bool UseStunQ { get; set; }
 
         /// <summary>
         /// The Target to Q. Target who got hit by yellow card.
@@ -26,32 +24,35 @@
         
         public static Cards HeroCardSelection(AIHeroClient t, Menu menu)
         {
-            if (t == null || menu == null) return Cards.None;
-
-            var card = Cards.None; 
-            var alliesaroundTarget = t.CountEnemiesInRange(200);
-            var enemyW = menu["enemyW"].Cast<Slider>().CurrentValue;
-            var manaW = menu["manaW"].Cast<Slider>().CurrentValue;
-
-            if (Player.Instance.ManaPercent <= manaW)
+            if (t != null && menu != null)
             {
-                card = Cards.Blue;
+                var card = Cards.None;
+                var alliesaroundTarget = t.CountEnemiesInRange(100);
+                var enemyW = menu["enemyW"].Cast<Slider>().CurrentValue;
+                var manaW = menu["manaW"].Cast<Slider>().CurrentValue;
+
+                if (Player.Instance.ManaPercent <= manaW)
+                {
+                    card = Cards.Blue;
+                    return card;
+                }
+
+                if (Player.Instance.ManaPercent > manaW && alliesaroundTarget >= enemyW)
+                {
+                    card = Cards.Red;
+                    return card;
+                }
+
+                if (Player.Instance.ManaPercent > manaW && alliesaroundTarget < enemyW)
+                {
+                    card = Cards.Yellow;
+                    return card;
+                }
+
                 return card;
             }
 
-            if (Player.Instance.ManaPercent > manaW && alliesaroundTarget >= enemyW)
-            {
-                card = Cards.Red;
-                return card;
-            }
-
-            if (Player.Instance.ManaPercent > manaW && alliesaroundTarget < enemyW)
-            {
-                card = Cards.Yellow;
-                return card;
-            }
-
-            return card;
+            return Cards.None;
         }
     }
 }

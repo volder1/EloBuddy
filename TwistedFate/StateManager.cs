@@ -1,7 +1,4 @@
-﻿using System;
-using Microsoft.Win32.SafeHandles;
-
-namespace TwistedBuddy
+﻿namespace TwistedBuddy
 {
     using System.Linq;
 
@@ -130,7 +127,7 @@ namespace TwistedBuddy
                 var qMinion =
                     EntityManager.MinionsAndMonsters.GetJungleMonsters(
                         Player.Instance.ServerPosition,
-                        Program.Q.Range).OrderByDescending(t => t.Distance(Player.Instance)).FirstOrDefault();
+                        Program.Q.Range).OrderBy(t => t.Health).FirstOrDefault();
                 if (qMinion == null) return;
 
                 var qPred = Essentials.JungleClearMenu["qPred"].Cast<Slider>().CurrentValue;
@@ -386,7 +383,7 @@ namespace TwistedBuddy
                 return;
             }
 
-            var enemies = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget(Program.Q.Range) && t.IsStunned);
+            var enemies = EntityManager.Heroes.Enemies.Where(t => t.IsValidTarget(Program.Q.Range) && t.HasBuffOfType(BuffType.Stun));
 
             foreach (
                 var pred in

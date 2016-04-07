@@ -58,9 +58,10 @@
                 return;
             }
 
-            Bootstrap.Init(null);
-
-            Q = new Spell.Skillshot(SpellSlot.Q, 1450, SkillShotType.Linear, 0, 1000, 40);
+            Q = new Spell.Skillshot(SpellSlot.Q, 1450, SkillShotType.Linear, 0, 1000, 40)
+            {
+                AllowedCollisionCount = int.MaxValue
+            };
             W = new Spell.Active(SpellSlot.W);
             E = new Spell.Active(SpellSlot.E);
             R = new Spell.Active(SpellSlot.R, 5500);
@@ -147,15 +148,34 @@
             Essentials.MiscMenu.Add("autoQ", new CheckBox("Automatically Q's a Stunned Target"));
             Essentials.MiscMenu.Add("qPred", new Slider("Q HitChance %", 75));
             Essentials.MiscMenu.Add("autoY", new CheckBox("Automatically select Yellow Card when R"));
-            Essentials.MiscMenu.Add("delay", new Slider("Delay Card Choosing", 175, 175, 345));
+            Essentials.MiscMenu.Add("delay", new CheckBox("Loop the whole cycle before picking card", false));
+            Essentials.MiscMenu.Add("disableAA", new CheckBox("Disable Auto Attack during loop cycle."));
 
-            Chat.Print("TwistedBuddy 2.2.0.3 - By KarmaPanda", System.Drawing.Color.Green);
+            // Prints Message
+            Chat.Print("TwistedBuddy 2.3 - By KarmaPanda", System.Drawing.Color.Green);
 
             // Events
             Game.OnUpdate += Game_OnUpdate;
+            Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        /// <summary>
+        /// Called before Auto Attack is casted.
+        /// </summary>
+        /// <param name="target">The Target</param>
+        /// <param name="args"></param>
+        private static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
+        {
+            if (Essentials.MiscMenu["disableAA"].Cast<CheckBox>().CurrentValue &&
+                CardSelector.Status == SelectStatus.Selecting)
+            {
+                args.Process = false;
+                return;
+            }
+            args.Process = true;
         }
 
         /// <summary>
@@ -172,7 +192,7 @@
 
             var target = args.Target as AIHeroClient;
 
-            if (target == null || args.SData.Name != "goldcardpreattack" || !Q.IsReady() || !Q.IsInRange(target))
+            if (target == null || args.SData.Name.ToLower() != "goldcardpreattack" || !Q.IsReady() || !Q.IsInRange(target))
             {
                 return;
             }
