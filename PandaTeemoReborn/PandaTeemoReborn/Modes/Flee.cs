@@ -20,6 +20,11 @@ namespace PandaTeemoReborn.Modes
 
             if (Extensions.MenuValues.Flee.UseR && R.IsReady())
             {
+                if (!Extensions.HasShroomLanded)
+                {
+                    return;
+                }
+
                 if (Environment.TickCount - Extensions.LastR < Extensions.MenuValues.Flee.RDelay)
                 {
                     return;

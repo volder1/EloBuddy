@@ -9,11 +9,6 @@ namespace PandaTeemoReborn.Modes
 {
     public sealed class PermaActive : ModeBase
     {
-        /// <summary>
-        /// Delay for Auto Shroom
-        /// </summary>
-        public static int AutoShroomDelay { get; set; }
-
         public override bool ShouldBeExecuted()
         {
             return !Player.Instance.IsRecalling();
@@ -90,12 +85,12 @@ namespace PandaTeemoReborn.Modes
 
         public static void AutoShroom()
         {
-            if (!Extensions.MenuValues.AutoShroom.UseR || !R.IsReady()) return;
-
-            if (Environment.TickCount - Extensions.LastR < AutoShroomDelay)
+            if (!Extensions.HasShroomLanded)
             {
                 return;
             }
+
+            if (!Extensions.MenuValues.AutoShroom.UseR || !R.IsReady()) return;
 
             if (Extensions.MenuValues.AutoShroom.ManaR >= Player.Instance.ManaPercent ||
                 Player.Instance.Spellbook.GetSpell(SpellSlot.R).Ammo < Extensions.MenuValues.AutoShroom.RCharge)
@@ -117,8 +112,6 @@ namespace PandaTeemoReborn.Modes
                 place.Z + new Random().Next(0, 100));
 
             R.Cast(castPos);
-
-            AutoShroomDelay = Extensions.TeemoShroomPrediction.CalculateTravelTime(castPos.To2D(), Vector3.Zero);
         }
 
         public static void KillSteal()
@@ -145,6 +138,11 @@ namespace PandaTeemoReborn.Modes
 
             if (Extensions.MenuValues.KillSteal.UseR && R.IsReady())
             {
+                if (!Extensions.HasShroomLanded)
+                {
+                    return;
+                }
+
                 if (Environment.TickCount - Extensions.LastR < Extensions.MenuValues.KillSteal.RDelay)
                 {
                     return;

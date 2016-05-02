@@ -10,6 +10,11 @@ namespace PandaTeemoReborn
     internal class Extensions
     {
         /// <summary>
+        /// Stores the Last Time Shroom has Landed
+        /// </summary>
+        public static bool HasShroomLanded { get; set; } = true;
+        
+        /// <summary>
         /// Stores the Last Time R was used.
         /// </summary>
         public static int LastR { get; set; }
@@ -183,9 +188,9 @@ namespace PandaTeemoReborn
 
                 if (bouncePos == Vector3.Zero)
                 {
-                    return (int) Math.Round(distance/missileSpeed);
+                    return (int) Math.Round(distance/missileSpeed) * 1000;
                 }
-                return (int) Math.Round((distance*2)/missileSpeed);
+                return (int) Math.Round((distance*2)/missileSpeed) * 1000;
             }
         }
 

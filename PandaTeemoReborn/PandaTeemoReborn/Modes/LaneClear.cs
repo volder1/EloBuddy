@@ -17,6 +17,11 @@ namespace PandaTeemoReborn.Modes
         {
             if (Extensions.MenuValues.LaneClear.UseR && R.IsReady())
             {
+                if (!Extensions.HasShroomLanded)
+                {
+                    return;
+                }
+
                 if (Environment.TickCount - Extensions.LastR < Extensions.MenuValues.LaneClear.RDelay)
                 {
                     return;

@@ -33,10 +33,24 @@ namespace PandaTeemoReborn
             Orbwalker.OnPostAttack += Orbwalker_OnPostAttack;
             Orbwalker.OnPostAttack += Orbwalker_LaneClear_OnPostAttack;
             Orbwalker.OnPostAttack += Orbwalker_JungleClear_OnPostAttack;
+            GameObject.OnCreate += GameObject_OnCreate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
 
             Chat.Print("PandaTeemo | Successfully Loaded ", System.Drawing.Color.LawnGreen);
+        }
+
+        /// <summary>
+        /// Called when a Object is Created
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private static void GameObject_OnCreate(GameObject sender, EventArgs args)
+        {
+            if (sender.Name == "Teemo_Base_R_GroundImpact_Dust.troy")
+            {
+                Extensions.HasShroomLanded = true;
+            }
         }
 
         /// <summary>
@@ -260,6 +274,7 @@ namespace PandaTeemoReborn
 
             if (args.SData.Name.ToLower() == "teemorcast")
             {
+                Extensions.HasShroomLanded = false;
                 Extensions.LastR = Environment.TickCount;
             }
         }
@@ -270,6 +285,8 @@ namespace PandaTeemoReborn
         /// <param name="args"></param>
         private static void Drawing_OnDraw(EventArgs args)
         {
+            //Chat.Print(Extensions.TeemoShroomPrediction.CalculateTravelTime(AutoShroom.ShroomPosition.FirstOrDefault(pos => pos.IsInRange(Player.Instance, SpellManager.R.Range)).To2D(), Vector3.Zero));
+
             if (Extensions.MenuValues.Drawing.DrawQ)
             {
                 Circle.Draw(SpellManager.Q.IsReady() ? Color.YellowGreen : Color.Red, SpellManager.Q.Range, Player.Instance);
