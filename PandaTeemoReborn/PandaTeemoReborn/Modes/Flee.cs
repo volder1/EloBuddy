@@ -1,4 +1,5 @@
-﻿using EloBuddy;
+﻿using System;
+using EloBuddy;
 using EloBuddy.SDK;
 
 namespace PandaTeemoReborn.Modes
@@ -19,6 +20,11 @@ namespace PandaTeemoReborn.Modes
 
             if (Extensions.MenuValues.Flee.UseR && R.IsReady())
             {
+                if (Environment.TickCount - Extensions.LastR < Extensions.MenuValues.Flee.RDelay)
+                {
+                    return;
+                }
+
                 if (Player.Instance.Spellbook.GetSpell(SpellSlot.R).Ammo < Extensions.MenuValues.Flee.RCharge)
                 {
                     return;

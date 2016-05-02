@@ -176,7 +176,7 @@ namespace PandaTeemoReborn
             /// <param name="castPos"></param>
             /// <param name="bouncePos"></param>
             /// <returns></returns>
-            private static int CalculateTravelTime(Vector2 castPos, Vector3 bouncePos)
+            public static int CalculateTravelTime(Vector2 castPos, Vector3 bouncePos)
             {
                 var distance = Player.Instance.Distance(castPos);
                 var missileSpeed = SpellManager.R.Speed;
@@ -295,6 +295,8 @@ namespace PandaTeemoReborn
 
                 public static int ManaR => Config.KillStealMenu["manaR"].Cast<Slider>().CurrentValue;
 
+                public static int RDelay => Config.KillStealMenu["rDelay"].Cast<Slider>().CurrentValue;
+
                 public static bool DoubleShroom => Config.KillStealMenu["doubleShroom"].Cast<CheckBox>().CurrentValue;
             }
 
@@ -303,6 +305,8 @@ namespace PandaTeemoReborn
                 public static bool UseW => Config.FleeMenu["useW"].Cast<CheckBox>().CurrentValue;
 
                 public static bool UseR => Config.FleeMenu["useR"].Cast<CheckBox>().CurrentValue;
+
+                public static int RDelay => Config.FleeMenu["rDelay"].Cast<Slider>().CurrentValue;
 
                 public static int RCharge => Config.FleeMenu["rCharge"].Cast<Slider>().CurrentValue;
             }

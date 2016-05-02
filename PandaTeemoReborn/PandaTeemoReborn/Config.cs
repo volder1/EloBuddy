@@ -104,12 +104,15 @@ namespace PandaTeemoReborn
             KillStealMenu.Add("manaQ", new Slider("Q Mana Manager", 25));
             KillStealMenu.Add("manaR", new Slider("R Mana Manager", 25));
             KillStealMenu.AddLabel("R Settings");
+            KillStealMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
             KillStealMenu.Add("doubleShroom", new CheckBox("Use Double Shroom Logic"));
 
             FleeMenu = PandaTeemoReborn.AddSubMenu("Flee Menu", "Flee");
             FleeMenu.AddGroupLabel("Flee Settings");
             FleeMenu.Add("useW", new CheckBox("Flee with W"));
             FleeMenu.Add("useR", new CheckBox("Flee with R"));
+            FleeMenu.AddLabel("R Settings");
+            FleeMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
             FleeMenu.Add("rCharge", new Slider("Charges of R before using R: {0}", 2, 1, 3));
 
             AutoShroomMenu = PandaTeemoReborn.AddSubMenu("Auto Shroom", "Auto Shroom");
