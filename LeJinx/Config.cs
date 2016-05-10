@@ -220,7 +220,7 @@
             MiscMenu.Add("autoW", new CheckBox("Automatically use W in certain situations"));
             MiscMenu.Add("autoE", new CheckBox("Automatically uses E in certain situations"));
             MiscMenu.Add("wRange", new CheckBox("Use W only if target is in AA range", false));
-            MiscMenu.Add("rRange", new Slider("Don't Use R if Player Range from target is {0}", 800, 0, 3000));
+            MiscMenu.Add("rRange", new Slider("Don't Use R if Player Range from target is {0}", 500, 0, 3000));
             MiscMenu.AddLabel("Auto W Settings (You must have Auto W on)");
             MiscMenu.Add("stunW", new CheckBox("Use W on Stunned Enemy", false));
             MiscMenu.Add("charmW", new CheckBox("Use W on Charmed Enemy", false));
