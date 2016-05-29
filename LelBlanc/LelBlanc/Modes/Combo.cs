@@ -127,7 +127,7 @@ namespace LelBlanc.Modes
 
         private static void DoubleQLogic()
         {
-            var target = TargetSelector.SelectedTarget ?? TargetSelector.GetTarget(Program.Q.Range, DamageType.Magical);
+            var target = TargetSelector.SelectedTarget ?? TargetSelector.GetTarget(Program.W.Range, DamageType.Magical);
 
             if (target == null)
             {
