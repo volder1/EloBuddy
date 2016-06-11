@@ -145,7 +145,7 @@ namespace Jinx
         /// <returns>Returns the range of FishBones</returns>
         public static float FishBonesRange()
         {
-            return 670f + Player.Instance.BoundingRadius + 25*Program.Q.Level;
+            return MinigunRange + 50 + (25*Program.Q.Level);
         }
 
         /// <summary>

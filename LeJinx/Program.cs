@@ -71,16 +71,19 @@
             {
                 AllowedCollisionCount = 0
             };
-            E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Circular, 250, 1750, 315);
-            R = new Spell.Skillshot(SpellSlot.R, 3000, SkillShotType.Linear, 500, 1500, 140)
+            E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Circular, 250, 1750, 315)
             {
-                AllowedCollisionCount = -1
+                AllowedCollisionCount = int.MaxValue
+            };
+            R = new Spell.Skillshot(SpellSlot.R, 25000, SkillShotType.Linear, 500, 1700, 140)
+            {
+                AllowedCollisionCount = int.MaxValue
             };
 
             Config.Initialize();
             Indicator = new DamageIndicator.DamageIndicator();
 
-            Chat.Print("Jin-XXX: Loaded", System.Drawing.Color.AliceBlue);
+            Chat.Print("Jin-XXX: Loaded", System.Drawing.Color.Blue);
 
             Game.OnUpdate += Game_OnUpdate;
             Game.OnUpdate += ActiveStates.Game_OnUpdate;
@@ -124,7 +127,7 @@
                 Chat.Print("Failed to load Allah Akbar: " + e);
             }*/
         }
-        
+
         /*private static void Client_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
             Chat.Print("Failed Downloading: " + e.Error);

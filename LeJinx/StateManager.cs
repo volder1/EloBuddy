@@ -1,4 +1,7 @@
-﻿namespace Jinx
+﻿using System.Collections.Generic;
+using ClipperLib;
+
+namespace Jinx
 {
     using System.Linq;
 
@@ -367,6 +370,7 @@
         public static void LaneClear()
         {
             var useQ = Config.LaneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
+            var killQ = Config.LaneClearMenu["killQ"].Cast<CheckBox>().CurrentValue;
             var manaQ = Config.LaneClearMenu["manaQ"].Cast<Slider>().CurrentValue;
             var lastHit = Config.LaneClearMenu["lastHit"].Cast<CheckBox>().CurrentValue;
 
@@ -378,14 +382,23 @@
                     Essentials.FishBonesRange())
                     .Where(
                         t =>
-                            t.Health <= Player.Instance.GetAutoAttackDamage(t)*1.1f &&
-                            t.Distance(Player.Instance) > Essentials.MinigunRange)
-                    .OrderByDescending(t => t.Health);
-                //Orbwalker.LasthittableMinions.Where(t => t.IsValidTarget() && t.Distance(Player.Instance) <= Essentials.FishBonesRange());
+                            t.Distance(Player.Instance) > Essentials.MinigunRange);
+
+                if (killQ)
+                {
+                    minion = minion.Where(t => t.Health <= Player.Instance.GetAutoAttackDamage(t)*1.1f).OrderByDescending(t => t.Health);
+                }
+
+                if (!killQ)
+                {
+                    minion = minion.OrderByDescending(t => t.Health);
+                }
+
+                var finalMinion = minion.ToArray();
 
                 if (Essentials.FishBones())
                 {
-                    if (!minion.Any())
+                    if (!finalMinion.Any())
                     {
                         Program.Q.Cast();
                         return;
@@ -394,7 +407,7 @@
 
                 if (!Essentials.FishBones() && Player.Instance.ManaPercent >= manaQ)
                 {
-                    var m = minion.FirstOrDefault();
+                    var m = finalMinion.FirstOrDefault();
 
                     if (m == null)
                     {
@@ -404,8 +417,14 @@
                     var minionsAoe =
                         EntityManager.MinionsAndMonsters.EnemyMinions.Count(
                             t =>
+                                t.IsValidTarget() && t.Distance(m) <= 100);
+
+                    if (killQ)
+                    {
+                        minionsAoe = EntityManager.MinionsAndMonsters.EnemyMinions.Count(t =>
                                 t.IsValidTarget() && t.Distance(m) <= 100 &&
-                                t.Health <= (Player.Instance.GetAutoAttackDamage(m)*1.1f));
+                                t.Health <= (Player.Instance.GetAutoAttackDamage(t)*1.1f));
+                    }
 
                     if (m.Distance(Player.Instance) <= Essentials.FishBonesRange() && m.IsValidTarget() &&
                         minionsAoe >= Config.LaneClearMenu["qCountM"].Cast<Slider>().CurrentValue)
@@ -413,7 +432,7 @@
                         Program.Q.Cast();
                         Orbwalker.ForcedTarget = m;
                     }
-                    else if (m.Distance(Player.Instance) >= Player.Instance.GetAutoAttackRange() &&
+                    else if (m.Distance(Player.Instance) > Player.Instance.GetAutoAttackRange() &&
                              Orbwalker.LastHitMinionsList.Contains(m) && lastHit)
                     {
                         Program.Q.Cast();

@@ -1,4 +1,6 @@
-﻿namespace Jinx
+﻿using EloBuddy.SDK;
+
+namespace Jinx
 {
     using EloBuddy;
     using EloBuddy.SDK.Menu;
@@ -100,15 +102,15 @@
             LastHitMenu.Add("useQ", new CheckBox("Use Q"));
             LastHitMenu.Add("qCountM", new Slider("Use Q if Hit {0} Minions", 3, 1, 7));
             LastHitMenu.AddLabel("ManaManager");
-            LastHitMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
+            LastHitMenu.Add("manaQ", new Slider("Mana Manager for Q", 25));
 
             HarassMenu = ConfigMenu.AddSubMenu("Harass", "Harass");
             HarassMenu.AddLabel("Harass Settings");
             HarassMenu.Add("useQ", new CheckBox("Use Q"));
             HarassMenu.Add("useW", new CheckBox("Use W"));
             HarassMenu.AddLabel("ManaManager");
-            HarassMenu.Add("manaQ", new Slider("ManaManager for Q", 15));
-            HarassMenu.Add("manaW", new Slider("ManaManager for W", 35));
+            HarassMenu.Add("manaQ", new Slider("Mana Manager for Q", 15));
+            HarassMenu.Add("manaW", new Slider("Mana Manager for W", 35));
             HarassMenu.AddLabel("Hit on Champion is Prioritized first over Minion");
             HarassMenu.Add("qCountC", new Slider("Use Q if Hit {0} Champion(s)", 3, 1, 5));
             HarassMenu.Add("qCountM", new Slider("Use Q if Hit {0} Minion(s)", 3, 1, 7));
@@ -121,7 +123,8 @@
             LaneClearMenu.AddLabel("Lane Clear Settings");
             LaneClearMenu.Add("useQ", new CheckBox("Use Q"));
             LaneClearMenu.Add("lastHit", new CheckBox("Last Hit Minion Out of Range", false));
-            LaneClearMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
+            LaneClearMenu.Add("killQ", new CheckBox("Only use Q if minion is killable"));
+            LaneClearMenu.Add("manaQ", new Slider("Mana Manager for Q", 25));
             LaneClearMenu.Add("qCountM", new Slider("Use Q if Hit {0} Minion(s)", 3, 1, 7));
 
             KillStealMenu = ConfigMenu.AddSubMenu("Kill Steal", "KillSteal");
@@ -129,8 +132,8 @@
             KillStealMenu.Add("useW", new CheckBox("Use W to KS"));
             KillStealMenu.Add("useR", new CheckBox("Use R to KS"));
             KillStealMenu.AddLabel("ManaManager");
-            KillStealMenu.Add("manaW", new Slider("ManaManager for W", 25));
-            KillStealMenu.Add("manaR", new Slider("ManaManager for R", 25));
+            KillStealMenu.Add("manaW", new Slider("Mana Manager for W", 25));
+            KillStealMenu.Add("manaR", new Slider("Mana Manager for R", 25));
             KillStealMenu.AddLabel("Prediction Settings");
             KillStealMenu.Add("wSlider", new Slider("Use W if HitChance % is {0}", 80));
             KillStealMenu.Add("rSlider", new Slider("Use R if HitChance % is {0}", 80));
@@ -143,15 +146,15 @@
             JungleClearMenu.Add("useQ", new CheckBox("Use Q"));
             JungleClearMenu.Add("useW", new CheckBox("Use W", false));
             JungleClearMenu.AddLabel("ManaManager");
-            JungleClearMenu.Add("manaQ", new Slider("ManaManager for Q", 25));
-            JungleClearMenu.Add("manaW", new Slider("ManaManager for W", 25));
+            JungleClearMenu.Add("manaQ", new Slider("Mana Manager for Q", 25));
+            JungleClearMenu.Add("manaW", new Slider("Mana Manager for W", 25));
             JungleClearMenu.AddLabel("Misc Settings");
             JungleClearMenu.Add("wSlider", new Slider("Use W if HitChance % is {0}", 85));
 
             JungleStealMenu = ConfigMenu.AddSubMenu("Jungle Steal", "JungleSteal");
             JungleStealMenu.AddLabel("Jungle Steal Settings");
             JungleStealMenu.Add("toggle", new CheckBox("Use Jungle Steal", false));
-            JungleStealMenu.Add("manaR", new Slider("ManaManager for R", 25));
+            JungleStealMenu.Add("manaR", new Slider("Mana Manager for R", 25));
             JungleStealMenu.Add("rRange", new Slider("Range from mob before using R", 3000, 0, 3000));
             if (Game.MapId == GameMapId.SummonersRift)
             {
