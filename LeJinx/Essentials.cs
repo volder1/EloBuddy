@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using EloBuddy.SDK.Menu.Values;
 
 namespace Jinx
 {
@@ -123,7 +124,7 @@ namespace Jinx
         /// </summary>
         public static bool RapidFireCannon
         {
-            get { return Player.HasBuff("itemstatikshankcharge"); }
+            get { return Player.HasBuff("ItemStatikShankCharge") && Player.GetBuff("ItemStatikShankCharge").Count == 100; }
         }
 
         /// <summary>
@@ -131,7 +132,7 @@ namespace Jinx
         /// </summary>
         public static float MinigunRange
         {
-            get { return RapidFireCannon ? 525f + Player.Instance.BoundingRadius + 150f : 525f + Player.Instance.BoundingRadius; }
+            get { return RapidFireCannon ? 525f + 150f : 525f; }
         }
 
         /// <summary>
@@ -145,7 +146,7 @@ namespace Jinx
         /// <returns>Returns the range of FishBones</returns>
         public static float FishBonesRange()
         {
-            return 670f + Player.Instance.BoundingRadius + 25 * Program.Q.Level;
+            return MinigunRange + 50f + (25 * Program.Q.Level) + Config.MiscMenu["qRange"].Cast<Slider>().CurrentValue;
         }
 
         /// <summary>
