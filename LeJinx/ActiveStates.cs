@@ -217,7 +217,7 @@
                             {
                                 Program.R.Cast(predR.CastPosition);
                             }
-                        }, Program.W.CastDelay);
+                        }, Program.W.CastDelay + (int)Math.Floor(pred.CastPosition.Distance(Player.Instance) / Program.W.Speed));
                     }
                 }
             }

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using ClipperLib;
-
-namespace Jinx
+﻿namespace Jinx
 {
     using System.Linq;
 

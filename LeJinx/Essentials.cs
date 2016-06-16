@@ -131,7 +131,7 @@ namespace Jinx
         /// </summary>
         public static float MinigunRange
         {
-            get { return RapidFireCannon ? 525f + 150f : 525f; }
+            get { return RapidFireCannon ? 525f + Player.Instance.BoundingRadius + 150f : 525f + Player.Instance.BoundingRadius; }
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace Jinx
         /// <returns>Returns the range of FishBones</returns>
         public static float FishBonesRange()
         {
-            return MinigunRange + 50 + (25*Program.Q.Level);
+            return 670f + Player.Instance.BoundingRadius + 25 * Program.Q.Level;
         }
 
         /// <summary>
