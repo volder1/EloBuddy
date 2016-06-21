@@ -25,6 +25,8 @@ namespace LelBlanc.Modes
 
         private static bool UseEr => Config.ComboMenu["useER"].Cast<CheckBox>().CurrentValue;
 
+        private static bool UsePre6Combo => Config.ComboMenu["usePre6Combo"].Cast<CheckBox>().CurrentValue;
+
         #endregion
 
         #region Methods
@@ -112,6 +114,12 @@ namespace LelBlanc.Modes
 
         private static void Post6Combo()
         {
+            if (UsePre6Combo && Player.Instance.Spellbook.GetSpell(SpellSlot.R).IsOnCooldown)
+            {
+                Pre6Combo();
+                return;
+            }
+
             switch (Config.ComboMenu["mode"].Cast<ComboBox>().SelectedIndex)
             {
                 // Default Logic

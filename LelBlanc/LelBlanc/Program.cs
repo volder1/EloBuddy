@@ -73,12 +73,9 @@ namespace LelBlanc
                 return;
             }
 
-            Q = new Spell.Targeted(SpellSlot.Q, 720)
-            {
-                CastDelay = 500
-            };
+            Q = new Spell.Targeted(SpellSlot.Q, 700);
             
-            W = new Spell.Skillshot(SpellSlot.W, 600, SkillShotType.Circular, 600, 1450, 220)
+            W = new Spell.Skillshot(SpellSlot.W, 600, SkillShotType.Circular, 0, 1450, 250)
             {
                 AllowedCollisionCount = -1
             };
@@ -87,19 +84,19 @@ namespace LelBlanc
 
             RReturn = new Spell.Active(SpellSlot.R);
 
-            E = new Spell.Skillshot(SpellSlot.E, 900, SkillShotType.Linear, 300, 1750, 55)
+            E = new Spell.Skillshot(SpellSlot.E, 950, SkillShotType.Linear, 0, 1750, 55)
             {
                 AllowedCollisionCount = 0
             };
 
-            QUltimate = new Spell.Targeted(SpellSlot.R, 720);
+            QUltimate = new Spell.Targeted(SpellSlot.R, 700);
 
-            WUltimate = new Spell.Skillshot(SpellSlot.R, 600, SkillShotType.Circular, 600, 1450, 220)
+            WUltimate = new Spell.Skillshot(SpellSlot.R, 600, SkillShotType.Circular, 0, 1450, 250)
             {
                 AllowedCollisionCount = -1
             };
 
-            EUltimate = new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Linear, 300, 1750, 55)
+            EUltimate = new Spell.Skillshot(SpellSlot.R, 950, SkillShotType.Linear, 0, 1750, 55)
             {
                 AllowedCollisionCount = 0
             };

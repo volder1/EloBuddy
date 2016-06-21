@@ -44,6 +44,7 @@ namespace LelBlanc
             ComboMenu.Add("useWR", new CheckBox("Use WR", false));
             ComboMenu.Add("useReturn2", new CheckBox("Use WR Return", false));
             ComboMenu.Add("useER", new CheckBox("Use ER", false));
+            ComboMenu.Add("usePre6Combo", new CheckBox("If R is not ready, use normal combo"));
             ComboMenu.AddLabel("Extra Settings");
             ComboMenu.Add("mode", new ComboBox("Combo Mode", 0, LogicModes));
 
@@ -58,6 +59,7 @@ namespace LelBlanc
             HarassMenu.Add("useWR", new CheckBox("Use WR", false));
             HarassMenu.Add("useReturn2", new CheckBox("Use WR Return"));
             HarassMenu.Add("useER", new CheckBox("Use ER", false));
+            HarassMenu.Add("usePre6Combo", new CheckBox("If R is not ready, use normal combo"));
             HarassMenu.AddLabel("Extra Settings");
             HarassMenu.Add("mode", new ComboBox("Harass Modes", 1, LogicModes));
 
