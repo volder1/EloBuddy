@@ -24,8 +24,8 @@ namespace LelBlanc.Modes
         private static bool UseReturn2 => Config.HarassMenu["useReturn2"].Cast<CheckBox>().CurrentValue;
 
         private static bool UseEr => Config.HarassMenu["useER"].Cast<CheckBox>().CurrentValue;
-        
-        private static bool UsePre6Combo => Config.HarassMenu["usePre6Combo"].Cast<CheckBox>().CurrentValue;
+
+        //private static bool UsePre6Combo => Config.HarassMenu["usePre6Combo"].Cast<CheckBox>().CurrentValue;
 
         #endregion
 
@@ -71,7 +71,8 @@ namespace LelBlanc.Modes
                     Program.WReturn.Cast();
                 }
 
-                var wTarget = TargetSelector.SelectedTarget ?? TargetSelector.GetTarget(Program.W.Range, DamageType.Magical);
+                var wTarget = TargetSelector.SelectedTarget ??
+                              TargetSelector.GetTarget(Program.W.Range, DamageType.Magical);
 
                 if (wTarget != null && UseW && !Program.Q.IsLearned && Program.W.IsReady() &&
                     Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslide")
@@ -79,7 +80,8 @@ namespace LelBlanc.Modes
                     Program.W.Cast(wTarget);
                 }
 
-                var eTarget = TargetSelector.SelectedTarget ?? TargetSelector.GetTarget(Program.E.Range, DamageType.Magical);
+                var eTarget = TargetSelector.SelectedTarget ??
+                              TargetSelector.GetTarget(Program.E.Range, DamageType.Magical);
 
                 if (eTarget != null && UseE && !Program.Q.IsLearned && Program.E.IsReady())
                 {
@@ -106,7 +108,9 @@ namespace LelBlanc.Modes
                 Program.W.Cast(target);
             }
 
-            if (UseE && !Program.W.IsReady() && Program.E.IsReady())
+            if (UseE &&
+                (Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslidereturn" ||
+                 !Program.W.IsReady()) && Program.E.IsReady() && Program.E.IsInRange(target))
             {
                 Program.E.Cast(target);
             }
@@ -114,11 +118,11 @@ namespace LelBlanc.Modes
 
         private static void Post6Combo()
         {
-            if (UsePre6Combo && Player.Instance.Spellbook.GetSpell(SpellSlot.R).IsOnCooldown)
+            /*if (UsePre6Combo && Player.Instance.Spellbook.GetSpell(SpellSlot.R).IsOnCooldown)
             {
                 Pre6Combo();
                 return;
-            }
+            }*/
 
             switch (Config.HarassMenu["mode"].Cast<ComboBox>().SelectedIndex)
             {
@@ -129,6 +133,10 @@ namespace LelBlanc.Modes
                 // Double E Logic
                 case 1:
                     DoubleELogic();
+                    break;
+                // W -> Q -> R -> E
+                case 2:
+                    ChaseBurst();
                     break;
             }
         }
@@ -165,7 +173,43 @@ namespace LelBlanc.Modes
                 Program.W.Cast(target);
             }
 
-            if (UseE && !Program.W.IsReady() && Program.E.IsReady() && Program.E.IsInRange(target))
+            if (UseE && (Program.W.Name == "leblancslidereturn" || !Program.W.IsReady()) && Program.E.IsReady() &&
+                Program.E.IsInRange(target))
+            {
+                Program.E.Cast(target);
+            }
+        }
+
+        private static void ChaseBurst()
+        {
+            var target = TargetSelector.SelectedTarget ?? TargetSelector.GetTarget(Program.W.Range, DamageType.Magical);
+
+            if (target == null)
+            {
+                return;
+            }
+
+            if (UseW && Program.W.IsReady() &&
+                Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslide")
+            {
+                Program.W.Cast(target);
+            }
+
+            if (UseQ &&
+                (Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslidereturn" ||
+                 !Program.W.IsReady()) && Program.Q.IsReady() && Program.Q.IsInRange(target))
+            {
+                Program.Q.Cast(target);
+            }
+
+            if (UseQr && Program.QUltimate.IsReady() && Program.QUltimate.IsInRange(target) &&
+                Player.Instance.Spellbook.GetSpell(SpellSlot.R).Name.ToLower() == "leblancchaosorbm")
+            {
+                Program.QUltimate.Cast(target);
+            }
+
+            if (UseE && (Player.Instance.Spellbook.GetSpell(SpellSlot.W).Name.ToLower() == "leblancslidereturn" ||
+                         !Program.W.IsReady()) && Program.E.IsReady() && Program.E.IsInRange(target))
             {
                 Program.E.Cast(target);
             }

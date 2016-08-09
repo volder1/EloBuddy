@@ -197,7 +197,7 @@ namespace LelBlanc
         /// <param name="args">The Arguments</param>
         private static void Obj_AI_Base_OnSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (!sender.IsMe) return;
+            /*if (!sender.IsMe) return;
 
             if (args.SData.Name.ToLower() == "leblancslide")
             {
@@ -223,7 +223,7 @@ namespace LelBlanc
                         E.Cast(target);
                     }
                 }
-            }
+            }*/
         }
 
         /// <summary>

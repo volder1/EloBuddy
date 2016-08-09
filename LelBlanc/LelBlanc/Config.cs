@@ -20,7 +20,7 @@ namespace LelBlanc
         /// <summary>
         /// Contains Different Modes
         /// </summary>
-        private static readonly string[] LogicModes = {"Burst Logic", "Two Chain(TM) Logic"};
+        private static readonly string[] LogicModes = {"Burst Logic", "Two Chain(TM) Logic", "Chase Burst"};
 
         /// <summary>
         /// Creates the Menu
@@ -44,7 +44,7 @@ namespace LelBlanc
             ComboMenu.Add("useWR", new CheckBox("Use WR", false));
             ComboMenu.Add("useReturn2", new CheckBox("Use WR Return", false));
             ComboMenu.Add("useER", new CheckBox("Use ER", false));
-            ComboMenu.Add("usePre6Combo", new CheckBox("If R is not ready, use normal combo"));
+            //ComboMenu.Add("usePre6Combo", new CheckBox("If R is not ready, use normal combo"));
             ComboMenu.AddLabel("Extra Settings");
             ComboMenu.Add("mode", new ComboBox("Combo Mode", 0, LogicModes));
 
@@ -59,7 +59,7 @@ namespace LelBlanc
             HarassMenu.Add("useWR", new CheckBox("Use WR", false));
             HarassMenu.Add("useReturn2", new CheckBox("Use WR Return"));
             HarassMenu.Add("useER", new CheckBox("Use ER", false));
-            HarassMenu.Add("usePre6Combo", new CheckBox("If R is not ready, use normal combo"));
+            //HarassMenu.Add("usePre6Combo", new CheckBox("If R is not ready, use normal combo"));
             HarassMenu.AddLabel("Extra Settings");
             HarassMenu.Add("mode", new ComboBox("Harass Modes", 1, LogicModes));
 
@@ -98,6 +98,7 @@ namespace LelBlanc
             KillStealMenu.Add("useER", new CheckBox("Use ER"));
             KillStealMenu.AddLabel("Misc Settings");
             KillStealMenu.Add("useIgnite", new CheckBox("Use Ignite"));
+            KillStealMenu.Add("usePrediction", new CheckBox("Use Health Prediction", false));
             KillStealMenu.Add("toggle", new CheckBox("Enable Kill Steal"));
 
             DrawingMenu = ConfigMenu.AddSubMenu("Drawing Menu", "dMenu");
