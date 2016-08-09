@@ -122,7 +122,6 @@ namespace LelBlanc
             GameObject.OnCreate += GameObject_OnCreate;
             GameObject.OnDelete += GameObject_OnDelete;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
             Obj_AI_Base.OnNewPath += Obj_AI_Base_OnNewPath;
             Drawing.OnDraw += OnDraw.DrawRange;
         }
@@ -188,42 +187,6 @@ namespace LelBlanc
                 LastWUltimatePosition = args.Start;
                 LastWUltimateEndPosition = args.End;
             }
-        }
-
-        /// <summary>
-        /// Called when On Spell Cast
-        /// </summary>
-        /// <param name="sender">The Sender</param>
-        /// <param name="args">The Arguments</param>
-        private static void Obj_AI_Base_OnSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {
-            /*if (!sender.IsMe) return;
-
-            if (args.SData.Name.ToLower() == "leblancslide")
-            {
-                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) && Config.ComboMenu["useE"].Cast<CheckBox>().CurrentValue)
-                {
-                    var target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
-
-                    if (target != null && E.IsReady())
-                    {
-                        E.Cast(target);
-                    }
-                }
-            }
-
-            if (args.SData.Name.ToLower() == "leblancslidem")
-            {
-                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) && Config.ComboMenu["useE"].Cast<CheckBox>().CurrentValue)
-                {
-                    var target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
-
-                    if (target != null && E.IsReady())
-                    {
-                        E.Cast(target);
-                    }
-                }
-            }*/
         }
 
         /// <summary>

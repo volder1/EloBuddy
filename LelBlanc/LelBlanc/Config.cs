@@ -44,9 +44,10 @@ namespace LelBlanc
             ComboMenu.Add("useWR", new CheckBox("Use WR", false));
             ComboMenu.Add("useReturn2", new CheckBox("Use WR Return", false));
             ComboMenu.Add("useER", new CheckBox("Use ER", false));
-            //ComboMenu.Add("usePre6Combo", new CheckBox("If R is not ready, use normal combo"));
             ComboMenu.AddLabel("Extra Settings");
-            ComboMenu.Add("mode", new ComboBox("Combo Mode", 0, LogicModes));
+            ComboMenu.Add("mode", new ComboBox("Combo Modes", 0, LogicModes));
+            ComboMenu.AddLabel("Burst Logic Settings");
+            ComboMenu.Add("minRange", new CheckBox("Use Q -> R only if W is in range", false));
 
             HarassMenu = ConfigMenu.AddSubMenu("Harass Menu", "hMenu");
             HarassMenu.AddLabel("Spell Settings");
@@ -59,9 +60,10 @@ namespace LelBlanc
             HarassMenu.Add("useWR", new CheckBox("Use WR", false));
             HarassMenu.Add("useReturn2", new CheckBox("Use WR Return"));
             HarassMenu.Add("useER", new CheckBox("Use ER", false));
-            //HarassMenu.Add("usePre6Combo", new CheckBox("If R is not ready, use normal combo"));
             HarassMenu.AddLabel("Extra Settings");
             HarassMenu.Add("mode", new ComboBox("Harass Modes", 1, LogicModes));
+            HarassMenu.AddLabel("Burst Logic Settings");
+            HarassMenu.Add("minRange", new CheckBox("Use Q -> R only if W is in range", false));
 
             LaneClearMenu = ConfigMenu.AddSubMenu("Laneclear Menu", "lcMenu");
             LaneClearMenu.AddLabel("Spell Settings");
