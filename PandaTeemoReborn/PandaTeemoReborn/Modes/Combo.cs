@@ -39,10 +39,10 @@ namespace PandaTeemoReborn.Modes
                     return;
                 }
 
-                if (Environment.TickCount - Extensions.LastR < Extensions.MenuValues.Combo.RDelay)
+                /*if (Environment.TickCount - Extensions.LastR < Extensions.MenuValues.Combo.RDelay)
                 {
                     return;
-                }
+                }*/
 
                 if (Extensions.MenuValues.Combo.ManaR >= Player.Instance.ManaPercent ||
                     Player.Instance.Spellbook.GetSpell(SpellSlot.R).Ammo < Extensions.MenuValues.Combo.RCharge)

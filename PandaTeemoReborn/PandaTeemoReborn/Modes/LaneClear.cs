@@ -22,10 +22,10 @@ namespace PandaTeemoReborn.Modes
                     return;
                 }
 
-                if (Environment.TickCount - Extensions.LastR < Extensions.MenuValues.LaneClear.RDelay)
+                /*if (Environment.TickCount - Extensions.LastR < Extensions.MenuValues.LaneClear.RDelay)
                 {
                     return;
-                }
+                }*/
 
                 if (Extensions.MenuValues.LaneClear.ManaR >= Player.Instance.ManaPercent ||
                     Player.Instance.Spellbook.GetSpell(SpellSlot.R).Ammo < Extensions.MenuValues.LaneClear.RCharge)

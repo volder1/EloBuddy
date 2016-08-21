@@ -106,9 +106,7 @@ namespace PandaTeemoReborn
                         var newHitCount =
                             EntityManager.Heroes.Enemies.Count(
                                 t =>
-                                    newBouncePos.IsInRange(
-                                        Prediction.Position.PredictUnitPosition(t,
-                                            CalculateTravelTime(newCastPos, newBouncePos)), SpellManager.R.Radius));
+                                    newBouncePos.IsInRange(Player.Instance, SpellManager.R.Radius));
 
                         if (newHitCount > hitCount)
                         {
@@ -129,9 +127,7 @@ namespace PandaTeemoReborn
                         var newHitCount =
                             EntityManager.Heroes.Enemies.Count(
                                 t =>
-                                    newBouncePos.IsInRange(
-                                        Prediction.Position.PredictUnitPosition(t,
-                                            CalculateTravelTime(newCastPos, newBouncePos)), SpellManager.R.Radius));
+                                    newBouncePos.IsInRange(Player.Instance, SpellManager.R.Radius));
 
                         if (newHitCount > hitCount)
                         {
@@ -149,9 +145,7 @@ namespace PandaTeemoReborn
                     hitCount =
                         EntityManager.Heroes.Enemies.Count(
                             t =>
-                                bouncePos.IsInRange(
-                                    Prediction.Position.PredictUnitPosition(t,
-                                        CalculateTravelTime(castPos, bouncePos)), SpellManager.R.Radius));
+                                bouncePos.IsInRange(Player.Instance, SpellManager.R.Radius));
                 }
 
                 return new Result
@@ -173,24 +167,6 @@ namespace PandaTeemoReborn
                     -Player.Instance.Spellbook.GetSpell(SpellSlot.R).SData.BounceRadius);
                 return new Vector3(extendedPosition,
                     NavMesh.GetHeightForPosition(extendedPosition.X, extendedPosition.Y));
-            }
-
-            /// <summary>
-            /// Calculates R Travel Time given the cast position and bounce position
-            /// </summary>
-            /// <param name="castPos"></param>
-            /// <param name="bouncePos"></param>
-            /// <returns></returns>
-            public static int CalculateTravelTime(Vector2 castPos, Vector3 bouncePos)
-            {
-                var distance = Player.Instance.Distance(castPos);
-                var missileSpeed = SpellManager.R.Speed;
-
-                if (bouncePos == Vector3.Zero)
-                {
-                    return (int) Math.Round(distance/missileSpeed) * 1000;
-                }
-                return (int) Math.Round((distance*2)/missileSpeed) * 1000;
             }
         }
 
@@ -222,7 +198,7 @@ namespace PandaTeemoReborn
 
                 public static int RCharge => Config.ComboMenu["rCharge"].Cast<Slider>().CurrentValue;
 
-                public static int RDelay => Config.ComboMenu["rDelay"].Cast<Slider>().CurrentValue;
+                //public static int RDelay => Config.ComboMenu["rDelay"].Cast<Slider>().CurrentValue;
             }
 
             public class Harass
@@ -262,7 +238,7 @@ namespace PandaTeemoReborn
 
                 public static int RCharge => Config.LaneClearMenu["rCharge"].Cast<Slider>().CurrentValue;
 
-                public static int RDelay => Config.LaneClearMenu["rDelay"].Cast<Slider>().CurrentValue;
+                //public static int RDelay => Config.LaneClearMenu["rDelay"].Cast<Slider>().CurrentValue;
 
                 public static int MinionR => Config.LaneClearMenu["minionR"].Cast<Slider>().CurrentValue;
             }
@@ -285,7 +261,7 @@ namespace PandaTeemoReborn
 
                 public static int RCharge => Config.JungleClearMenu["rCharge"].Cast<Slider>().CurrentValue;
 
-                public static int RDelay => Config.JungleClearMenu["rDelay"].Cast<Slider>().CurrentValue;
+                //public static int RDelay => Config.JungleClearMenu["rDelay"].Cast<Slider>().CurrentValue;
 
                 public static int MobR => Config.JungleClearMenu["mobR"].Cast<Slider>().CurrentValue;
             }
@@ -300,7 +276,7 @@ namespace PandaTeemoReborn
 
                 public static int ManaR => Config.KillStealMenu["manaR"].Cast<Slider>().CurrentValue;
 
-                public static int RDelay => Config.KillStealMenu["rDelay"].Cast<Slider>().CurrentValue;
+                //public static int RDelay => Config.KillStealMenu["rDelay"].Cast<Slider>().CurrentValue;
 
                 public static bool DoubleShroom => Config.KillStealMenu["doubleShroom"].Cast<CheckBox>().CurrentValue;
             }
@@ -311,7 +287,7 @@ namespace PandaTeemoReborn
 
                 public static bool UseR => Config.FleeMenu["useR"].Cast<CheckBox>().CurrentValue;
 
-                public static int RDelay => Config.FleeMenu["rDelay"].Cast<Slider>().CurrentValue;
+                //public static int RDelay => Config.FleeMenu["rDelay"].Cast<Slider>().CurrentValue;
 
                 public static int RCharge => Config.FleeMenu["rCharge"].Cast<Slider>().CurrentValue;
             }

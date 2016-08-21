@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using SharpDX;
-using Color = System.Drawing.Color;
 
 namespace PandaTeemoReborn
 {
@@ -45,7 +43,7 @@ namespace PandaTeemoReborn
             ComboMenu.Add("doubleShroom", new CheckBox("Use Double Shroom Logic"));
             ComboMenu.Add("rPoison", new CheckBox("Cast R only if target isn't Poisoned"));
             ComboMenu.Add("rCharge", new Slider("Charges of R before using R: {0}", 2, 1, 3));
-            ComboMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
+            //ComboMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
             ComboMenu.AddLabel("Misc Settings");
             ComboMenu.Add("adc", new CheckBox("Use Q only on ADC", false));
             ComboMenu.Add("wRange", new CheckBox("Use W only if enemy is in range"));
@@ -77,7 +75,7 @@ namespace PandaTeemoReborn
             LaneClearMenu.Add("rKillable", new CheckBox("Only cast R if minion(s) are killable"));
             LaneClearMenu.Add("rPoison", new CheckBox("Cast R only if minion isn't Poisoned"));
             LaneClearMenu.Add("rCharge", new Slider("Charges of R before using R: {0}", 2, 1, 3));
-            LaneClearMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
+            //LaneClearMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
             LaneClearMenu.Add("minionR", new Slider("Minions before casting R: {0}", 3, 1, 4));
 
             JungleClearMenu = PandaTeemoReborn.AddSubMenu("JungleClear", "JungleClear");
@@ -91,7 +89,7 @@ namespace PandaTeemoReborn
             JungleClearMenu.Add("rKillable", new CheckBox("Only cast R if mob(s) are killable", false));
             JungleClearMenu.Add("rPoison", new CheckBox("Cast R only if mob isn't Poisoned"));
             JungleClearMenu.Add("rCharge", new Slider("Charges of R before using R: {0}", 2, 1, 3));
-            JungleClearMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
+            //JungleClearMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
             JungleClearMenu.Add("mobR", new Slider("Mobs before casting R: {0}", 1, 1, 4));
             JungleClearMenu.AddLabel("Misc Settings");
             JungleClearMenu.Add("bMob", new CheckBox("Prevent Spell Usage on Small Mobs"));
@@ -104,7 +102,7 @@ namespace PandaTeemoReborn
             KillStealMenu.Add("manaQ", new Slider("Q Mana Manager", 25));
             KillStealMenu.Add("manaR", new Slider("R Mana Manager", 25));
             KillStealMenu.AddLabel("R Settings");
-            KillStealMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
+            //KillStealMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
             KillStealMenu.Add("doubleShroom", new CheckBox("Use Double Shroom Logic"));
 
             FleeMenu = PandaTeemoReborn.AddSubMenu("Flee Menu", "Flee");
@@ -112,7 +110,7 @@ namespace PandaTeemoReborn
             FleeMenu.Add("useW", new CheckBox("Flee with W"));
             FleeMenu.Add("useR", new CheckBox("Flee with R"));
             FleeMenu.AddLabel("R Settings");
-            FleeMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
+            //FleeMenu.Add("rDelay", new Slider("Delay for R Casting in ms: {0}", 1000, 0, 5000));
             FleeMenu.Add("rCharge", new Slider("Charges of R before using R: {0}", 2, 1, 3));
 
             AutoShroomMenu = PandaTeemoReborn.AddSubMenu("Auto Shroom", "Auto Shroom");

@@ -143,10 +143,10 @@ namespace PandaTeemoReborn.Modes
                     return;
                 }
 
-                if (Environment.TickCount - Extensions.LastR < Extensions.MenuValues.KillSteal.RDelay)
+                /*if (Environment.TickCount - Extensions.LastR < Extensions.MenuValues.KillSteal.RDelay)
                 {
                     return;
-                }
+                }*/
 
                 if (Extensions.MenuValues.KillSteal.ManaR >= Player.Instance.ManaPercent)
                 {
