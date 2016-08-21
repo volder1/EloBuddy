@@ -25,6 +25,8 @@ namespace LelBlanc.Modes
 
         public static bool UseIgnite => Config.KillStealMenu["useIgnite"].Cast<CheckBox>().CurrentValue;
 
+        public static bool UsePrediction => Config.KillStealMenu["usePrediction"].Cast<CheckBox>().CurrentValue;
+
         public static bool ResetW { get; set; }
 
         public static void Execute()
@@ -37,7 +39,7 @@ namespace LelBlanc.Modes
                     EntityManager.Heroes.Enemies.Where(
                         t =>
                             t.IsValidTarget(Program.Ignite.Range) && !t.HasUndyingBuff() &&
-                            Extension.DamageLibrary.CalculateDamage(t, false, false, false, false, true) >= t.Health);
+                            Extension.DamageLibrary.CalculateDamage(t, false, false, false, false, true) >= (UsePrediction ? Prediction.Health.GetPrediction(t, 5000) : t.Health));
                 var igniteEnemy = TargetSelector.GetTarget(ignitableEnemies, DamageType.True);
 
                 if (igniteEnemy != null)
@@ -54,7 +56,7 @@ namespace LelBlanc.Modes
 
             #endregion
 
-            if (Player.Instance.IsUnderTurret()) return;
+            if (Player.Instance.IsUnderTurret() || !Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.None)) return;
 
             var killableEnemies =
                 EntityManager.Heroes.Enemies.Where(
