@@ -1,15 +1,27 @@
-﻿using EloBuddy.SDK;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using LeagueSharp.Common;
+using SharpDX;
+using SebbyLib;
+using EloBuddy.SDK.Menu.Values;
+using EloBuddy.SDK.Menu;
 
-namespace Jinx
-{
-    using EloBuddy;
-    using EloBuddy.SDK.Menu;
-    using EloBuddy.SDK.Menu.Values;
-
-    internal class Config
-    {
-        /// <summary>
-        /// Initializes and Contains the Menu.
+namespace Jinx_ByVolder
+{   
+    class Jinx : Base
+   {
+private Menu Config = Program.Config;
+        public static Menu qMenu, wMenu, eMenu, rMenu, farmMenu, drawMenu;
+        public Spell Q, W, E, R;
+        public float QMANA = 0, WMANA = 0, EMANA = 0, RMANA = 0;
+        
+        public double lag = 0, WCastTime = 0, QCastTime = 0, DragonTime = 0, grabTime = 0;
+        public float DragonDmg = 0;
+       
+                   E = new Spell(SpellSlot.E, 920f);
+            R = new Spell(SpellSlot.R, 3000f);
+        
         /// </summary>
         public static Menu ConfigMenu;
 
